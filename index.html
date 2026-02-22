@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RealChat AI - Fixed Version</title>
+    <title>RealChat AI - Vision & Generation</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
@@ -18,7 +18,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; }
 
-        /* Sidebar UI - Perfectly slides, no overlap issues */
+        /* Sidebar UI */
         .sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; padding: 15px; display: flex; flex-direction: column; box-shadow: 5px 0 20px rgba(0,0,0,0.5); }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; align-items: center; margin-bottom: 20px; }
@@ -27,6 +27,9 @@
         .history-list { flex: 1; overflow-y: auto; margin-top: 10px; }
         .history-item { padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; }
         .history-item:hover { background: #333537; color: white; }
+
+        .settings-btn { background: transparent; color: var(--text-sub); border: 1px solid #3c4043; padding: 10px; border-radius: 8px; cursor: pointer; margin-top: auto; display: flex; align-items: center; gap: 10px; justify-content: center; width: 100%; }
+        .settings-btn:hover { background: #333537; color: white; }
 
         /* Main Viewport */
         .main-stage { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
@@ -46,16 +49,48 @@
         .user-msg { align-self: flex-end; background: #2b2c2d; padding: 12px 20px; border-radius: 22px; color: white; }
         .bot-msg { align-self: flex-start; color: var(--text-main); }
         .typing { color: var(--accent-blue); font-style: italic; animation: pulse 1.5s infinite; }
+        
+        /* Chat Images (Uploaded & Generated) */
+        .chat-image { max-width: 300px; border-radius: 10px; margin-top: 10px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        /* Input Area */
-        .bottom-nav { position: fixed; bottom: 25px; width: 100%; display: flex; justify-content: center; padding: 0 20px; }
+        /* Input Area & Image Preview */
+        .bottom-nav { position: fixed; bottom: 25px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 20px; }
+        
+        #image-preview-container { display: none; width: 100%; max-width: 800px; margin-bottom: 10px; padding: 0 20px; position: relative; }
+        #image-preview { height: 60px; border-radius: 8px; border: 2px solid #3c4043; }
+        .remove-img-btn { position: absolute; top: -5px; left: 85px; background: #d93025; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+
         .input-container { background: var(--input-bg); border-radius: 35px; padding: 8px 20px; display: flex; align-items: center; gap: 12px; width: 100%; max-width: 800px; border: 1px solid #3c4043; }
-        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px; padding: 10px 0; }
+        #user-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px; padding: 10px 0; }
+
+        /* Dynamic Popup Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: var(--sidebar-bg); padding: 25px; border-radius: 15px; width: 90%; max-width: 450px; border: 1px solid #3c4043; text-align: left; }
+        .modal-box h2 { text-align: center; margin-bottom: 15px; }
+        .input-label { font-size: 14px; color: var(--text-sub); margin-bottom: 5px; display: block; }
+        .modal-input { width: 100%; padding: 12px; margin-bottom: 20px; background: var(--bg-dark); border: 1px solid #5f6368; color: white; border-radius: 8px; outline: none; }
+        .modal-btn { background: #4285f4; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; }
+        .modal-btn:hover { background: #3b78e7; }
 
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
+
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>⚙️ Setup RealChat AI</h2>
+            <p style="font-size: 14px; color: var(--text-sub); text-align: center; margin-bottom: 20px;">Apni API Key aur Model yahan set karein. Yeh data sirf browser mein safe rahega.</p>
+            
+            <label class="input-label">OpenRouter API Key:</label>
+            <input type="password" id="api-key-input" class="modal-input" placeholder="sk-or-v1-...">
+            
+            <label class="input-label">Model Name (e.g. google/gemini-2.0-flash-lite:free):</label>
+            <input type="text" id="model-input" class="modal-input" placeholder="Enter model ID...">
+            
+            <button class="modal-btn" onclick="saveSettings()">Save & Start Chatting</button>
+        </div>
+    </div>
 
     <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
@@ -63,9 +98,12 @@
             <button class="btn-new" onclick="location.reload()"><span class="material-icons">add</span> New chat</button>
         </div>
         <div class="history-list">
-            <p style="font-size: 12px; color: #9aa0a6; padding-left: 10px; margin-bottom: 10px;">Recent</p>
+            <p style="font-size: 12px; color: #9aa0a6; padding-left: 10px; margin-bottom: 10px;">Recent History</p>
             <div id="history-items"></div>
         </div>
+        <button class="settings-btn" onclick="openSettings()">
+            <span class="material-icons">settings</span> Settings
+        </button>
     </aside>
 
     <div class="main-stage">
@@ -83,84 +121,214 @@
         </div>
 
         <div class="bottom-nav">
+            <div id="image-preview-container">
+                <img id="image-preview" src="" alt="preview">
+                <button class="remove-img-btn" onclick="removeImage()">✖</button>
+            </div>
+
             <div class="input-container">
-                <button class="icon-btn"><span class="material-icons">add</span></button>
-                <input type="text" id="user-input" placeholder="Ask RealChat..." onkeypress="if(event.key==='Enter') startChat()">
-                <button class="icon-btn" onclick="triggerVoice()"><span class="material-icons">volume_up</span></button>
-                <button class="icon-btn" onclick="startChat()"><span class="material-icons">send</span></button>
+                <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                
+                <button class="icon-btn" onclick="document.getElementById('file-input').click()" title="Upload Image">
+                    <span class="material-icons">image</span>
+                </button>
+                
+                <input type="text" id="user-input" placeholder="Ask RealChat, or type /image to generate photo..." onkeypress="if(event.key==='Enter') startChat()">
+                
+                <button class="icon-btn" onclick="triggerVoice()" title="Play Last Message">
+                    <span class="material-icons">volume_up</span>
+                </button>
+                
+                <button class="icon-btn" onclick="startChat()">
+                    <span class="material-icons">send</span>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // AAPKI GOOGLE KEY + GOOGLE MODEL (No OpenRouter = No Auth Error)
-        const API_KEY = "AIzaSyAgWKIFvomhkXdUY-mL1K8pV_OoEAN32Kc";
-        const MODEL = "gemini-2.0-flash"; // Fastest Google Model
+        let currentApiKey = "";
+        let currentModel = "";
+        let currentBase64Image = null; // Store uploaded image data
+
+        // Load Settings
+        window.onload = function() {
+            const savedKey = localStorage.getItem('rc_apikey');
+            const savedModel = localStorage.getItem('rc_model');
+            if (savedKey && savedModel) {
+                currentApiKey = savedKey;
+                currentModel = savedModel;
+            } else {
+                openSettings(); 
+            }
+        };
+
+        function openSettings() {
+            document.getElementById('api-key-input').value = currentApiKey || localStorage.getItem('rc_apikey') || "";
+            document.getElementById('model-input').value = currentModel || localStorage.getItem('rc_model') || "google/gemini-2.0-flash-lite:free";
+            document.getElementById('settings-modal').style.display = 'flex';
+            document.getElementById('sidebar').classList.remove('active'); 
+        }
+
+        function saveSettings() {
+            const keyVal = document.getElementById('api-key-input').value.trim();
+            const modelVal = document.getElementById('model-input').value.trim();
+            if (!keyVal || !modelVal) {
+                alert("API Key aur Model dono dalna zaroori hai!");
+                return;
+            }
+            localStorage.setItem('rc_apikey', keyVal);
+            localStorage.setItem('rc_model', modelVal);
+            currentApiKey = keyVal;
+            currentModel = modelVal;
+            document.getElementById('settings-modal').style.display = 'none';
+        }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
         }
 
+        // --- Image Upload Logic ---
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentBase64Image = e.target.result;
+                    document.getElementById('image-preview').src = currentBase64Image;
+                    document.getElementById('image-preview-container').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeImage() {
+            currentBase64Image = null;
+            document.getElementById('image-preview-container').style.display = 'none';
+            document.getElementById('file-input').value = "";
+        }
+
+        // --- Main Chat & Generation Logic ---
         async function startChat() {
+            if (!currentApiKey || !currentModel) {
+                openSettings();
+                return;
+            }
+
             const input = document.getElementById('user-input');
             const text = input.value.trim();
-            if (!text) return;
+            
+            if (!text && !currentBase64Image) return;
 
-            // Update UI
             document.getElementById('welcome-ui').style.display = 'none';
             const chatFlow = document.getElementById('chat-flow');
             chatFlow.style.display = 'flex';
-            chatFlow.innerHTML += `<div class="msg user-msg">${text}</div>`;
+            
+            // Show User Message
+            let userHTML = `<div class="msg user-msg">`;
+            if (text) userHTML += `<div>${text}</div>`;
+            if (currentBase64Image) userHTML += `<img src="${currentBase64Image}" class="chat-image">`;
+            userHTML += `</div>`;
+            
+            chatFlow.innerHTML += userHTML;
             input.value = '';
 
-            // Add to History
             const histItem = document.createElement('div');
             histItem.className = 'history-item';
-            histItem.innerText = text.substring(0, 25) + "...";
+            histItem.innerText = text ? text.substring(0, 25) + "..." : "Sent an image...";
             document.getElementById('history-items').prepend(histItem);
 
-            // Bot Typing Status
             const botDiv = document.createElement('div');
             botDiv.className = 'msg bot-msg';
-            botDiv.innerHTML = `<b>RealChat</b><br><span class="typing" id="status-text">Thinking...</span>`;
             chatFlow.appendChild(botDiv);
+
+            // ==========================================
+            // IMAGE GENERATION LOGIC (If text starts with /image)
+            // ==========================================
+            if (text.toLowerCase().startsWith('/image')) {
+                const promptText = text.replace('/image', '').trim();
+                botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">Painting your image...</span>`;
+                chatFlow.scrollTop = chatFlow.scrollHeight;
+
+                // Using Free Pollinations AI endpoint for Instant Image Generation
+                const randomSeed = Math.floor(Math.random() * 100000);
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?seed=${randomSeed}&nologo=true`;
+
+                const generatedImg = new Image();
+                generatedImg.src = imageUrl;
+                generatedImg.className = "chat-image";
+                
+                generatedImg.onload = () => {
+                    botDiv.innerHTML = `<b>RealChat</b><br>Here is your image:<br>`;
+                    botDiv.appendChild(generatedImg);
+                    chatFlow.scrollTop = chatFlow.scrollHeight;
+                    speak("Here is your generated image.");
+                };
+                
+                generatedImg.onerror = () => {
+                    botDiv.innerHTML = `<b>RealChat</b><br>Sorry, image generate karne mein error aayi.`;
+                };
+                
+                return; // Stop here, don't call text API
+            }
+
+            // ==========================================
+            // NORMAL TEXT / VISION AI LOGIC
+            // ==========================================
+            botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">Thinking using ${currentModel.split('/')[1] || currentModel}...</span>`;
             chatFlow.scrollTop = chatFlow.scrollHeight;
 
+            let apiMessages = [];
+            if (currentBase64Image) {
+                apiMessages = [{
+                    "role": "user",
+                    "content": [
+                        { "type": "text", "text": text || "Describe this image" },
+                        { "type": "image_url", "image_url": { "url": currentBase64Image } }
+                    ]
+                }];
+            } else {
+                apiMessages = [{ "role": "user", "content": text }];
+            }
+
+            removeImage(); // Clear upload preview
+
             try {
-                // Using Direct Google API to avoid "Missing Authentication Header"
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
-                
-                const response = await fetch(apiUrl, {
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                     method: "POST",
                     headers: {
+                        "Authorization": `Bearer ${currentApiKey}`,
+                        "HTTP-Referer": window.location.href, 
+                        "X-Title": "RealChat AI",
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: text }] }]
+                        "model": currentModel,
+                        "messages": apiMessages
                     })
                 });
 
                 const data = await response.json();
 
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    const reply = data.candidates[0].content.parts[0].text;
-                    // Format response and play audio
+                if (data.choices && data.choices[0]) {
+                    const reply = data.choices[0].message.content;
                     botDiv.innerHTML = `<b>RealChat</b><br>${reply.replace(/\n/g, '<br>')}`;
                     speak(reply);
                 } else if (data.error) {
-                    botDiv.innerHTML = `<b>Error:</b> ${data.error.message || "Key block ho chuki hai."}`;
+                    botDiv.innerHTML = `<b>API Error:</b> ${data.error.message}`;
                 }
             } catch (err) {
-                botDiv.innerHTML = "<b>System Error:</b> Internet connection ya API block issue.";
+                botDiv.innerHTML = "<b>System Error:</b> Internet connection fail ya API issue.";
             }
             
             chatFlow.scrollTop = chatFlow.scrollHeight;
         }
 
+        // --- Text to Speech Logic ---
         function speak(text) {
             const synth = window.speechSynthesis;
             const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'hi-IN'; // Hindi voice
+            utter.lang = 'hi-IN'; // Hindi
             synth.speak(utter);
         }
 
