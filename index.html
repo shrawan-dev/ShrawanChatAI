@@ -3,41 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RealChat AI - Pro</title>
+    <title>AI Chat Bot</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
+
     <div class="app-container">
         <aside class="sidebar">
-            <button class="new-chat-btn"><i class="material-icons">add</i> New Chat</button>
-            <div class="chat-history" id="chatHistory">
-                </div>
-            <div class="profile-section">
-                <img src="https://via.placeholder.com/40" alt="Profile" class="avatar">
-                <span>Shrawan Dev</span>
+            <div class="sidebar-header">
+                <button class="menu-btn"><span class="material-icons">menu</span></button>
+                <button class="new-chat"><span class="material-icons">add</span> New chat</button>
+            </div>
+            <div class="history-list">
+                <p class="history-item">Chat Interface Guide</p>
+                <p class="history-item">API Code Dhundhne Ke Tarike</p>
+                <p class="history-item">AI Day Planner</p>
             </div>
         </aside>
 
-        <main class="chat-area">
-            <header>
-                <h2>RealChat AI</h2>
+        <main class="main-content">
+            <header class="top-bar">
+                <span class="brand">Gemini Clone</span>
+                <div class="profile-icon">S</div>
             </header>
-            
-            <div class="messages-container" id="chatWindow">
-                <div class="ai-msg">Namaste! Main aapki kaise madad kar sakta hoon?</div>
-            </div>
 
-            <div class="input-area">
-                <div class="input-wrapper">
-                    <input type="text" id="userInput" placeholder="Kuch bhi puchiye...">
-                    <button id="ttsBtn" title="Bol kar suniye"><i class="material-icons">volume_up</i></button>
-                    <button id="imageBtn" title="Image banaye"><i class="material-icons">image</i></button>
-                    <button id="sendBtn"><i class="material-icons">send</i></button>
+            <div class="welcome-section" id="welcome-screen">
+                <h1 class="greeting">Hi S</h1>
+                <h2 class="sub-greeting">Where should we start?</h2>
+
+                <div class="suggestions">
+                    <div class="card" onclick="setInput('Create image')">
+                        <span class="material-icons">image</span> Create image
+                    </div>
+                    <div class="card" onclick="setInput('Create music')">
+                        <span class="material-icons">music_note</span> Create music
+                    </div>
+                    <div class="card" onclick="setInput('Boost my day')">
+                        <span class="material-icons">auto_awesome</span> Boost my day
+                    </div>
                 </div>
             </div>
+
+            <div id="chat-messages" class="chat-container"></div>
+
+            <footer class="input-area">
+                <div class="input-wrapper">
+                    <button class="action-btn"><span class="material-icons">add</span></button>
+                    <input type="text" id="user-input" placeholder="Ask Gemini...">
+                    <button class="action-btn" onclick="speakText()"><span class="material-icons">volume_up</span></button>
+                    <button class="send-btn" onclick="sendMessage()"><span class="material-icons">send</span></button>
+                </div>
+            </footer>
         </main>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
