@@ -3,161 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RealChat AI - Universal</title>
+    <title>RealChat AI - Powered by Gemini</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
-            --bg: #131314; --side: #1e1f20; --in: #1e1f20; --txt: #e3e3e3; --sub: #c4c7c5;
+            --bg-dark: #131314;
+            --sidebar-bg: #1e1f20;
+            --input-bg: #1e1f20;
+            --text-main: #e3e3e3;
+            --text-sub: #c4c7c5;
+            --accent-blue: #8ab4f8;
         }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Google Sans', sans-serif; }
-        body { background: var(--bg); color: var(--txt); height: 100vh; display: flex; overflow: hidden; }
 
-        /* Sidebar UI - Fixed dhakne wala issue */
-        .sidebar { position: fixed; left: -300px; top: 0; width: 280px; height: 100%; background: var(--side); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; padding: 15px; display: flex; flex-direction: column; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', 'Segoe UI', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; }
+
+        /* Sidebar Logic - Screen ko dhakne se rokne ke liye */
+        .sidebar {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 0 20px rgba(0,0,0,0.5);
+        }
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; align-items: center; margin-bottom: 20px; }
-        .btn-new { background: #28292a; border: none; color: white; padding: 10px 18px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; }
-        .history-list { flex: 1; overflow-y: auto; }
-        .history-item { padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .btn-new {
+            background: #28292a; border: none; color: white; padding: 10px 18px;
+            border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-left: 10px;
+        }
+        .history-list { flex: 1; overflow-y: auto; margin-top: 10px; }
+        .history-item { padding: 12px; border-radius: 8px; font-size: 14px; cursor: pointer; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .history-item:hover { background: #333537; color: white; }
 
-        /* Main Screen */
-        .main { flex: 1; display: flex; flex-direction: column; width: 100%; position: relative; }
+        /* Main Viewport */
+        .main-stage { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
         header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .icon-btn { color: var(--sub); background: none; border: none; cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; }
+        .icon-btn { color: var(--text-sub); background: none; border: none; cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; }
         .icon-btn:hover { background: #333537; color: white; }
-        .profile { width: 35px; height: 35px; background: #4b5563; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .profile-icon { width: 35px; height: 35px; background: #4b5563; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* Welcome UI */
+        /* Chat Content */
         .viewport { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
-        .welcome { width: 100%; max-width: 800px; margin-top: 5vh; }
-        .grad-txt { font-size: clamp(32px, 8vw, 56px); font-weight: bold; background: linear-gradient(to right, #4285f4, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        #chat-flow { width: 100%; max-width: 800px; display: none; flex-direction: column; gap: 30px; padding-bottom: 150px; }
-        .msg { font-size: 16px; line-height: 1.6; }
+        .welcome-screen { width: 100%; max-width: 800px; margin-top: 5vh; }
+        .gradient-text { font-size: clamp(32px, 8vw, 56px); font-weight: bold; background: linear-gradient(to right, #4285f4, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sub-greeting { font-size: clamp(24px, 6vw, 40px); color: #444746; font-weight: bold; margin-bottom: 30px; }
+
+        #chat-flow { width: 100%; max-width: 800px; display: none; flex-direction: column; gap: 30px; padding-bottom: 120px; }
+        .msg { font-size: 16px; line-height: 1.6; max-width: 90%; }
         .user-msg { align-self: flex-end; background: #2b2c2d; padding: 12px 20px; border-radius: 22px; color: white; }
-        .bot-msg { align-self: flex-start; color: var(--txt); }
-        .typing { color: #8ab4f8; font-style: italic; }
+        .bot-msg { align-self: flex-start; color: var(--text-main); }
+        .typing { color: var(--accent-blue); font-style: italic; animation: pulse 1.5s infinite; }
 
         /* Input Area */
-        .input-bar { position: fixed; bottom: 25px; width: 100%; display: flex; justify-content: center; padding: 0 20px; }
-        .in-box { background: var(--in); border-radius: 35px; padding: 8px 20px; display: flex; align-items: center; gap: 12px; width: 100%; max-width: 800px; border: 1px solid #3c4043; }
+        .bottom-nav { position: fixed; bottom: 25px; width: 100%; display: flex; justify-content: center; padding: 0 20px; }
+        .input-container { background: var(--input-bg); border-radius: 35px; padding: 8px 20px; display: flex; align-items: center; gap: 12px; width: 100%; max-width: 800px; border: 1px solid #3c4043; }
         input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px; padding: 10px 0; }
+
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
-            <button class="icon-btn" onclick="toggleSide()"><span class="material-icons">menu</span></button>
+            <button class="icon-btn" onclick="toggleSidebar()"><span class="material-icons">menu</span></button>
             <button class="btn-new" onclick="location.reload()"><span class="material-icons">add</span> New chat</button>
         </div>
         <div class="history-list">
-            <p style="font-size: 12px; color: #9aa0a6; padding: 10px;">Recent History</p>
-            <div id="hist-items"></div>
+            <p style="font-size: 12px; color: #9aa0a6; padding-left: 10px; margin-bottom: 10px;">Recent</p>
+            <div id="history-items"></div>
         </div>
     </aside>
 
-    <div class="main">
+    <div class="main-stage">
         <header>
-            <button class="icon-btn" onclick="toggleSide()"><span class="material-icons">menu</span></button>
-            <div class="profile">S</div>
+            <button class="icon-btn" onclick="toggleSidebar()"><span class="material-icons">menu</span></button>
+            <div class="profile-icon">S</div>
         </header>
 
         <div class="viewport">
-            <div id="welcome-ui" class="welcome">
-                <h1 class="grad-txt">Hello, Shrawan</h1>
-                <h2 style="font-size: clamp(24px, 6vw, 40px); color: #444746;">How can I help you today?</h2>
+            <div id="welcome-ui" class="welcome-screen">
+                <h1 class="gradient-text">Hello, Shrawan</h1>
+                <h2 class="sub-greeting">How can I help you today?</h2>
             </div>
             <div id="chat-flow"></div>
         </div>
 
-        <div class="input-bar">
-            <div class="in-box">
+        <div class="bottom-nav">
+            <div class="input-container">
                 <button class="icon-btn"><span class="material-icons">add</span></button>
                 <input type="text" id="user-input" placeholder="Ask RealChat..." onkeypress="if(event.key==='Enter') startChat()">
-                <button class="icon-btn" onclick="triggerSpeak()"><span class="material-icons">volume_up</span></button>
+                <button class="icon-btn" onclick="triggerVoice()"><span class="material-icons">volume_up</span></button>
                 <button class="icon-btn" onclick="startChat()"><span class="material-icons">send</span></button>
             </div>
         </div>
     </div>
 
     <script>
-        // Triple-Layer Fallback Config
+        // OpenRouter API Setup (Your Key + Gemini Free Models)
         const CONFIG = {
-            key: "AIzaSyAgWKIFvomhkXdUY-mL1K8pV_OoEAN32Kc",
+            apiKey: "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",
             models: [
-                "gemini-2.0-flash",      // Priority 1: Sabse Fast
-                "gemini-1.5-flash",      // Priority 2: Very Stable
-                "gemini-1.5-pro"         // Priority 3: Ultimate Brain
+                "google/gemini-2.0-pro-exp-02-05:free", // Primary: Extremely smart and stable
+                "google/gemini-2.0-flash-lite-preview-02-05:free", // Backup 1: Very fast
+                "cognitivecomputations/dolphin3.0-r1-mistral-24b:free" // Backup 2: Just in case Google is down
             ]
         };
 
-        function toggleSide() { document.getElementById('sidebar').classList.toggle('active'); }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
 
         async function startChat() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
             if (!text) return;
 
+            // Update UI
             document.getElementById('welcome-ui').style.display = 'none';
             const chatFlow = document.getElementById('chat-flow');
             chatFlow.style.display = 'flex';
             chatFlow.innerHTML += `<div class="msg user-msg">${text}</div>`;
             input.value = '';
 
+            // Update History
+            const histItem = document.createElement('div');
+            histItem.className = 'history-item';
+            histItem.innerText = text.substring(0, 25) + "...";
+            document.getElementById('history-items').prepend(histItem);
+
+            // Bot Placeholder
             const botDiv = document.createElement('div');
             botDiv.className = 'msg bot-msg';
-            botDiv.innerHTML = `<b>RealChat</b><br><span class="typing" id="status">Connecting...</span>`;
+            botDiv.innerHTML = `<b>RealChat</b><br><span class="typing" id="status-text">Connecting to Gemini...</span>`;
             chatFlow.appendChild(botDiv);
             chatFlow.scrollTop = chatFlow.scrollHeight;
 
-            // Fallback Engine
+            // Auto-Fallback Logic
             let success = false;
-            for (let modelName of CONFIG.models) {
+            for (let modelId of CONFIG.models) {
                 if (success) break;
-                document.getElementById('status').innerText = `Consulting ${modelName}...`;
+                document.getElementById('status-text').innerText = `Thinking (${modelId.split('/')[1]})...`;
 
                 try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${CONFIG.key}`, {
+                    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: text }] }] })
+                        headers: {
+                            "Authorization": `Bearer ${CONFIG.apiKey}`,
+                            "HTTP-Referer": window.location.href, // Zaroori hai GitHub Pages ke liye
+                            "X-Title": "RealChat AI",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            "model": modelId,
+                            "messages": [{"role": "user", "content": text}]
+                        })
                     });
 
-                    const data = await res.json();
-                    if (data.candidates && data.candidates[0].content.parts[0].text) {
-                        const reply = data.candidates[0].content.parts[0].text;
-                        botDiv.innerHTML = `<b>RealChat</b><br>${reply}`;
+                    const data = await response.json();
+
+                    if (data.choices && data.choices[0]) {
+                        const reply = data.choices[0].message.content;
+                        botDiv.innerHTML = `<b>RealChat</b><br>${reply.replace(/\n/g, '<br>')}`;
                         speak(reply);
                         success = true;
-                        addHistory(text);
+                    } else if (data.error && data.error.code === 401) {
+                        botDiv.innerHTML = `<b>Error:</b> API Key Invalid ho gayi hai. Nayi key generate karein.`;
+                        return; // Stop trying if key is entirely invalid
                     }
-                } catch (e) { console.warn(`${modelName} failed, trying next...`); }
+                } catch (err) {
+                    console.warn(`${modelId} failed. Trying next...`);
+                }
             }
 
-            if (!success) botDiv.innerHTML = "<b>Error:</b> Sabhi models busy hain ya API Key block ho gayi hai.";
+            if (!success) {
+                botDiv.innerHTML = "<b>System:</b> Sabhi AI servers filhal busy hain. Kripya thodi der baad try karein.";
+            }
             chatFlow.scrollTop = chatFlow.scrollHeight;
-        }
-
-        function addHistory(text) {
-            const hist = document.getElementById('hist-items');
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            item.innerText = text;
-            hist.prepend(item);
         }
 
         function speak(text) {
             const synth = window.speechSynthesis;
             const utter = new SpeechSynthesisUtterance(text);
-            utter.lang = 'hi-IN';
+            utter.lang = 'hi-IN'; // Hindi/Indian accent
             synth.speak(utter);
         }
 
-        function triggerSpeak() {
+        function triggerVoice() {
             const msgs = document.querySelectorAll('.bot-msg');
-            if (msgs.length > 0) speak(msgs[msgs.length - 1].innerText.replace('RealChat', ''));
+            if (msgs.length > 0) {
+                let textToSpeak = msgs[msgs.length - 1].innerText.replace('RealChat\n', '');
+                speak(textToSpeak);
+            }
         }
     </script>
 </body>
