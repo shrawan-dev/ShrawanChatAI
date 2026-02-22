@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealChat AI</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #131314;
+            --sidebar-bg: #1e1f20;
+            --input-bg: #1e1f20;
+            --text-gray: #c4c7c5;
+            --white: #e3e3e3;
+            --blue: #4285f4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', Arial, sans-serif; }
+
+        body { background-color: var(--bg-dark); color: var(--white); height: 100vh; display: flex; overflow: hidden; }
+
+        /* Sidebar - Default Hidden */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: var(--sidebar-bg);
+            transition: 0.3s ease;
+            z-index: 1000;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active { left: 0; }
+
+        .btn-new-chat {
+            background: #28292a;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .history-list { flex: 1; overflow-y: auto; }
+        .history-item { padding: 10px; border-radius: 8px; font-size: 14px; cursor: pointer; color: var(--text-gray); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: #333537; }
+
+        /* Main Area */
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
+
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+
+        .icon-btn { background: transparent; border: none; color: var(--text-gray); cursor: pointer; padding: 8px; border-radius: 50%; }
+        .icon-btn:hover { background: #333537; }
+
+        .profile-circle { width: 32px; height: 32px; background: #4b5563; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* Welcome Screen */
+        .viewport { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        
+        .welcome-msg { text-align: left; width: 100%; max-width: 800px; }
+        .gradient-text { font-size: clamp(32px, 5vw, 56px); font-weight: bold; background: linear-gradient(to right, #4285f4, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sub-text { font-size: clamp(24px, 4vw, 40px); color: #444746; margin-bottom: 40px; }
+
+        /* Chat Messages */
+        #chat-container { width: 100%; max-width: 800px; display: none; flex-direction: column; gap: 20px; padding-bottom: 100px; }
+        .message { margin-bottom: 10px; line-height: 1.5; }
+        .user-msg { text-align: right; background: #2b2c2d; padding: 10px 15px; border-radius: 18px; align-self: flex-end; max-width: 80%; }
+        .bot-msg { align-self: flex-start; max-width: 90%; color: var(--white); }
+
+        /* Input Bar */
+        .input-wrapper { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 800px; background: var(--input-bg); border-radius: 32px; display: flex; padding: 8px 18px; align-items: center; gap: 10px; }
+        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px; padding: 10px 0; }
+    </style>
+</head>
+<body>
+
+    <aside id="sidebar" class="sidebar">
+        <button class="btn-new-chat" onclick="location.reload()">
+            <span class="material-icons">add</span> New chat
+        </button>
+        <p style="color: #9aa0a6; font-size: 12px; margin-bottom: 10px;">Recent</p>
+        <div id="history-items" class="history-list"></div>
+    </aside>
+
+    <div class="main-content">
+        <header>
+            <button class="icon-btn" onclick="toggleSidebar()"><span class="material-icons">menu</span></button>
+            <div class="profile-circle">S</div>
+        </header>
+
+        <div class="viewport">
+            <div id="welcome-ui" class="welcome-msg">
+                <h1 class="gradient-text">Hello, Shrawan</h1>
+                <h2 class="sub-text">How can I help you today?</h2>
+            </div>
+
+            <div id="chat-container"></div>
+        </div>
+
+        <div class="input-wrapper">
+            <button class="icon-btn"><span class="material-icons">add</span></button>
+            <input type="text" id="user-input" placeholder="Enter a prompt here..." onkeypress="handleEnter(event)">
+            <button class="icon-btn" onclick="generateAudio()"><span class="material-icons">volume_up</span></button>
+            <button class="icon-btn" onclick="sendMsg()"><span class="material-icons">send</span></button>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const chatContainer = document.getElementById('chat-container');
+        const welcomeUI = document.getElementById('welcome-ui');
+        const historyItems = document.getElementById('history-items');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+        }
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMsg();
+        }
+
+        async function sendMsg() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // UI Switch
+            welcomeUI.style.display = 'none';
+            chatContainer.style.display = 'flex';
+
+            // Add User Message
+            chatContainer.innerHTML += `<div class="message user-msg">${text}</div>`;
+            
+            // Add to History
+            const hist = document.createElement('div');
+            hist.className = 'history-item';
+            hist.innerText = text;
+            historyItems.prepend(hist);
+
+            input.value = '';
+            
+            // Simulate AI Reply
+            setTimeout(() => {
+                const reply = "Main RealChat AI hoon, aapki madad ke liye taiyaar.";
+                chatContainer.innerHTML += `<div class="message bot-msg"><b>RealChat:</b><br>${reply}</div>`;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 500);
+        }
+
+        // ElevenLabs / Browser Speech
+        function generateAudio() {
+            const lastMsg = chatContainer.innerText;
+            if(!lastMsg) return;
+            
+            const speech = new SpeechSynthesisUtterance("ElevenLabs API key setup karein audio ke liye.");
+            speech.lang = 'hi-IN';
+            window.speechSynthesis.speak(speech);
+        }
+    </script>
+</body>
+</html>
+
