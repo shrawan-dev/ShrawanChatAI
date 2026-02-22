@@ -1,0 +1,63 @@
+:root {
+    --bg-main: #131314;
+    --sidebar-bg: #1e1f20;
+    --card-bg: #1e1f20;
+    --input-bg: #1e1f20;
+    --text-primary: #e3e3e3;
+    --accent: #4285f4;
+}
+
+body {
+    background: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar Animation */
+.sidebar {
+    position: fixed;
+    left: -280px;
+    width: 260px;
+    height: 100%;
+    background: var(--sidebar-bg);
+    transition: 0.3s ease-in-out;
+    z-index: 100;
+    padding: 1rem;
+}
+
+.sidebar.active { left: 0; }
+
+/* Gradient Text like Gemini */
+.gemini-gradient {
+    font-size: 3.5rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, #4285f4, #d96570);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Input Bar Styling */
+.input-wrapper {
+    background: var(--input-bg);
+    border-radius: 32px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 90%;
+}
+
+.input-wrapper input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 10px;
+    outline: none;
+}
+
