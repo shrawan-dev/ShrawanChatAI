@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealChat AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="dark-theme">
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-top">
+            <button class="btn-new" onclick="app.resetChat()">
+                <span class="material-icons">add</span> New chat
+            </button>
+        </div>
+        <div id="chat-history" class="history-container">
+            </div>
+    </aside>
+
+    <main class="main-stage">
+        <header class="navbar">
+            <button id="menu-toggle" class="icon-btn">
+                <span class="material-icons">menu</span>
+            </button>
+            <div class="brand">RealChat AI</div>
+            <div class="profile-icon">S</div>
+        </header>
+
+        <section id="chat-viewport" class="viewport">
+            <div id="welcome" class="welcome-screen">
+                <h1 class="gemini-gradient">Hello, Shrawan</h1>
+                <p>How can I help you today?</p>
+                <div class="suggestion-grid">
+                    <div class="sugg-card" onclick="app.prefill('Help me write a plan')">
+                        <p>Write a code plan</p>
+                        <span class="material-icons">code</span>
+                    </div>
+                    <div class="sugg-card" onclick="app.prefill('Create a day planner')">
+                        <p>Day Planner</p>
+                        <span class="material-icons">event</span>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+        <footer class="input-area">
+            <div class="input-wrapper">
+                <button class="icon-btn"><span class="material-icons">add</span></button>
+                <input type="text" id="user-input" placeholder="Ask RealChat...">
+                <button class="icon-btn" onclick="app.textToSpeech()"><span class="material-icons">mic</span></button>
+                <button id="send-btn" class="icon-btn"><span class="material-icons">send</span></button>
+            </div>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
