@@ -198,7 +198,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .bub{padding:13px 17px;border-radius:var(--r);font-size:14.5px;line-height:1.72;word-break:break-word}
 .mr.u .bub{background:linear-gradient(135deg,#1c3a60,#142c4c);border:1px solid rgba(124,185,248,.18);border-bottom-right-radius:4px}
 .mr.bot .bub{background:var(--sf);border:1px solid var(--bd);border-bottom-left-radius:4px}
-.bub.ref{border-color:var(--gold);background:rgba(252,211,77,.04)}
 .bub.err{border-color:var(--err);background:rgba(242,139,130,.04)}
 .tc-ur{display:inline-block;width:2px;height:1.1em;background:var(--a);
   margin-left:2px;vertical-align:text-bottom;animation:bk .7s infinite}
@@ -212,19 +211,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .bub em{color:var(--a2);font-style:italic}
 .ai-img{display:block;max-width:100%;max-height:300px;border-radius:var(--r);
   border:1px solid var(--bd);box-shadow:0 6px 24px rgba(0,0,0,.4);
-  transition:opacity .5s,filter .5s;cursor:zoom-in}
+  transition:opacity .5s,filter .5s;cursor:zoom-in;margin-top:8px;}
 .ai-img.ld{opacity:.2;filter:blur(8px)}
 .img-cap{font-size:11px;color:var(--t3);margin-top:5px;font-style:italic}
-.aud-wrap{display:flex;align-items:center;gap:9px;background:var(--sf2);border:1px solid var(--bd);
-  border-radius:28px;padding:9px 14px;max-width:360px;margin-top:9px}
-.aud-pb{width:33px;height:33px;border-radius:50%;border:none;background:var(--a);color:#fff;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--tr)}
-.aud-pb:hover{background:#1a66d4;transform:scale(1.07)}
-.aud-bg{flex:1;height:4px;background:var(--bd);border-radius:2px;cursor:pointer;position:relative}
-.aud-fi{height:4px;background:var(--a);border-radius:2px;width:0%;transition:width .1s}
-.aud-tm{font-size:10.5px;color:var(--t2);white-space:nowrap;min-width:68px;text-align:right}
-.aud-dl{background:none;border:none;color:var(--t2);cursor:pointer;font-size:15px;padding:3px;transition:color var(--tr);flex-shrink:0}
-.aud-dl:hover{color:var(--a)}
 .acts{display:flex;gap:5px;margin-top:7px;opacity:0;transition:opacity var(--tr)}
 .mr:hover .acts{opacity:1}
 .abt{padding:4px 11px;border-radius:18px;background:var(--sf2);border:1px solid var(--bd);
@@ -312,30 +301,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </head>
 <body>
 
-<!-- ══════════════ LOGIN MODAL ══════════════ -->
-<div class="overlay" id="ov-login">
-<div class="modal">
-  <div class="mbrand">
-    <div class="sl sl-md">
-      <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
-        <defs><linearGradient id="g0" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#7cb9f8"/><stop offset="50%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#c084fc"/>
-        </linearGradient></defs>
-        <path d="M68 22C68 22 70 44 50 52C70 60 68 80 68 80" stroke="url(#g0)" stroke-width="9" stroke-linecap="round" fill="none"/>
-        <path d="M26 30C26 30 54 30 54 44C54 58 26 58 26 70C26 78 50 78 70 72" stroke="url(#g0)" stroke-width="9" stroke-linecap="round" fill="none"/>
-      </svg>
-    </div>
-    <div class="btxt" style="font-size:21px">Shrawan<span class="ca">Chat</span><span class="cb">AI</span></div>
-  </div>
-  <h2>Welcome 👋</h2>
-  <p class="sub">Sign in to start using your superfast AI assistant.</p>
-  <div class="fg"><label>Your Name</label><input type="text" id="ln" placeholder="e.g. Shrawan Ji" autocomplete="name"></div>
-  <div class="fg"><label>Email</label><input type="email" id="le" placeholder="you@example.com" autocomplete="email"></div>
-  <button class="btn-p" id="l-btn">🚀 &nbsp;Start Chatting</button>
-</div>
-</div>
-
-<!-- ══════════════ SETTINGS MODAL ══════════════ -->
 <div class="overlay gone" id="ov-set">
 <div class="modal">
   <div class="mbrand">
@@ -362,23 +327,17 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <select id="s-model">
       <optgroup label="✅ Free Models">
         <option value="openai/gpt-4o-mini">GPT-4o Mini (Recommended — Fast &amp; Smart)</option>
-        <option value="google/gemini-flash-1.5">Gemini Flash 1.5</option>
         <option value="google/gemini-2.0-flash-exp:free">Gemini 2.0 Flash (Free)</option>
+        <option value="google/gemini-flash-1.5">Gemini Flash 1.5</option>
         <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
-        <option value="meta-llama/llama-3.2-3b-instruct:free">Llama 3.2 3B (Free)</option>
         <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Free)</option>
-        <option value="qwen/qwen-2-7b-instruct:free">Qwen 2 7B (Free)</option>
-        <option value="microsoft/phi-3-mini-128k-instruct:free">Phi-3 Mini (Free)</option>
       </optgroup>
       <optgroup label="⚡ Paid Models">
         <option value="openai/gpt-4o">GPT-4o</option>
-        <option value="openai/gpt-4-turbo">GPT-4 Turbo</option>
         <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
-        <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
         <option value="google/gemini-pro-1.5">Gemini Pro 1.5</option>
       </optgroup>
     </select>
-    <div class="hint">Free models need a key but cost $0. Check limits at <a href="https://openrouter.ai/models" target="_blank">openrouter.ai/models</a></div>
   </div>
   <button class="btn-p" id="s-save">💾 &nbsp;Save Settings</button>
   <div style="text-align:center;margin-top:12px">
@@ -387,13 +346,9 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 </div>
 </div>
 
-<!-- ══════════════ LIGHTBOX ══════════════ -->
 <div id="lb"><button id="lb-x">✕</button><img id="lb-img" src="" alt=""></div>
 
-<!-- ══════════════ APP ══════════════ -->
 <div id="app">
-
-  <!-- SIDEBAR -->
   <aside id="sb">
     <div class="sb-top">
       <div class="sl sl-md">
@@ -408,44 +363,30 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       <div class="btxt" style="font-size:15px">Shrawan<span class="ca">Chat</span><span class="cb">AI</span></div>
     </div>
 
-    <!-- ⚙️ Settings button — above New Chat -->
     <button class="sb-set" id="open-set">⚙️ &nbsp;Settings &amp; API Key</button>
 
-    <!-- API status badge -->
-    <div class="api-badge" id="api-badge" onclick="openSettings()">
+    <div class="api-badge" id="api-badge">
       <span class="api-dot" id="api-dot"></span>
       <span id="api-status">API Key not set</span>
     </div>
 
-    <!-- New Chat -->
-    <button class="btn-new" id="btn-new">
-      <span class="nc-dot">✏</span> New Chat
-    </button>
+    <button class="btn-new" id="btn-new"><span class="nc-dot">✏</span> New Chat</button>
 
-    <!-- History -->
     <div class="sb-lbl">📋 Recent Chats</div>
-    <div class="clist" id="clist">
-      <div class="sb-empty" id="sb-empty">No chats yet</div>
-    </div>
+    <div class="clist" id="clist"><div class="sb-empty" id="sb-empty">No chats yet</div></div>
 
-    <!-- User footer -->
     <div class="sb-foot">
-      <div class="sb-av" id="sb-av">?</div>
+      <div class="sb-av" id="sb-av">U</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sb-name">—</div>
-        <div style="font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="sb-email">—</div>
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">My Profile</div>
+        <div style="font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Local User</div>
       </div>
     </div>
   </aside>
 
-  <!-- MAIN -->
   <div id="main">
-
-    <!-- TOPBAR -->
     <div id="tb">
-      <button class="ham" id="ham-btn">
-        <span class="hl"></span><span class="hl"></span><span class="hl"></span>
-      </button>
+      <button class="ham" id="ham-btn"><span class="hl"></span><span class="hl"></span><span class="hl"></span></button>
       <div class="tb-brand">
         <div class="sl sl-sm">
           <svg width="16" height="16" viewBox="0 0 100 100" fill="none">
@@ -460,18 +401,17 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <span class="mdg" id="mdg">GPT-4o Mini</span>
       </div>
       <div class="tb-acts">
-        <button class="tb-btn" id="tts-btn" title="Toggle Voice">
+        <button class="tb-btn" id="tts-btn" title="Toggle Voice (Auto-read answers)">
           <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
             <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
           </svg>
         </button>
-        <button class="prof" id="prof-btn">?</button>
+        <button class="prof" id="prof-btn">U</button>
       </div>
     </div>
 
-    <!-- CHAT AREA -->
     <div id="ca">
       <div id="wl">
         <div class="wl-logo">
@@ -486,34 +426,23 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           </div>
         </div>
         <div class="wl-title">Hello, I'm <span class="wl-gr">ShrawanChatAI</span></div>
-        <p class="wl-sub">Superfast AI — chat, generate images, create audio. Built by Shrawan Ji.</p>
+        <p class="wl-sub">Superfast AI — chat, generate images, read out audio.</p>
         <div class="tcards">
           <div class="tc" onclick="setMode('chat');qp('Explain machine learning simply')">
             <span class="tc-icon">💬</span>
             <div><div class="tc-lbl">Smart Chat</div><div class="tc-desc">Ask anything</div></div>
           </div>
-          <div class="tc" onclick="setMode('image');qp('Generate image: aurora borealis over mountains, 8K')">
+          <div class="tc" onclick="setMode('image');qp('aurora borealis over mountains, 8K')">
             <span class="tc-icon">🎨</span>
-            <div><div class="tc-lbl">Image Gen</div><div class="tc-desc">AI art instantly</div></div>
+            <div><div class="tc-lbl">Image Gen</div><div class="tc-desc">Create AI art instantly</div></div>
           </div>
-          <div class="tc" onclick="setMode('audio');qp('Hello! I am ShrawanChatAI by Shrawan Ji.')">
+          <div class="tc" onclick="setMode('audio');qp('Hello! I am your AI assistant, ready to help.')">
             <span class="tc-icon">🎧</span>
-            <div><div class="tc-lbl">Text → Audio</div><div class="tc-desc">Generate &amp; download</div></div>
+            <div><div class="tc-lbl">Text-to-Speech</div><div class="tc-desc">Type & listen aloud</div></div>
           </div>
-          <div class="tc" onclick="qp('Who is the owner?')">
-            <span class="tc-icon">👤</span>
-            <div><div class="tc-lbl">About Creator</div><div class="tc-desc">Who made this?</div></div>
-          </div>
-        </div>
-        <div class="chips">
-          <div class="chip" onclick="qp('Write a Python web scraper')">🐍 Python Code</div>
-          <div class="chip" onclick="setMode('image');qp('Generate image: cyberpunk Tokyo | ancient temple | galaxy')">🖼 3 Images</div>
-          <div class="chip" onclick="qp('Latest AI trends 2025')">🤖 AI Trends</div>
-          <div class="chip" onclick="qp('Write a motivational quote')">✨ Inspire Me</div>
         </div>
       </div>
 
-      <!-- Typing indicator -->
       <div id="ty">
         <div class="mav" style="background:linear-gradient(135deg,#162d5a,#0c1d3a);border:1.5px solid rgba(124,185,248,.24)">
           <svg width="15" height="15" viewBox="0 0 100 100" fill="none">
@@ -526,12 +455,11 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
       </div>
     </div>
 
-    <!-- INPUT AREA -->
     <div id="ia">
       <div class="mode-bar">
         <button class="mp act" data-m="chat" onclick="setMode('chat')">💬 Chat</button>
         <button class="mp" data-m="image" onclick="setMode('image')">🎨 Image Gen</button>
-        <button class="mp" data-m="audio" onclick="setMode('audio')">🎧 Text → Audio</button>
+        <button class="mp" data-m="audio" onclick="setMode('audio')">🎧 Text-to-Speech</button>
       </div>
       <div id="ip-prev">
         <img id="ip-img" src="" alt="">
@@ -559,7 +487,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
           </svg>
         </button>
       </div>
-      <div class="ifoot"><strong>ShrawanChatAI</strong> by Shrawan Ji · OpenRouter + Pollinations AI · GitHub Pages ✅</div>
+      <div class="ifoot"><strong>ShrawanChatAI</strong> · Configurable API Workspace ✅</div>
     </div>
   </div>
 </div>
@@ -568,23 +496,17 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 <script>
 /* ═══════════════════════════════════════════════════
-   ShrawanChatAI — Optimized Engine v4.0
-   GitHub Pages Ready | User-configurable API
+   ShrawanChatAI — Live Stable App
    ═══════════════════════════════════════════════════ */
 
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const SYS = `You are ShrawanChatAI, a superfast AI assistant created by Shrawan Ji. Be warm, clear, expert. Use code blocks for code. Use **bold** for key terms.`;
-const OWNER_KW = ['who is the owner','who made you','who created you','who built you','tumhe kisne banaya','owner kaun','kisne banaya'];
-const OWNER_MSG = `🌟 **My owner is Shrawan Ji.**\n\nHe built **ShrawanChatAI** as a superfast AI assistant to help people instantly. I'm proud to serve his vision! 🙏`;
-const DIG_KW = ['undress','naked','nude','strip ','remove clothes',' bra ','panty','lingerie','bikini','nsfw','porn'];
+const SYS = `You are ShrawanChatAI, a helpful and fast AI assistant. Use Markdown blocks for code.`;
 
 /* ── State ── */
-let user    = JSON.parse(localStorage.getItem('scai_u') || 'null');
 let convos  = JSON.parse(localStorage.getItem('scai_c') || '[]');
 let cfg     = JSON.parse(localStorage.getItem('scai_cfg') || '{"key":"","model":"openai/gpt-4o-mini"}');
 let curId   = null, curMode = 'chat';
 let busy    = false, ttsOn = false, micOn = false, micObj = null, upImg = null;
-const audS  = {}, audE = {};
 
 /* ── Helpers ── */
 const $  = id => document.getElementById(id);
@@ -597,7 +519,6 @@ function toast(m, ms=3000){
 }
 function autoH(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,150)+'px'; }
 function scrollBot(){ $('ca').scrollTo({top:$('ca').scrollHeight,behavior:'smooth'}); }
-function fmt(s){ if(!s||isNaN(s))return'0:00'; return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
 
 function md(t){
   return t
@@ -641,34 +562,9 @@ function updateApiStatus(){
   $('api-status').textContent = set ? '✅ API Key: Active' : '⚠️ API Key not set — tap to add';
 }
 
-/* ── AUTH ── */
-function initAuth(){
-  if(user) launch();
-  // else login overlay shows by default
-}
-
-$('l-btn').onclick = () => {
-  const n=$('ln').value.trim(), e=$('le').value.trim();
-  if(!n){ toast('⚠️ Enter your name'); return; }
-  if(!e||!e.includes('@')){ toast('⚠️ Enter a valid email'); return; }
-  user = {name:n, email:e, init:n[0].toUpperCase()};
-  localStorage.setItem('scai_u', JSON.stringify(user));
-  $('ov-login').classList.add('gone');
-  launch();
-  // After login, if no API key set → auto open settings
-  setTimeout(()=>{
-    if(!cfg.key){ openSettings(); toast('👆 Add your free OpenRouter API key to start chatting!',5000); }
-  }, 600);
-};
-['ln','le'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')$('l-btn').click()}));
-
 function launch(){
   $('app').classList.add('on');
-  $('prof-btn').textContent = user.init;
-  $('sb-av').textContent    = user.init;
-  $('sb-name').textContent  = user.name;
-  $('sb-email').textContent = user.email;
-  $('mdg').textContent      = (cfg.model||'gpt-4o-mini').split('/').pop().slice(0,22);
+  $('mdg').textContent = (cfg.model||'gpt-4o-mini').split('/').pop().slice(0,22);
   updateApiStatus();
   renderSB();
   if(!convos.length) newChat(); else loadConvo(convos[0].id);
@@ -684,7 +580,9 @@ function newChat(){
 function loadConvo(id){
   curId=id; clearChat();
   const c=convos.find(v=>v.id===id);
-  if(c) c.messages.forEach(m=>renderMsg(m.role,m.rawContent||m.content,m.type||'text',m.mid,false,m.audioText));
+  if(c) c.messages.forEach(m=>{
+    renderMsg(m.role, m.rawContent||m.content, m.type||'text', m.mid, false, m.imgData);
+  });
   renderSB(); scrollBot();
 }
 function delConvo(id,e){
@@ -694,14 +592,15 @@ function delConvo(id,e){
 }
 function save(){ localStorage.setItem('scai_c', JSON.stringify(convos)); }
 function getC(){ return convos.find(c=>c.id===curId); }
-function pushMsg(role,content,type,mid,audioText){
+
+function pushMsg(role, content, type, mid, imgData=null){
   const c=getC(); if(!c) return;
-  const m={role,content:typeof content==='string'?content:'[media]',rawContent:content,
-    type:type||'text',mid:mid||uid(),ts:Date.now(),audioText};
+  const m = { role, content: typeof content==='string'?content:'[media]', rawContent: content, type: type||'text', mid: mid||uid(), ts: Date.now(), imgData };
   c.messages.push(m);
   if(c.messages.length===2){ const f=c.messages[0].rawContent; c.title=(typeof f==='string'?f:'Chat').slice(0,42); }
   save(); renderSB(); return m.mid;
 }
+
 function renderSB(){
   const list=$('clist'), empty=$('sb-empty');
   if(!convos.length){ list.innerHTML=''; empty.style.display='block'; return; }
@@ -720,7 +619,7 @@ function clearChat(){
   $('wl').style.display='flex'; $('ty').classList.remove('on');
 }
 
-function renderMsg(role,content,type='text',mid,animate=true,audioText){
+function renderMsg(role, content, type='text', mid, animate=true, imgData=null){
   $('wl').style.display='none';
   const msgId=mid||uid(), ca=$('ca'), ty=$('ty');
   const wrap=document.createElement('div'); wrap.className='mw';
@@ -729,30 +628,33 @@ function renderMsg(role,content,type='text',mid,animate=true,audioText){
   const body=document.createElement('div'); body.className='mb';
   const bub=document.createElement('div'); bub.className='bub';
   const cdiv=document.createElement('div'); cdiv.id='c_'+msgId;
+  
   if(!animate) wrap.style.animation='none';
   if(role==='user'){
-    av.textContent=user.init;
+    av.textContent='U';
     av.style.cssText='background:linear-gradient(135deg,#1a66d4,var(--a3));font-family:var(--fd);font-weight:800;color:#fff;font-size:14px;';
     body.style.alignItems='flex-end';
   } else {
     av.innerHTML=botSVG(msgId);
     av.style.cssText='background:linear-gradient(135deg,#162d5a,#0c1d3a);border:1.5px solid rgba(124,185,248,.24);';
   }
-  if(type==='text'||type==='refusal'||type==='error'){
-    cdiv.innerHTML=role==='user'?md(esc(content)):md(typeof content==='string'?content:'');
-    if(type==='refusal') bub.classList.add('ref');
-    if(type==='error')   bub.classList.add('err');
-  } else if(type==='audio'){
-    cdiv.innerHTML=buildAudHTML(audioText||content||'',msgId);
+  
+  if(type==='text' || type==='error'){
+    let txtHtml = role==='user'?md(esc(content)):md(typeof content==='string'?content:'');
+    if(imgData){
+      txtHtml += `<br><img src="${imgData}" class="ai-img" style="max-height:180px;cursor:pointer" onclick="openLB('${imgData}')">`;
+    }
+    cdiv.innerHTML = txtHtml;
+    if(type==='error') bub.classList.add('err');
   } else if(type==='image-gen'){
-    cdiv.innerHTML='<em style="color:var(--t2)">[Regenerate to view images]</em>';
+    cdiv.innerHTML='<em style="color:var(--t2)">[Image Generated - Load specific chat to view old generations or recreate]</em>';
   }
+  
   bub.appendChild(cdiv);
-  if(role!=='user'){
+  if(role!=='user' && type!=='image-gen'){
     const acts=document.createElement('div'); acts.className='acts';
     acts.innerHTML=`<button class="abt" onclick="copyMsg('${msgId}')">📋 Copy</button>
-      <button class="abt" onclick="speakMsg('${msgId}')">🔊 Speak</button>
-      ${type==='audio'?`<button class="abt" onclick="dlAud('${msgId}')">⬇ Download</button>`:''}`;
+      <button class="abt" onclick="speakMsg('${msgId}')">🔊 Speak</button>`;
     bub.appendChild(acts);
   }
   body.appendChild(bub); row.appendChild(av); row.appendChild(body); wrap.appendChild(row);
@@ -779,11 +681,12 @@ function sRow(){
 
 function finBot(bub,mid,type='text'){
   bub.querySelectorAll('.tc-ur').forEach(c=>c.remove());
-  const acts=document.createElement('div'); acts.className='acts';
-  acts.innerHTML=`<button class="abt" onclick="copyMsg('${mid}')">📋 Copy</button>
-    <button class="abt" onclick="speakMsg('${mid}')">🔊 Speak</button>
-    ${type==='audio'?`<button class="abt" onclick="dlAud('${mid}')">⬇ Download</button>`:''}`;
-  bub.appendChild(acts);
+  if(type!=='image-gen'){
+    const acts=document.createElement('div'); acts.className='acts';
+    acts.innerHTML=`<button class="abt" onclick="copyMsg('${mid}')">📋 Copy</button>
+      <button class="abt" onclick="speakMsg('${mid}')">🔊 Speak</button>`;
+    bub.appendChild(acts);
+  }
 }
 
 function copyMsg(mid){ const el=document.getElementById('c_'+mid); if(!el)return; navigator.clipboard.writeText(el.innerText||'').then(()=>toast('📋 Copied!')); }
@@ -792,7 +695,7 @@ function speakMsg(mid){ const el=document.getElementById('c_'+mid); if(!el)retur
 /* ── TTS ── */
 $('tts-btn').addEventListener('click',()=>{
   if(speechSynthesis.speaking){ speechSynthesis.cancel(); ttsOn=false; updTTS(); toast('🔇 Voice stopped'); return; }
-  ttsOn=!ttsOn; updTTS(); toast(ttsOn?'🔊 Voice ON':'🔇 Voice OFF');
+  ttsOn=!ttsOn; updTTS(); toast(ttsOn?'🔊 Auto-Voice ON':'🔇 Auto-Voice OFF');
 });
 function updTTS(){ $('tts-btn').classList.toggle('von',ttsOn||speechSynthesis.speaking); }
 function speakText(text){
@@ -800,84 +703,18 @@ function speakText(text){
   const clean=text.replace(/<[^>]+>/g,'').replace(/[*_`#•\-]/g,'').replace(/\s+/g,' ').trim().slice(0,2000);
   if(!clean)return;
   const utt=new SpeechSynthesisUtterance(clean);
-  utt.rate=1.25; utt.pitch=1.05; utt.volume=1;
+  utt.rate=1.1; utt.pitch=1.05; utt.volume=1;
   const vs=speechSynthesis.getVoices();
-  const v=vs.find(v=>/david|james|daniel|guy|mark/i.test(v.name))||vs.find(v=>v.lang.startsWith('en')&&!/zira|cortana|siri|samantha|victoria|karen/i.test(v.name));
+  const v=vs.find(v=>/david|james|daniel|guy|mark/i.test(v.name))||vs.find(v=>v.lang.startsWith('en'));
   if(v)utt.voice=v;
   utt.onstart=updTTS; utt.onend=utt.onerror=()=>{if(!ttsOn)updTTS();};
   speechSynthesis.speak(utt);
 }
 speechSynthesis.onvoiceschanged=()=>{};
 
-/* ── Audio Player ── */
-function buildAudHTML(text,mid){
-  return `<div style="font-size:13px;color:var(--t2);margin-bottom:7px">🎧 <em>"${esc(text.slice(0,60))}${text.length>60?'…':''}"</em></div>
-    <div class="aud-wrap" id="aw_${mid}">
-      <button class="aud-pb" id="apb_${mid}" onclick="togAud('${mid}')">▶</button>
-      <div class="aud-bg" id="abg_${mid}" onclick="seekAud(event,'${mid}')"><div class="aud-fi" id="af_${mid}"></div></div>
-      <div class="aud-tm" id="at_${mid}">0:00 / 0:00</div>
-      <button class="aud-dl" onclick="dlAud('${mid}')" title="Download">⬇</button>
-    </div>`;
-}
-
-async function genAudio(text,mid){
-  return new Promise(res=>{
-    const utt=new SpeechSynthesisUtterance(text.slice(0,600));
-    utt.rate=1.1; utt.pitch=1.0; utt.volume=1;
-    const vs=speechSynthesis.getVoices();
-    const male=vs.find(v=>/david|james|daniel|guy|mark/i.test(v.name))||vs.find(v=>v.lang.startsWith('en')&&!/zira|samantha|victoria/i.test(v.name));
-    if(male)utt.voice=male;
-    try{
-      const ctx=new(window.AudioContext||window.webkitAudioContext)();
-      const dest=ctx.createMediaStreamDestination();
-      const rec=new MediaRecorder(dest.stream);
-      const chunks=[];
-      rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
-      rec.onstop=()=>{ const blob=new Blob(chunks,{type:'audio/webm'}); audS[mid]=blob; ctx.close(); res(blob); };
-      rec.start();
-      utt.onend=()=>setTimeout(()=>{try{if(rec.state==='recording')rec.stop();}catch{}},350);
-      utt.onerror=()=>{try{if(rec.state==='recording')rec.stop();}catch{}};
-      speechSynthesis.speak(utt);
-      setTimeout(()=>{try{if(rec.state==='recording')rec.stop();}catch{}},35000);
-    }catch{
-      utt.onend=utt.onerror=()=>{audS[mid]=null;res(null);};
-      speechSynthesis.speak(utt);
-    }
-  });
-}
-
-function togAud(mid){
-  const btn=document.getElementById('apb_'+mid); if(!btn)return;
-  const blob=audS[mid];
-  if(!blob){toast('⚠️ Audio not captured — Chrome recommended');return;}
-  if(audE[mid]&&!audE[mid].paused){audE[mid].pause();btn.textContent='▶';return;}
-  if(audE[mid]){audE[mid].play();btn.textContent='⏸';return;}
-  const a=new Audio(URL.createObjectURL(blob)); audE[mid]=a;
-  btn.textContent='⏸';
-  a.ontimeupdate=()=>{
-    const fi=document.getElementById('af_'+mid), tm=document.getElementById('at_'+mid);
-    if(fi&&a.duration)fi.style.width=(a.currentTime/a.duration*100)+'%';
-    if(tm)tm.textContent=`${fmt(a.currentTime)} / ${fmt(a.duration)}`;
-  };
-  a.onended=()=>{btn.textContent='▶';};
-  a.play();
-}
-function seekAud(e,mid){
-  const bg=document.getElementById('abg_'+mid),a=audE[mid];
-  if(!bg||!a||!a.duration)return;
-  const r=bg.getBoundingClientRect(); a.currentTime=((e.clientX-r.left)/r.width)*a.duration;
-}
-function dlAud(mid){
-  const blob=audS[mid]; if(!blob){toast('⚠️ No audio — use Chrome');return;}
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`ShrawanChatAI_${mid}.webm`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  toast('⬇️ Downloading…');
-}
-
 /* ── Image Gen (Pollinations) ── */
 function isImg(t){ return curMode==='image'||/^(generate image:|image:|draw:|create image:)/i.test(t.trim()); }
 function getPrompts(t){ return t.replace(/^(generate image:|image:|draw:|create image:)\s*/i,'').trim().split('|').map(p=>p.trim()).filter(Boolean); }
-function isDig(t){ return DIG_KW.some(k=>t.toLowerCase().includes(k)); }
 
 function renderImages(prompts,cdiv,mid){
   prompts.forEach((p,i)=>{
@@ -893,9 +730,7 @@ function renderImages(prompts,cdiv,mid){
       img.onerror=()=>{ const d=document.createElement('div'); d.style.cssText='color:var(--err);font-size:12.5px;margin-top:5px'; d.textContent='❌ Image failed. Try a different prompt.'; wrap.appendChild(d); };
     };
     const cap=document.createElement('div'); cap.className='img-cap'; cap.textContent=`🖼 "${p}"`;
-    const dl=document.createElement('button'); dl.className='abt'; dl.style.cssText='margin-top:7px;opacity:1';
-    dl.textContent='⬇ Download'; dl.onclick=()=>{ const a=document.createElement('a'); a.href=img.src; a.download=`ShrawanChatAI_${i+1}.jpg`; a.target='_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
-    wrap.appendChild(img); wrap.appendChild(cap); wrap.appendChild(dl); cdiv.appendChild(wrap);
+    wrap.appendChild(img); wrap.appendChild(cap); cdiv.appendChild(wrap);
   });
 }
 
@@ -908,8 +743,8 @@ async function send(text){
   if(!text&&!upImg)return;
   if(busy)return;
 
-  // Check API key
-  if(!cfg.key){
+  // Enforce API key for normal chats
+  if(!cfg.key && curMode === 'chat' && !isImg(text)){
     openSettings();
     toast('⚠️ Please add your OpenRouter API key first!',4000);
     return;
@@ -917,19 +752,15 @@ async function send(text){
 
   busy=true; $('sb-btn').disabled=true;
   $('mi').value=''; $('mi').style.height='auto';
+  
   const imgD=upImg; clearImg();
-  const uTxt=text+(imgD?'\n[📎 Image attached]':'');
-  renderMsg('user',uTxt,'text',null,true);
-  pushMsg('user',uTxt,'text');
+  const uTxt = text;
+  renderMsg('user', uTxt, 'text', null, true, imgD);
+  pushMsg('user', uTxt, 'text', null, imgD);
 
-  const lower=text.toLowerCase();
-  if(OWNER_KW.some(k=>lower.includes(k))){ await fStream(OWNER_MSG,'text'); pushMsg('assistant',OWNER_MSG,'text'); done(); return; }
   if(curMode==='audio'){ await hAudio(text); done(); return; }
   if(isImg(text)){ await hImage(text); done(); return; }
-  if(isDig(text)){
-    const r=`🚫 **Request declined.**\n\nI respect the dignity of all people. Please ask something else! 🙏`;
-    await fStream(r,'refusal'); pushMsg('assistant',r,'refusal'); done(); return;
-  }
+  
   await hChat(text); done();
 }
 
@@ -937,19 +768,16 @@ function done(){ busy=false; $('sb-btn').disabled=false; $('ty').classList.remov
 
 async function hAudio(text){
   $('ty').classList.add('on'); scrollBot();
-  const{cdiv,cur,bub,mid}=sRow();
-  cdiv.innerHTML='<div style="color:var(--t2)">🎧 Generating audio…</div>'; cur.remove();
-  try{
-    const blob=await genAudio(text,mid); audS[mid]=blob;
-    cdiv.innerHTML=buildAudHTML(text,mid);
-    finBot(bub,mid,'audio'); pushMsg('assistant',text,'audio',mid,text);
-    toast(blob?'🎧 Ready! Press ▶':'🔊 Played (recording needs Chrome)');
-  }catch(e){ cdiv.innerHTML=`<span style="color:var(--err)">⚠️ ${esc(e.message)}</span>`; bub.classList.add('err'); }
+  const{cdiv,cur,bub,mid}=sRow(); cur.remove();
+  
+  cdiv.innerHTML=`<div style="font-size:14px;color:var(--t1);"><strong>🔊 Playing Text:</strong></div><div style="margin-top:5px;color:var(--t2)">"${esc(text)}"</div>`;
+  speakText(text); // Native TTS
+  
+  finBot(bub,mid,'text'); pushMsg('assistant',text,'text',mid);
 }
 
 async function hImage(text){
   const prompts=getPrompts(text);
-  if(prompts.some(isDig)){ const r=`🚫 **Image declined.** Please try a creative appropriate prompt! 🙏`; await fStream(r,'refusal'); pushMsg('assistant',r,'refusal'); return; }
   $('ty').classList.add('on'); scrollBot();
   const{cdiv,cur,bub,mid}=sRow(); cur.remove();
   cdiv.innerHTML=`<div style="color:var(--t2);margin-bottom:6px">🎨 Generating <strong>${prompts.length}</strong> image${prompts.length>1?'s':''}…</div>`;
@@ -959,10 +787,22 @@ async function hImage(text){
 async function hChat(text){
   $('ty').classList.add('on'); scrollBot();
   const c=getC();
-  const hist=(c?.messages||[]).slice(-20).map(m=>({
-    role:m.role==='user'?'user':'assistant',
-    content:typeof m.rawContent==='string'?m.rawContent:''
-  }));
+  
+  // Format history for multimodal capability
+  const hist=(c?.messages||[]).slice(-20).map(m=>{
+    let content = m.rawContent || '';
+    if(m.imgData && m.role === 'user') {
+      content = [
+        {type: "text", text: content},
+        {type: "image_url", image_url: {"url": m.imgData}}
+      ];
+    }
+    return {
+      role: m.role==='user'?'user':'assistant',
+      content: content
+    };
+  });
+  
   $('ty').classList.remove('on');
   const{cdiv,cur,bub,mid}=sRow();
   let full='';
@@ -999,23 +839,11 @@ async function hChat(text){
   }
 }
 
-function fStream(text,type='text'){
-  $('ty').classList.remove('on');
-  return new Promise(resolve=>{
-    const{cdiv,cur,bub,mid}=sRow(); let i=0;
-    function tick(){
-      if(i<text.length){ i=Math.min(i+Math.ceil(Math.random()*4+1),text.length); cdiv.innerHTML=md(text.slice(0,i)); scrollBot(); setTimeout(tick,10); }
-      else{ cur.remove(); if(type==='refusal')bub.classList.add('ref'); finBot(bub,mid,type); if(ttsOn)speakText(text); resolve(); }
-    }
-    tick();
-  });
-}
-
 /* ── Mode ── */
 function setMode(m){
   curMode=m;
   document.querySelectorAll('.mp').forEach(p=>p.classList.toggle('act',p.dataset.m===m));
-  const ph={chat:'Message ShrawanChatAI…',image:'Describe image… Use | for multiple',audio:'Enter text to convert to audio…'};
+  const ph={chat:'Message ShrawanChatAI…',image:'Describe image… Use | for multiple',audio:'Enter text to hear aloud…'};
   $('mi').placeholder=ph[m]||ph.chat;
 }
 
@@ -1051,10 +879,10 @@ $('open-set').addEventListener('click',openSettings);
 $('api-badge').addEventListener('click',openSettings);
 $('s-save').addEventListener('click',saveSettings);
 $('s-close').addEventListener('click',closeSettings);
-$('prof-btn').addEventListener('click',()=>toast(`👤 ${user.name} · ${user.email}`));
+$('prof-btn').addEventListener('click',()=>openSettings());
 
 /* ── INIT ── */
-initAuth();
+launch();
 </script>
 </body>
 </html>
