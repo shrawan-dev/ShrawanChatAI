@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ShrawanChatAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,10 +14,10 @@
   --a:#7cb9f8;--a2:#38bdf8;--a3:#c084fc;
   --t1:#e6eeff;--t2:#8fa3c0;--t3:#4a5e7a;
   --err:#f28b82;--ok:#7dd3a8;--gold:#fcd34d;
-  --sw:278px;--th:60px;
+  --sw:280px;--th:60px;
   --f:'DM Sans',system-ui,sans-serif;
   --fd:'Outfit',system-ui,sans-serif;
-  --tr:.22s cubic-bezier(.4,0,.2,1);
+  --tr:.25s cubic-bezier(.4,0,.2,1);
   --r:14px;--rs:9px
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:var(--f);font-size:15px;-webkit-font-smoothing:antialiased}
@@ -37,10 +37,10 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 /* ── MODALS base ── */
 .overlay{position:fixed;inset:0;z-index:3000;background:rgba(5,7,14,.97);
-  backdrop-filter:blur(24px);display:flex;align-items:center;justify-content:center;transition:opacity .35s}
+  backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;transition:opacity .35s}
 .overlay.gone{opacity:0;pointer-events:none}
 .modal{background:var(--sf);border:1px solid var(--bd);border-radius:22px;
-  padding:44px 40px;width:420px;max-width:93vw;
+  padding:44px 40px;width:420px;max-width:92vw;
   box-shadow:0 0 70px rgba(124,185,248,.08),0 30px 60px rgba(0,0,0,.5);
   animation:popIn .48s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{from{transform:translateY(44px) scale(.93);opacity:0}to{transform:none;opacity:1}}
@@ -50,7 +50,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .btxt{font-family:var(--fd);font-weight:800;white-space:nowrap}
 .btxt .ca{color:var(--a)}.btxt .cb{color:var(--a2)}
 
-/* form fields */
 .fg{margin-bottom:16px}
 .fg label{display:block;font-size:11px;font-weight:700;letter-spacing:.09em;color:var(--t2);margin-bottom:6px;text-transform:uppercase}
 .fg input,.fg select{width:100%;padding:12px 15px;background:var(--bg);border:1.5px solid var(--bd);
@@ -80,16 +79,19 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 #app{position:fixed;inset:0;z-index:1;display:flex;opacity:0;transition:opacity .4s}
 #app.on{opacity:1}
 
+/* Mobile Background Overlay for Sidebar */
+#mob-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:15;opacity:0;pointer-events:none;transition:opacity var(--tr)}
+#mob-ov.on{opacity:1;pointer-events:all}
+
 /* ── SIDEBAR ── */
 #sb{width:var(--sw);min-width:var(--sw);background:var(--sf);border-right:1px solid var(--bd);
   display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:20;
-  transition:width var(--tr),min-width var(--tr),opacity var(--tr),border-color var(--tr)}
-#sb.off{width:0;min-width:0;opacity:0;border-right-color:transparent}
+  transition:margin-left var(--tr),opacity var(--tr)}
+#sb.off{margin-left:calc(var(--sw) * -1);opacity:0}
 
 .sb-top{height:var(--th);padding:0 16px;display:flex;align-items:center;gap:11px;
   border-bottom:1px solid var(--bd);flex-shrink:0;min-width:var(--sw)}
 
-/* Settings button in sidebar */
 .sb-set{margin:12px 11px 2px;padding:10px 16px;min-width:calc(var(--sw) - 22px);
   background:rgba(124,185,248,.07);border:1px solid rgba(124,185,248,.2);border-radius:20px;
   color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;
@@ -108,7 +110,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .sb-lbl{padding:14px 18px 6px;font-size:10px;font-weight:700;letter-spacing:.12em;
   color:var(--t3);text-transform:uppercase;white-space:nowrap;flex-shrink:0;min-width:var(--sw)}
 
-.clist{flex:1;overflow-y:auto;padding:2px 7px 8px;min-width:var(--sw)}
+.clist{flex:1;overflow-y:auto;padding:2px 7px 18px;min-width:var(--sw)}
 .clist::-webkit-scrollbar{width:3px}
 .clist::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 
@@ -122,17 +124,18 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .ci:hover .ci-del{opacity:1}
 .sb-empty{padding:20px;font-size:12.5px;color:var(--t3);text-align:center;min-width:var(--sw)}
 
-.sb-foot{padding:12px 14px;border-top:1px solid var(--bd);
-  display:flex;align-items:center;gap:10px;flex-shrink:0;min-width:var(--sw)}
-.sb-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#1a66d4,var(--a3));
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--fd);font-size:15px;font-weight:800;color:#fff}
+/* api key badge */
+.api-badge{margin:0 11px 8px;padding:8px 14px;border-radius:var(--rs);
+  background:rgba(124,185,248,.06);border:1px solid rgba(124,185,248,.15);
+  font-size:11.5px;color:var(--t2);display:flex;align-items:center;gap:6px;cursor:pointer;
+  transition:all var(--tr)}
+.api-badge:hover{border-color:var(--a);color:var(--a)}
+.api-dot{width:7px;height:7px;border-radius:50%;background:var(--err);flex-shrink:0}
+.api-dot.set{background:var(--ok)}
 
 /* ── MAIN ── */
 #main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
 
-/* ── TOPBAR ── */
 #tb{height:var(--th);padding:0 18px;border-bottom:1px solid var(--bd);background:var(--sf);
   display:flex;align-items:center;gap:12px;flex-shrink:0;z-index:10}
 .ham{width:38px;height:38px;border-radius:50%;background:transparent;border:none;
@@ -151,18 +154,12 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tb-btn:hover{background:var(--hv);color:var(--t1)}
 .tb-btn.von{color:var(--ok);animation:pr 1.5s infinite}
 @keyframes pr{0%,100%{box-shadow:0 0 0 0 rgba(125,211,168,.4)}50%{box-shadow:0 0 0 7px rgba(125,211,168,0)}}
-.prof{width:36px;height:36px;border-radius:50%;
-  background:linear-gradient(135deg,#1a66d4,var(--a3));border:2px solid var(--bd);
-  color:#fff;font-family:var(--fd);font-size:15px;font-weight:800;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
-.prof:hover{transform:scale(1.08);border-color:var(--a)}
 
 /* ── CHAT AREA ── */
 #ca{flex:1;overflow-y:auto;padding:24px 0 8px;display:flex;flex-direction:column;scroll-behavior:smooth}
 #ca::-webkit-scrollbar{width:4px}
 #ca::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 
-/* welcome */
 #wl{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:32px 20px;text-align:center;animation:fu .5s ease}
 @keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
@@ -180,12 +177,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tc-icon{font-size:20px;flex-shrink:0}
 .tc-lbl{font-weight:700;font-size:13px;color:var(--t1);margin-bottom:1px}
 .tc-desc{font-size:11px;color:var(--t2)}
-.chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;max-width:520px}
-.chip{padding:7px 14px;border-radius:18px;background:var(--sf);border:1px solid var(--bd);
-  color:var(--t2);font-size:12.5px;cursor:pointer;transition:all var(--tr);font-family:var(--f)}
-.chip:hover{border-color:var(--a);color:var(--a);background:rgba(124,185,248,.07)}
 
-/* messages */
 .mw{width:100%;max-width:800px;margin:0 auto;padding:0 20px}
 .mr{display:flex;gap:11px;margin-bottom:20px;animation:mi .25s cubic-bezier(.34,1.56,.64,1)}
 @keyframes mi{from{opacity:0;transform:translateY(11px) scale(.97)}to{opacity:1;transform:none}}
@@ -230,7 +222,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 @keyframes dt{0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-6px);opacity:1}}
 
 /* ── INPUT ── */
-#ia{padding:12px 20px 18px;background:var(--sf);border-top:1px solid var(--bd);flex-shrink:0}
+#ia{padding:12px 20px calc(18px + env(safe-area-inset-bottom));background:var(--sf);border-top:1px solid var(--bd);flex-shrink:0}
 .mode-bar{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
 .mp{padding:5px 13px;border-radius:18px;border:1.5px solid var(--bd);background:transparent;
   color:var(--t2);font-size:12px;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:var(--f)}
@@ -281,25 +273,21 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   z-index:9999;box-shadow:0 6px 28px rgba(0,0,0,.5);white-space:nowrap;pointer-events:none}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* api key badge in sidebar */
-.api-badge{margin:0 11px 8px;padding:8px 14px;border-radius:var(--rs);
-  background:rgba(124,185,248,.06);border:1px solid rgba(124,185,248,.15);
-  font-size:11.5px;color:var(--t2);display:flex;align-items:center;gap:6px;cursor:pointer;
-  transition:all var(--tr)}
-.api-badge:hover{border-color:var(--a);color:var(--a)}
-.api-dot{width:7px;height:7px;border-radius:50%;background:var(--err);flex-shrink:0}
-.api-dot.set{background:var(--ok)}
-
-@media(max-width:680px){
-  :root{--sw:260px}
-  #sb{position:absolute;height:100%;box-shadow:4px 0 20px rgba(0,0,0,.5)}
+/* ════ RESPONSIVE QUERIES (TABLET & MOBILE) ════ */
+@media(max-width:768px){
+  :root{--sw:280px}
+  #sb{position:fixed;top:0;bottom:0;left:0;margin-left:calc(var(--sw) * -1);box-shadow:4px 0 24px rgba(0,0,0,.6);opacity:1;z-index:20}
+  #sb.on{margin-left:0}
+  #sb.off{margin-left:calc(var(--sw) * -1)}
   .wl-title{font-size:26px}
-  .mw{padding:0 12px}
-  #ia{padding:10px 12px 14px}
+  .mw{padding:0 14px}
+  #ia{padding:10px 14px calc(14px + env(safe-area-inset-bottom))}
 }
 </style>
 </head>
 <body>
+
+<div id="mob-ov"></div>
 
 <div class="overlay gone" id="ov-set">
 <div class="modal">
@@ -374,14 +362,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
     <div class="sb-lbl">📋 Recent Chats</div>
     <div class="clist" id="clist"><div class="sb-empty" id="sb-empty">No chats yet</div></div>
-
-    <div class="sb-foot">
-      <div class="sb-av" id="sb-av">U</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">My Profile</div>
-        <div style="font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Local User</div>
-      </div>
-    </div>
   </aside>
 
   <div id="main">
@@ -408,7 +388,6 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
             <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
           </svg>
         </button>
-        <button class="prof" id="prof-btn">U</button>
       </div>
     </div>
 
@@ -496,7 +475,7 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 
 <script>
 /* ═══════════════════════════════════════════════════
-   ShrawanChatAI — Live Stable App
+   ShrawanChatAI — Live Stable App (Fully Manual)
    ═══════════════════════════════════════════════════ */
 
 const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -538,6 +517,7 @@ function botSVG(id){
 
 /* ── Settings ── */
 function openSettings(){
+  closeMobSB();
   $('s-key').value = cfg.key || '';
   $('s-model').value = cfg.model || 'openai/gpt-4o-mini';
   $('ov-set').classList.remove('gone');
@@ -570,14 +550,35 @@ function launch(){
   if(!convos.length) newChat(); else loadConvo(convos[0].id);
 }
 
+/* ── Mobile Sidebar Logic ── */
+function closeMobSB(){
+  if(window.innerWidth <= 768){
+    $('sb').classList.remove('on');
+    $('mob-ov').classList.remove('on');
+  }
+}
+
+$('ham-btn').addEventListener('click',()=>{
+  if(window.innerWidth <= 768){
+    $('sb').classList.toggle('on');
+    $('mob-ov').classList.toggle('on');
+  } else {
+    $('sb').classList.toggle('off');
+  }
+});
+
+$('mob-ov').addEventListener('click', closeMobSB);
+
 /* ── Convos ── */
 function newChat(){
+  closeMobSB();
   const id='c'+Date.now();
   convos.unshift({id, title:'New Chat', messages:[], ts:Date.now()});
   curId=id; save(); renderSB(); clearChat();
   toast('✨ New conversation');
 }
 function loadConvo(id){
+  closeMobSB();
   curId=id; clearChat();
   const c=convos.find(v=>v.id===id);
   if(c) c.messages.forEach(m=>{
@@ -743,7 +744,6 @@ async function send(text){
   if(!text&&!upImg)return;
   if(busy)return;
 
-  // Enforce API key for normal chats
   if(!cfg.key && curMode === 'chat' && !isImg(text)){
     openSettings();
     toast('⚠️ Please add your OpenRouter API key first!',4000);
@@ -771,7 +771,7 @@ async function hAudio(text){
   const{cdiv,cur,bub,mid}=sRow(); cur.remove();
   
   cdiv.innerHTML=`<div style="font-size:14px;color:var(--t1);"><strong>🔊 Playing Text:</strong></div><div style="margin-top:5px;color:var(--t2)">"${esc(text)}"</div>`;
-  speakText(text); // Native TTS
+  speakText(text); 
   
   finBot(bub,mid,'text'); pushMsg('assistant',text,'text',mid);
 }
@@ -788,7 +788,6 @@ async function hChat(text){
   $('ty').classList.add('on'); scrollBot();
   const c=getC();
   
-  // Format history for multimodal capability
   const hist=(c?.messages||[]).slice(-20).map(m=>{
     let content = m.rawContent || '';
     if(m.imgData && m.role === 'user') {
@@ -873,13 +872,11 @@ $('mic-btn').addEventListener('click',()=>{
   micObj.start();
 });
 
-$('ham-btn').addEventListener('click',()=>$('sb').classList.toggle('off'));
 $('btn-new').addEventListener('click',newChat);
 $('open-set').addEventListener('click',openSettings);
 $('api-badge').addEventListener('click',openSettings);
 $('s-save').addEventListener('click',saveSettings);
 $('s-close').addEventListener('click',closeSettings);
-$('prof-btn').addEventListener('click',()=>openSettings());
 
 /* ── INIT ── */
 launch();
