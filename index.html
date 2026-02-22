@@ -3,22 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RealChat AI</title>
+    <title>RealChat AI - Pro</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <button class="new-chat-btn"><i class="material-icons">add</i> New Chat</button>
+            <div class="chat-history" id="chatHistory">
+                </div>
+            <div class="profile-section">
+                <img src="https://via.placeholder.com/40" alt="Profile" class="avatar">
+                <span>Shrawan Dev</span>
+            </div>
+        </aside>
 
-    <h2 style="text-align: center; padding: 10px;">RealChat AI</h2>
+        <main class="chat-area">
+            <header>
+                <h2>RealChat AI</h2>
+            </header>
+            
+            <div class="messages-container" id="chatWindow">
+                <div class="ai-msg">Namaste! Main aapki kaise madad kar sakta hoon?</div>
+            </div>
 
-    <div id="chat-box">
-        <div class="message bot-message">नमस्ते! मैं RealChat हूँ। मैं आपकी कैसे मदद कर सकता हूँ?</div>
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <input type="text" id="userInput" placeholder="Kuch bhi puchiye...">
+                    <button id="ttsBtn" title="Bol kar suniye"><i class="material-icons">volume_up</i></button>
+                    <button id="imageBtn" title="Image banaye"><i class="material-icons">image</i></button>
+                    <button id="sendBtn"><i class="material-icons">send</i></button>
+                </div>
+            </div>
+        </main>
     </div>
-
-    <div class="input-container">
-        <input type="text" id="user-input" placeholder="Message RealChat...">
-        <button id="send-btn">Send</button>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
