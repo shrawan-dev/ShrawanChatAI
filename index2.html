@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealChat AI</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #131314;
+            --sidebar-bg: #1e1f20;
+            --input-bg: #1e1f20;
+            --text-main: #e3e3e3;
+        }
+
+        body, html { margin: 0; padding: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Segoe UI', sans-serif; height: 100%; overflow: hidden; }
+
+        /* Sidebar - Default Off-screen */
+        .sidebar { 
+            position: fixed; 
+            left: -300px; /* Shuru mein screen ke bahar */
+            top: 0; 
+            width: 280px; 
+            height: 100%; 
+            background: var(--sidebar-bg); 
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 1000; 
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Sidebar active hone par andar aayega */
+        .sidebar.active { left: 0; }
+
+        .sidebar-header { display: flex; align-items: center; margin-bottom: 20px; }
+
+        .btn-new { 
+            background: #28292a; border: none; color: white; padding: 12px 20px; 
+            border-radius: 50px; cursor: pointer; display: flex; align-items: center; 
+            gap: 10px; margin-left: 10px;
+        }
+
+        /* Main Stage Layout */
+        .stage { display: flex; flex-direction: column; height: 100%; width: 100%; }
+        
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+
+        .icon-btn { color: #c4c7c5; background: none; border: none; cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; }
+        .icon-btn:hover { background: #333537; }
+
+        .profile { width: 35px; height: 35px; background: #4b5563; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* Chat UI Content */
+        .viewport { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; text-align: left; }
+        .welcome-wrap { width: 100%; max-width: 800px; margin-top: 5vh; }
+        .gradient-text { font-size: 56px; background: linear-gradient(to right, #4285f4, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; }
+        
+        #chat-flow { width: 100%; max-width: 800px; display: none; flex-direction: column; gap: 20px; padding-bottom: 120px; }
+        .msg { line-height: 1.6; }
+        .user-msg { align-self: flex-end; background: #2b2c2d; padding: 12px 20px; border-radius: 20px; max-width: 80%; }
+        .bot-msg { align-self: flex-start; max-width: 90%; }
+
+        /* Input Area */
+        .bottom-shelf { position: fixed; bottom: 25px; width: 100%; display: flex; justify-content: center; padding: 0 20px; }
+        .input-box { background: var(--input-bg); border-radius: 35px; padding: 8px 20px; display: flex; align-items: center; gap: 12px; width: 100%; max-width: 800px; border: 1px solid #3c4043; }
+        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <button class="icon-btn" onclick="toggleMenu()"><span class="material-icons">menu</span></button>
+            <button class="btn-new" onclick="location.reload()"><span class="material-icons">add</span> New chat</button>
+        </div>
+        <div id="history-box" style="margin-top: 10px;">
+            <p style="font-size: 12px; color: #9aa0a6; padding-left: 10px;">Recent</p>
+            </div>
+    </aside>
+
+    <div class="stage">
+        <header>
+            <button class="icon-btn" onclick="toggleMenu()"><span class="material-icons">menu</span></button>
+            <div class="profile">S</div>
+        </header>
+
+        <div class="viewport">
+            <div id="welcome-ui" class="welcome-wrap">
+                <h1 class="gradient-text">Hello, Shrawan</h1>
+                <h2 style="font-size: 40px; color: #444746;">How can I help you today?</h2>
+            </div>
+            <div id="chat-flow"></div>
+        </div>
+
+        <div class="bottom-shelf">
+            <div class="input-box">
+                <button class="icon-btn"><span class="material-icons">add</span></button>
+                <input type="text" id="query" placeholder="Ask RealChat AI..." onkeypress="if(event.key==='Enter') processChat()">
+                <button class="icon-btn" onclick="processChat()"><span class="material-icons">send</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = "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";
+        const MODEL = "stepfun/step-3.5-flash:free";
+
+        // Sidebar Toggle Logic
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        async function processChat() {
+            const input = document.getElementById('query');
+            const val = input.value.trim();
+            if (!val) return;
+
+            document.getElementById('welcome-ui').style.display = 'none';
+            const chatFlow = document.getElementById('chat-flow');
+            chatFlow.style.display = 'flex';
+            chatFlow.innerHTML += `<div class="msg user-msg">${val}</div>`;
+            input.value = '';
+
+            const botDiv = document.createElement('div');
+            botDiv.className = 'msg bot-msg';
+            botDiv.innerHTML = `<b>RealChat:</b><br>Thinking...`;
+            chatFlow.appendChild(botDiv);
+
+            try {
+                const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ "model": MODEL, "messages": [{"role": "user", "content": val}] })
+                });
+                const data = await res.json();
+                botDiv.innerHTML = `<b>RealChat:</b><br>${data.choices[0].message.content}`;
+            } catch (e) { botDiv.innerHTML = "Error connecting to AI."; }
+            
+            chatFlow.scrollTop = chatFlow.scrollHeight;
+        }
+    </script>
+</body>
+</html>
