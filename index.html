@@ -30,30 +30,37 @@
         /* Main Viewport */
         .main-stage { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
         header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .icon-btn { color: var(--text-sub); background: none; border: none; cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; }
+        .icon-btn { color: var(--text-sub); background: none; border: none; cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; transition: 0.2s; }
         .icon-btn:hover { background: #333537; color: white; }
         .profile-icon { width: 35px; height: 35px; background: #4b5563; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
         /* Chat Content */
-        .viewport { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; }
+        .viewport { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px; overflow-y: auto; scroll-behavior: smooth; }
         .welcome-screen { width: 100%; max-width: 800px; margin-top: 5vh; }
         .gradient-text { font-size: clamp(32px, 8vw, 56px); font-weight: bold; background: linear-gradient(to right, #4285f4, #d96570); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .sub-greeting { font-size: clamp(24px, 6vw, 40px); color: #444746; font-weight: bold; margin-bottom: 30px; }
 
         #chat-flow { width: 100%; max-width: 800px; display: none; flex-direction: column; gap: 30px; padding-bottom: 120px; }
-        .msg { font-size: 16px; line-height: 1.6; max-width: 90%; }
+        .msg { font-size: 16px; line-height: 1.6; max-width: 90%; position: relative; }
         .user-msg { align-self: flex-end; background: #2b2c2d; padding: 12px 20px; border-radius: 22px; color: white; }
-        .bot-msg { align-self: flex-start; color: var(--text-main); }
+        .bot-msg { align-self: flex-start; color: var(--text-main); padding-right: 40px; }
         .typing { color: var(--accent-blue); font-style: italic; animation: pulse 1.5s infinite; }
-        .chat-image { max-width: 300px; border-radius: 10px; margin-top: 10px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .chat-image { max-width: 100%; border-radius: 12px; margin-top: 10px; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: zoom-in; }
+
+        /* Action Buttons (Download) */
+        .action-bar { display: flex; gap: 10px; margin-top: 8px; }
+        .dl-btn { background: #28292a; border: 1px solid #3c4043; color: var(--text-sub); padding: 6px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; transition: 0.2s; }
+        .dl-btn:hover { background: #333537; color: white; border-color: var(--accent-blue); }
+        .dl-btn i { font-size: 16px; }
 
         /* Input Area & Image Preview */
-        .bottom-nav { position: fixed; bottom: 25px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 20px; }
+        .bottom-nav { position: fixed; bottom: 25px; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 0 20px; z-index: 100; pointer-events: none; }
+        .bottom-nav > * { pointer-events: auto; } /* Enable clicking on children */
         #image-preview-container { display: none; width: 100%; max-width: 800px; margin-bottom: 10px; padding: 0 20px; position: relative; }
         #image-preview { height: 60px; border-radius: 8px; border: 2px solid #3c4043; }
         .remove-img-btn { position: absolute; top: -5px; left: 85px; background: #d93025; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .input-container { background: var(--input-bg); border-radius: 35px; padding: 8px 20px; display: flex; align-items: center; gap: 12px; width: 100%; max-width: 800px; border: 1px solid #3c4043; }
+        .input-container { background: var(--input-bg); border-radius: 35px; padding: 8px 15px 8px 20px; display: flex; align-items: center; gap: 8px; width: 100%; max-width: 800px; border: 1px solid #3c4043; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         #user-input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 16px; padding: 10px 0; }
 
         /* Settings Popup Modal */
@@ -74,14 +81,14 @@
         <div class="modal-box">
             <h2>⚙️ Secure Setup</h2>
             <p style="font-size: 13px; color: var(--text-sub); text-align: center; margin-bottom: 20px;">
-                API key sirf browser mein save hogi. GitHub isko kabhi block nahi karega.
+                Keys are saved locally in your browser.
             </p>
             
-            <label class="input-label">OpenRouter API Key (sk-or-v1-...):</label>
-            <input type="password" id="api-key-input" class="modal-input" placeholder="Enter your key here...">
+            <label class="input-label">OpenRouter API Key:</label>
+            <input type="password" id="api-key-input" class="modal-input" placeholder="sk-or-v1-...">
             
-            <label class="input-label">Primary Model (Option 1):</label>
-            <input type="text" id="model-input" class="modal-input" placeholder="e.g. google/gemini-2.0-flash-lite:free">
+            <label class="input-label">Model:</label>
+            <input type="text" id="model-input" class="modal-input" value="google/gemini-2.0-flash-lite-preview-02-05:free">
             
             <button class="modal-btn" onclick="saveSettings()">Save & Start</button>
         </div>
@@ -93,7 +100,6 @@
             <button class="btn-new" onclick="location.reload()"><span class="material-icons">add</span> New chat</button>
         </div>
         <div class="history-list">
-            <p style="font-size: 12px; color: #9aa0a6; padding-left: 10px; margin-bottom: 10px;">Recent History</p>
             <div id="history-items"></div>
         </div>
         <button class="settings-btn" onclick="openSettings()">
@@ -104,13 +110,12 @@
     <div class="main-stage">
         <header>
             <button class="icon-btn" onclick="toggleSidebar()"><span class="material-icons">menu</span></button>
-            <div class="profile-icon">S</div>
         </header>
 
         <div class="viewport">
             <div id="welcome-ui" class="welcome-screen">
-                <h1 class="gradient-text">Hello, Shrawan</h1>
-                <h2 class="sub-greeting">How can I help you today?</h2>
+                <h1 class="gradient-text">RealChat AI</h1>
+                <h2 class="sub-greeting">Fast. Visual. Voice.</h2>
             </div>
             <div id="chat-flow"></div>
         </div>
@@ -128,13 +133,13 @@
                     <span class="material-icons">image</span>
                 </button>
                 
-                <input type="text" id="user-input" placeholder="Ask RealChat, or type /image to generate photo..." onkeypress="if(event.key==='Enter') startChat()">
+                <input type="text" id="user-input" placeholder="Type message or /image for photos..." onkeypress="if(event.key==='Enter') startChat()">
                 
-                <button class="icon-btn" onclick="triggerVoice()" title="Play Voice">
+                <button class="icon-btn" id="voice-toggle-btn" onclick="toggleVoice()" title="Play/Stop Voice">
                     <span class="material-icons">volume_up</span>
                 </button>
                 
-                <button class="icon-btn" onclick="startChat()">
+                <button class="icon-btn" onclick="startChat()" style="color: var(--accent-blue);">
                     <span class="material-icons">send</span>
                 </button>
             </div>
@@ -142,50 +147,43 @@
     </div>
 
     <script>
-        let currentApiKey = "";
-        let currentModel = "";
+        let currentApiKey = localStorage.getItem('rc_apikey') || "";
+        let currentModel = localStorage.getItem('rc_model') || "google/gemini-2.0-flash-lite-preview-02-05:free";
         let currentBase64Image = null;
+        let isSpeaking = false;
+        const synth = window.speechSynthesis;
 
         window.onload = function() {
-            const savedKey = localStorage.getItem('rc_apikey');
-            const savedModel = localStorage.getItem('rc_model');
-            if (savedKey && savedModel) {
-                currentApiKey = savedKey;
-                currentModel = savedModel;
-            } else {
-                openSettings(); 
-            }
+            if (!currentApiKey) openSettings();
         };
 
+        // --- Settings & UI ---
         function openSettings() {
-            document.getElementById('api-key-input').value = currentApiKey || localStorage.getItem('rc_apikey') || "";
-            document.getElementById('model-input').value = currentModel || localStorage.getItem('rc_model') || "deepseek/deepseek-r1:free";
+            document.getElementById('api-key-input').value = currentApiKey;
+            document.getElementById('model-input').value = currentModel;
             document.getElementById('settings-modal').style.display = 'flex';
-            document.getElementById('sidebar').classList.remove('active'); 
+            toggleSidebar(false);
         }
 
         function saveSettings() {
-            const keyVal = document.getElementById('api-key-input').value.trim();
-            const modelVal = document.getElementById('model-input').value.trim();
-            if (!keyVal || !modelVal) {
-                alert("API Key aur Model dono dalna zaroori hai!");
-                return;
-            }
-            localStorage.setItem('rc_apikey', keyVal);
-            localStorage.setItem('rc_model', modelVal);
-            currentApiKey = keyVal;
-            currentModel = modelVal;
+            currentApiKey = document.getElementById('api-key-input').value.trim();
+            currentModel = document.getElementById('model-input').value.trim();
+            localStorage.setItem('rc_apikey', currentApiKey);
+            localStorage.setItem('rc_model', currentModel);
             document.getElementById('settings-modal').style.display = 'none';
         }
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        function toggleSidebar(force) {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active', force ?? !sidebar.classList.contains('active'));
+        }
 
-        // --- Image Upload Logic ---
+        // --- Image Upload ---
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     currentBase64Image = e.target.result;
                     document.getElementById('image-preview').src = currentBase64Image;
                     document.getElementById('image-preview-container').style.display = 'block';
@@ -199,10 +197,29 @@
             document.getElementById('file-input').value = "";
         }
 
-        // --- Main Chat Logic with 3 Options (Fallback) ---
-        async function startChat() {
-            if (!currentApiKey || !currentModel) { openSettings(); return; }
+        // --- HELPER: Force Download (Crucial for images/audio) ---
+        async function forceDownload(url, filename) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Network Error");
+                const blob = await response.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            } catch (e) {
+                alert("Download failed. Security restrictions might prevent direct downloads.");
+            }
+        }
 
+        // --- Main Chat Logic ---
+        async function startChat() {
+            if (!currentApiKey) { openSettings(); return; }
             const input = document.getElementById('user-input');
             const text = input.value.trim();
             if (!text && !currentBase64Image) return;
@@ -211,120 +228,139 @@
             const chatFlow = document.getElementById('chat-flow');
             chatFlow.style.display = 'flex';
             
-            // Show User Message
+            // 1. Render User Message
             let userHTML = `<div class="msg user-msg">`;
             if (text) userHTML += `<div>${text}</div>`;
             if (currentBase64Image) userHTML += `<img src="${currentBase64Image}" class="chat-image">`;
             userHTML += `</div>`;
-            
             chatFlow.innerHTML += userHTML;
             input.value = '';
 
+            // Update History
             const histItem = document.createElement('div');
             histItem.className = 'history-item';
-            histItem.innerText = text ? text.substring(0, 25) + "..." : "Sent an image...";
+            histItem.innerText = text ? text.substring(0, 20) + "..." : "Image sent...";
             document.getElementById('history-items').prepend(histItem);
 
+            // Prepare Bot Container
             const botDiv = document.createElement('div');
             botDiv.className = 'msg bot-msg';
             chatFlow.appendChild(botDiv);
+            scrollToBottom();
 
-            // 1. IMAGE GENERATION LOGIC
-            if (text.toLowerCase().startsWith('/image')) {
-                const promptText = text.replace('/image', '').trim();
-                botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">Painting your image...</span>`;
-                chatFlow.scrollTop = chatFlow.scrollHeight;
+            // --- A. IMAGE GENERATION PATH ---
+            if (text.toLowerCase().includes('/image')) {
+                let promptText = text.toLowerCase().replace('/image', '').trim();
+                if(!promptText) promptText = "A surprising photo"; 
 
-                const randomSeed = Math.floor(Math.random() * 100000);
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?seed=${randomSeed}&nologo=true`;
+                botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">Creating image for: "${promptText}"...</span>`;
+                
+                // Use Flux model for better prompt understanding (like "Indian boy")
+                const seed = Math.floor(Math.random() * 9999);
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?model=flux&width=1024&height=1024&seed=${seed}&nologo=true`;
 
-                const generatedImg = new Image();
-                generatedImg.src = imageUrl;
-                generatedImg.className = "chat-image";
-                generatedImg.onload = () => {
-                    botDiv.innerHTML = `<b>RealChat</b><br>Here is your image:<br>`;
-                    botDiv.appendChild(generatedImg);
-                    chatFlow.scrollTop = chatFlow.scrollHeight;
+                const imgTag = document.createElement('img');
+                imgTag.src = imageUrl;
+                imgTag.className = "chat-image";
+                
+                imgTag.onload = () => {
+                    botDiv.innerHTML = `<b>RealChat</b><br>Here is your image:`;
+                    botDiv.appendChild(imgTag);
+                    
+                    // Add Download Button for Image
+                    const actionBar = document.createElement('div');
+                    actionBar.className = 'action-bar';
+                    actionBar.innerHTML = `
+                        <button class="dl-btn" onclick="forceDownload('${imageUrl}', 'generated-image-${seed}.jpg')">
+                            <span class="material-icons">download</span> Download Image
+                        </button>`;
+                    botDiv.appendChild(actionBar);
+                    scrollToBottom();
                 };
-                generatedImg.onerror = () => { botDiv.innerHTML = `<b>RealChat</b><br>Error generating image.`; };
-                return; 
+                imgTag.onerror = () => { botDiv.innerHTML = `<b>RealChat</b><br>Image generation failed. Try again.`; };
+                removeImage(); return;
             }
 
-            // 2. TEXT/VISION AI LOGIC (3 OPTIONS FALLBACK)
-            botDiv.innerHTML = `<b>RealChat</b><br><span class="typing" id="status-text">Thinking...</span>`;
-            chatFlow.scrollTop = chatFlow.scrollHeight;
+            // --- B. TEXT/VISION AI PATH ---
+            botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">Thinking...</span>`;
+            scrollToBottom();
 
             let apiMessages = currentBase64Image ? 
-                [{ "role": "user", "content": [ { "type": "text", "text": text || "What's in this image?" }, { "type": "image_url", "image_url": { "url": currentBase64Image } } ] }] 
+                [{ "role": "user", "content": [ { "type": "text", "text": text || "Analyze this image." }, { "type": "image_url", "image_url": { "url": currentBase64Image } } ] }] 
                 : [{ "role": "user", "content": text }];
 
             removeImage(); // Clear preview
 
-            // THE "3 OPTION" FALLBACK ARRAY
-            let fallbackModels = [
-                currentModel,                                      // Option 1 (User's choice)
-                "google/gemini-2.0-flash-lite-preview-02-05:free", // Option 2 (Google Backup)
-                "deepseek/deepseek-r1:free"                        // Option 3 (DeepSeek Backup)
-            ];
-            fallbackModels = [...new Set(fallbackModels)]; // Remove duplicates
+            // Fallback Strategy: Primary -> Google Free -> DeepSeek Free
+            let models = [currentModel, "google/gemini-2.0-flash-lite-preview-02-05:free", "deepseek/deepseek-r1:free"];
+            models = [...new Set(models)];
 
-            let success = false;
-            for (let modelId of fallbackModels) {
-                if (success) break;
-                document.getElementById('status-text').innerText = `Connecting (${modelId.split('/')[1]})...`;
-
+            for (let modelId of models) {
                 try {
                     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
                         method: "POST",
-                        headers: {
-                            "Authorization": `Bearer ${currentApiKey}`,
-                            "HTTP-Referer": window.location.href, 
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            "model": modelId,
-                            "messages": apiMessages
-                        })
+                        headers: { "Authorization": `Bearer ${currentApiKey}`, "Content-Type": "application/json", "HTTP-Referer": window.location.href },
+                        body: JSON.stringify({ "model": modelId, "messages": apiMessages })
                     });
-
                     const data = await response.json();
-
-                    if (data.choices && data.choices[0]) {
+                    if (data.choices?.[0]?.message?.content) {
                         const reply = data.choices[0].message.content;
                         botDiv.innerHTML = `<b>RealChat</b><br>${reply.replace(/\n/g, '<br>')}`;
-                        speak(reply);
-                        success = true;
-                    } else if (data.error && data.error.code === 401) {
-                        // 401 matlab Key Leak/Block ho chuki hai
-                        botDiv.innerHTML = `<b>API Error:</b> Aapki API Key block ya invalid hai. Sidebar se Settings khol kar nayi Key dalein!`;
-                        return; // Loop stop
-                    }
-                } catch (err) {
-                    console.warn(`Model ${modelId} failed. Trying next option...`);
-                }
-            }
+                        
+                        // Add Audio Download Button (Using unofficial TTS hack)
+                        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(reply.substring(0, 200))}&tl=hi-IN&client=tw-ob`;
+                        const actionBar = document.createElement('div');
+                        actionBar.className = 'action-bar';
+                        actionBar.innerHTML = `
+                            <button class="dl-btn" onclick="forceDownload('${audioUrl}', 'speech-audio.mp3')">
+                                <span class="material-icons">audiotrack</span> Download Audio (MP3)
+                            </button>`;
+                        botDiv.appendChild(actionBar);
 
-            if (!success && !botDiv.innerHTML.includes("API Error")) {
-                botDiv.innerHTML = "<b>System:</b> Teeno options fail ho gaye. Server busy hai, thodi der baad try karein.";
+                        speak(reply); // Auto-play browser voice
+                        scrollToBottom();
+                        return; // Success
+                    }
+                } catch (err) { console.warn(`Failed: ${modelId}`); }
             }
-            chatFlow.scrollTop = chatFlow.scrollHeight;
+            botDiv.innerHTML = "<b>System:</b> All models are busy. Please try again later.";
         }
 
-        // --- Text to Speech Logic ---
+        function scrollToBottom() {
+            const viewport = document.querySelector('.viewport');
+            viewport.scrollTop = viewport.scrollHeight;
+        }
+
+        // --- Improved Voice Logic (Stop/Start Toggle) ---
         function speak(text) {
-            const synth = window.speechSynthesis;
+            cancelSpeech(); // Stop previous
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'hi-IN';
+            utter.onstart = () => updateVoiceUI(true);
+            utter.onend = () => updateVoiceUI(false);
+            utter.onerror = () => updateVoiceUI(false);
             synth.speak(utter);
         }
 
-        function triggerVoice() {
-            const msgs = document.querySelectorAll('.bot-msg');
-            if (msgs.length > 0) {
-                let textToSpeak = msgs[msgs.length - 1].innerText.replace('RealChat\n', '');
-                speak(textToSpeak);
+        function cancelSpeech() {
+            if (synth.speaking) synth.cancel();
+            updateVoiceUI(false);
+        }
+
+        function toggleVoice() {
+            if (synth.speaking) {
+                cancelSpeech();
+            } else {
+                // Re-speak last message
+                const msgs = document.querySelectorAll('.bot-msg');
+                if (msgs.length > 0) {
+                    // Extract just text, ignore buttons/HTML
+                    let cleanText = msgs[msgs.length - 1].innerText.replace('RealChat', '').replace('Download Audio (MP3)', '').trim();
+                    speak(cleanText);
+                }
             }
         }
-    </script>
-</body>
-</html>
+
+        function updateVoiceUI(speaking) {
+            isSpeaking = speaking;
+            const btn = document.getElementById('voice-toggle-b
