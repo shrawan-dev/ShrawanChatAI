@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RealChat AI - By Shrawan Ji</title>
+    <title>RealChat AI</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
@@ -91,8 +91,7 @@
         <div class="viewport">
             <div id="welcome-ui" class="welcome-screen">
                 <h1 class="gradient-text">RealChat AI</h1>
-                <h2 class="sub-greeting">Created by Shrawan Ji</h2>
-                <p style="color: var(--text-sub); font-size: 14px;">Voice Commands • HD Image Generation • High Speed</p>
+                <p style="color: var(--text-sub); font-size: 14px; margin-top: 20px;">Voice Commands • HD Image Generation • High Speed</p>
             </div>
             <div id="chat-flow"></div>
         </div>
@@ -136,13 +135,12 @@
         let currentBase64Image = null;
         let isSpeaking = false;
         
-        // Voice Setup (Try to load voices early)
         let systemVoices = [];
         window.speechSynthesis.onvoiceschanged = () => { systemVoices = window.speechSynthesis.getVoices(); };
 
         window.onload = function() {
             if (!currentApiKey) openSettings();
-            systemVoices = window.speechSynthesis.getVoices(); // Force load
+            systemVoices = window.speechSynthesis.getVoices(); 
         };
 
         function openSettings() {
@@ -165,21 +163,20 @@
             sidebar.classList.toggle('active', force ?? !sidebar.classList.contains('active'));
         }
 
-        // --- Mic / Speech-to-Text Logic ---
         function startVoiceTyping() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert("Aapka browser Voice Typing support nahi karta (Chrome use karein).");
+                alert("Aapka browser Voice Typing support nahi karta.");
                 return;
             }
             
             const micBtn = document.getElementById('mic-btn');
             const recognition = new SpeechRecognition();
-            recognition.lang = 'hi-IN'; // Hindi set
+            recognition.lang = 'hi-IN'; 
             recognition.interimResults = false;
             
             recognition.onstart = function() {
-                micBtn.style.color = '#d93025'; // Red indicating listening
+                micBtn.style.color = '#d93025'; 
                 document.getElementById('user-input').placeholder = "Sun raha hoon...";
             };
             
@@ -188,7 +185,7 @@
                 document.getElementById('user-input').value = text;
                 micBtn.style.color = 'var(--text-sub)';
                 document.getElementById('user-input').placeholder = "Message...";
-                startChat(); // Auto Send
+                startChat(); 
             };
             
             recognition.onerror = function(event) {
@@ -199,7 +196,6 @@
             recognition.start();
         }
 
-        // --- Direct Image Button Logic ---
         function triggerImageMode() {
             const input = document.getElementById('user-input');
             input.value = "/image ";
@@ -263,53 +259,42 @@
                 return;
             }
 
-            // --- 2. IMAGE GENERATOR FIX (Robust Load) ---
+            // --- 2. IMAGE GENERATOR FIX (Robust Direct HTML Injection) ---
             if (lowerText.startsWith('/image') || lowerText.includes('/image')) {
                 let promptText = text.replace(/\/image/i, '').trim() || "A highly detailed futuristic city"; 
                 
-                // Dignity/Safety check
                 const checkString = promptText.toLowerCase();
                 if ((checkString.includes('woman') || checkString.includes('women') || checkString.includes('mahila') || checkString.includes('ladki') || checkString.includes('girl')) && 
                     (checkString.includes('clothes') || checkString.includes('kapde') || checkString.includes('dress') || checkString.includes('wear') || checkString.includes('change'))) {
-                    botDiv.innerHTML = `<b>RealChat</b><br>Main mahilaon ke kapdon se sambandhit anurodhon ko mana kar dunga, chahe vah meri id se ho ya duniya mein kisi bhi id se, kyunki har mahila ki garima mahatvapurna hai.`;
+                    botDiv.innerHTML = `<b>RealChat</b><br>Main mahilaon ke kapdon se sambandhit anurodhon ko mana kar dunga, kyunki har mahila ki garima mahatvapurna hai.`;
                     scrollToBottom();
                     removeImage(); return;
                 }
 
-                botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">🎨 Painting: "${promptText}"...</span>`;
-                scrollToBottom();
-                
                 const seed = Math.floor(Math.random() * 999999);
                 const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${seed}&nologo=true`;
 
-                const imgObj = new Image();
-                imgObj.onload = function() {
-                    botDiv.innerHTML = `
-                        <b>RealChat</b><br>
-                        <img src="${imageUrl}" class="chat-image" alt="Generated">
-                        <button onclick="window.open('${imageUrl}', '_blank')" class="dl-btn">
-                            <span class="material-icons" style="font-size:16px;">download</span> Download HD
-                        </button>
-                    `;
-                    scrollToBottom();
-                };
-                imgObj.onerror = function() {
-                    botDiv.innerHTML = `<b>RealChat</b><br>❌ Image load hone mein problem aayi. Kripya naya prompt try karein.`;
-                };
-                imgObj.src = imageUrl;
+                // FIX: Direct HTML injection is more reliable than new Image() onload
+                botDiv.innerHTML = `
+                    <b>RealChat</b><br>
+                    <img src="${imageUrl}" class="chat-image" alt="Generated Image" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Image+Generation+Failed'; this.style.border='2px solid red';">
+                    <button onclick="window.open('${imageUrl}', '_blank')" class="dl-btn">
+                        <span class="material-icons" style="font-size:16px;">download</span> Download HD
+                    </button>
+                `;
+                scrollToBottom();
                 
                 removeImage(); return;
             }
 
-            // --- 3. TEXT CHAT LOGIC (10K Words Settings) ---
+            // --- 3. TEXT CHAT LOGIC ---
             botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">Thinking...</span>`;
             scrollToBottom();
 
-            // Setup Deep System Instructions for detail and energy
             let apiMessages = [];
             apiMessages.push({
                 "role": "system", 
-                "content": "You are RealChat, created by Shrawan Ji. You give highly energetic, friendly, deep, and beautifully human-like responses in Hindi and English. If the user asks for detailed information or stories, generate an extremely long, comprehensive, and unique response (up to max capability). Respect the dignity of women unconditionally."
+                "content": "You are RealChat, created by Shrawan Ji. You give highly energetic, friendly, deep, and beautifully human-like responses in Hindi and English. If the user asks for detailed information or stories, generate an extremely long, comprehensive, and unique response. Respect the dignity of women unconditionally."
             });
             
             if(currentBase64Image) {
@@ -331,14 +316,12 @@
                         body: JSON.stringify({ 
                             "model": modelId, 
                             "messages": apiMessages,
-                            "max_tokens": 8000 // Instruct API to allow massive responses
+                            "max_tokens": 8000 
                         })
                     });
                     const data = await response.json();
                     if (data.choices?.[0]?.message?.content) {
                         const reply = data.choices[0].message.content;
-                        
-                        // Extract partial text for simple Audio download link (Google TTS limits characters)
                         const shortText = reply.substring(0, 190);
                         const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(shortText)}&tl=hi-IN&client=tw-ob`;
                         
@@ -349,7 +332,6 @@
                                 <span class="material-icons" style="font-size:16px;">audiotrack</span> Save Audio Snippet
                             </button>
                         `;
-                        // DO NOT PLAY AUDIO AUTOMATICALLY HERE (As requested)
                         scrollToBottom();
                         return; 
                     }
@@ -363,18 +345,16 @@
             viewport.scrollTop = viewport.scrollHeight;
         }
 
-        // --- 4. STRICT MANUAL VOICE TOGGLE LOGIC WITH DEEP MALE VOICE ---
         function speakText(text) {
             window.speechSynthesis.cancel(); 
             const utter = new SpeechSynthesisUtterance(text);
             utter.lang = 'hi-IN';
             
-            // Try to find a Male deep voice
-            let maleVoice = systemVoices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('ravi') || v.name.toLowerCase().includes('hemant'));
+            let maleVoice = systemVoices.find(v => v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('ravi'));
             if(maleVoice) utter.voice = maleVoice;
 
-            utter.pitch = 0.6; // Deep pitch (Below 1 is deeper)
-            utter.rate = 1.1; // Fast and energetic speed
+            utter.pitch = 0.6; 
+            utter.rate = 1.1; 
             
             utter.onstart = () => {
                 isSpeaking = true;
@@ -390,13 +370,11 @@
         }
 
         function toggleVoice() {
-            // Agar browser bol raha hai, toh turant rok do (Manual Stop)
             if (isSpeaking || window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
                 isSpeaking = false;
                 document.getElementById('voice-toggle-btn').innerHTML = '<span class="material-icons">volume_up</span>';
             } else {
-                // Agar shant hai, toh aakhri message dhundh kar chalao (Manual Play)
                 const msgs = document.querySelectorAll('.bot-msg');
                 if (msgs.length > 0) {
                     let cleanText = msgs[msgs.length - 1].innerText.replace('RealChat', '').replace('Save Audio Snippet', '').replace('Download HD', '').trim();
