@@ -1,6 +1,5 @@
-<input id="input" type="text" placeholder="Type your message" />
+<input id="input" type="text" />
 <button onclick="sendMessage()">Send</button>
-
 <div id="output"></div>
 
 <script>
@@ -15,11 +14,8 @@ async function sendMessage() {
 
   const data = await response.json();
 
-  // Console me dekhna
-  console.log(data);
-
-  // Reply show karna
-  const reply = data.choices[0]?.message?.content || "No reply";
+  console.log(data); // Debug: check console for actual response
+  const reply = data.choices?.[0]?.message?.content || "No reply";
   document.getElementById("output").innerText = reply;
 }
 </script>
