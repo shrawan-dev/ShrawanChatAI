@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="img-src * data: blob:;">
     <title>RealChat AI</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -259,32 +260,62 @@
                 return;
             }
 
-            // --- 2. IMAGE GENERATOR FIX (Robust Direct HTML Injection) ---
+            // --- 2. IMAGE GENERATOR (MULTIPLE IMAGES | ONE COMMAND) ---
             if (lowerText.startsWith('/image') || lowerText.includes('/image')) {
-                let promptText = text.replace(/\/image/i, '').trim() || "A highly detailed futuristic city"; 
-                
-                const checkString = promptText.toLowerCase();
+
+                let rawPrompt = text.replace(/\/image/i, '').trim();
+                if (!rawPrompt) rawPrompt = "cute boy portrait";
+
+                const checkString = rawPrompt.toLowerCase();
                 if ((checkString.includes('woman') || checkString.includes('women') || checkString.includes('mahila') || checkString.includes('ladki') || checkString.includes('girl')) && 
                     (checkString.includes('clothes') || checkString.includes('kapde') || checkString.includes('dress') || checkString.includes('wear') || checkString.includes('change'))) {
-                    botDiv.innerHTML = `<b>RealChat</b><br>Main mahilaon ke kapdon se sambandhit anurodhon ko mana kar dunga, kyunki har mahila ki garima mahatvapurna hai.`;
+                    botDiv.innerHTML = `<b>RealChat</b><br>Main mahilaon ke kapdon se sambandhit anurodhon ko mana kar dunga, chahe vah meri id se ho ya duniya mein kisi bhi id se, kyunki har mahila ki garima mahatvapurna hai.`;
                     scrollToBottom();
                     removeImage(); return;
                 }
 
-                const seed = Math.floor(Math.random() * 999999);
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(promptText)}?width=1024&height=1024&seed=${seed}&nologo=true`;
+                const prompts = rawPrompt.split('|').map(p => p.trim()).filter(Boolean);
 
-                // FIX: Direct HTML injection is more reliable than new Image() onload
-                botDiv.innerHTML = `
-                    <b>RealChat</b><br>
-                    <img src="${imageUrl}" class="chat-image" alt="Generated Image" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=Image+Generation+Failed'; this.style.border='2px solid red';">
-                    <button onclick="window.open('${imageUrl}', '_blank')" class="dl-btn">
-                        <span class="material-icons" style="font-size:16px;">download</span> Download HD
-                    </button>
-                `;
+                botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">🖌️ Image generating...</span><br><br>`;
                 scrollToBottom();
-                
-                removeImage(); return;
+
+                prompts.forEach((prompt, i) => {
+                    const seed = Date.now() + i;
+                    const imageUrl =
+                      "https://image.pollinations.ai/prompt/" +
+                      encodeURIComponent(prompt) +
+                      `?width=768&height=768&seed=${seed}&nologo=true&safe=true`;
+
+                    const img = new Image();
+                    img.className = "chat-image";
+                    img.referrerPolicy = "no-referrer";
+
+                    img.onload = () => {
+                        // FIX: insertAdjacentHTML use kiya hai taaki UI blink na kare
+                        botDiv.insertAdjacentHTML('beforeend', `
+                            <div style="margin-bottom:20px">
+                                <img src="${imageUrl}" class="chat-image" alt="Generated Image">
+                                <br>
+                                <button class="dl-btn" onclick="window.open('${imageUrl}','_blank')">
+                                    <span class="material-icons" style="font-size:16px;">download</span> Download HD
+                                </button>
+                            </div>
+                        `);
+                        scrollToBottom();
+                    };
+
+                    img.onerror = () => {
+                        botDiv.insertAdjacentHTML('beforeend', `
+                            ❌ Image failed for: <i>${prompt}</i><br><br>
+                        `);
+                        scrollToBottom();
+                    };
+
+                    img.src = imageUrl;
+                });
+
+                removeImage();
+                return;
             }
 
             // --- 3. TEXT CHAT LOGIC ---
