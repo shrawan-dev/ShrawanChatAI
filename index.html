@@ -119,7 +119,7 @@
         <h3 style="color: var(--accent-color); margin: 0;">Menu</h3>
         <span class="material-icons sidebar-close" onclick="toggleSidebar()">close</span>
     </div>
-    <button class="btn-new" onclick="location.reload()"><span class="material-icons">add</span> New Chat</button>
+    <button class="btn-new" onclick="startNewChat()"><span class="material-icons">add</span> New Chat</button>
     <div class="history-list" id="chat-history"></div>
     <div class="theme-selector">
         <p style="font-size:12px; color:var(--text-sub);">THEME</p>
@@ -195,6 +195,17 @@
         setTheme(localStorage.getItem('shrawan_theme') || 'dark');
     };
 
+    // 🔥 FIXED: Custom function for New Chat
+    function startNewChat() {
+        synth.cancel(); // Voice ko turant cancel karega
+        location.reload(); // Phir page reload karke fresh dashboard layega
+    }
+
+    // 🔥 FIXED: Agar user browser ka F5 ya Refresh dabaye tab bhi voice ruk jaye
+    window.addEventListener('beforeunload', () => {
+        synth.cancel(); 
+    });
+
     function toggleSidebar() { 
         document.getElementById('sidebar').classList.toggle('active'); 
         document.getElementById('sidebar-overlay').classList.toggle('active');
@@ -261,7 +272,6 @@
             const data = await res.json();
             let aiReply = data.choices[0].message.content;
             
-            // 🔥 FIXED: Removing HTML, Markdown, and Emojis strictly for TTS to read cleanly
             lastReply = aiReply
                 .replace(/<[^>]*>?/gm, '') 
                 .replace(/[*#]/g, '')
@@ -299,7 +309,6 @@
         let selectedVoice = voices.find(v => v.lang.includes('hi-IN')) || voices.find(v => v.name.includes('Male'));
         if(selectedVoice) utterance.voice = selectedVoice;
         
-        // 🔥 FIXED: Pitch and Rate adjusted for a realistic "Teacher" feel
         utterance.pitch = 1.0; 
         utterance.rate = 0.85; 
         
