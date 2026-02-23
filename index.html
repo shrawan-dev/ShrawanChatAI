@@ -74,17 +74,24 @@
 
         /* --- CHAT FLOW --- */
         #chat-flow { width: 100%; max-width: 850px; display: none; flex-direction: column; gap: 30px; padding-bottom: 160px; }
-        .user-msg { align-self: flex-end; background: var(--msg-user-bg); padding: 15px 22px; border-radius: 25px 25px 4px 25px; max-width: 85%; border: 1px solid var(--border-color); }
+        .user-msg { align-self: flex-end; background: var(--msg-user-bg); padding: 15px 22px; border-radius: 25px 25px 4px 25px; max-width: 85%; border: 1px solid var(--border-color); word-wrap: break-word; }
         .bot-msg { align-self: flex-start; width: 100%; font-size: 16px; line-height: 1.8; }
         .illegal-warning { border: 4px solid #ff3b30; color: #ff3b30; padding: 25px; border-radius: 20px; text-align: center; font-weight: 800; animation: shakeDanger 0.3s infinite; background: rgba(255,0,0,0.1); font-size: 22px; }
         @keyframes shakeDanger { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
 
-        /* --- INPUT & VOICE CONTROLS --- */
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 20px; background: linear-gradient(transparent, var(--bg-main) 60%); display: flex; flex-direction: column; align-items: center; }
-        .input-box { width: 100%; max-width: 850px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 40px; display: flex; align-items: center; padding: 8px 20px; box-shadow: 0 10px 35px rgba(0,0,0,0.4); }
-        #user-input { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 12px; outline: none; font-size: 17px; }
-
-        .adam-voice-btn { color: var(--accent-color); margin-right: 15px; cursor: pointer; font-size: 32px !important; transition: 0.3s; }
+        /* --- INPUT & VOICE CONTROLS (MOBILE FIXED) --- */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, var(--bg-main) 60%); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .input-box { width: 100%; max-width: 850px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 40px; display: flex; align-items: center; padding: 8px 12px; box-shadow: 0 10px 35px rgba(0,0,0,0.4); gap: 10px; box-sizing: border-box; }
+        
+        /* Magic fix for text input on mobile: min-width: 0 */
+        #user-input { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 10px 0; outline: none; font-size: 16px; min-width: 0; }
+        
+        /* Flex shrink rokti hai taaki icon input se dabe na aur box ke bahar na jae */
+        .action-icon { cursor: pointer; color: var(--text-sub); font-size: 26px; transition: 0.2s; flex-shrink: 0; }
+        .action-icon:hover { color: var(--text-main); }
+        .send-btn { color: var(--accent-color); font-size: 32px; }
+        
+        .adam-voice-btn { color: var(--accent-color); cursor: pointer; font-size: 32px !important; transition: 0.3s; flex-shrink: 0; }
         .adam-voice-btn.active { color: #ff3b30; transform: scale(1.2); }
 
         #preview-box { display: none; width: 100%; max-width: 850px; margin-bottom: 12px; position: relative; }
@@ -92,8 +99,8 @@
 
         /* --- SETTINGS MODAL --- */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .modal-card { background: var(--sidebar-bg); padding: 40px; border-radius: 25px; width: 90%; max-width: 450px; border: 1px solid var(--border-color); text-align: center; }
-        .modal-card input { width: 100%; padding: 14px; margin: 10px 0 20px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-main); color: white; outline: none; }
+        .modal-card { background: var(--sidebar-bg); padding: 40px; border-radius: 25px; width: 90%; max-width: 450px; border: 1px solid var(--border-color); text-align: center; box-sizing: border-box; }
+        .modal-card input { width: 100%; padding: 14px; margin: 10px 0 20px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-main); color: white; outline: none; box-sizing: border-box; }
         .modal-card label { display: block; text-align: left; font-size: 12px; color: var(--text-sub); margin-left: 5px; }
     </style>
 </head>
@@ -153,11 +160,14 @@
         </div>
         <div class="input-box">
             <span class="material-icons adam-voice-btn" id="adam-trigger" onclick="handleVoicePlayback()" title="Adam Voice (Play/Pause/Resume)">play_circle_filled</span>
+            
             <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImage(event)">
-            <span class="material-icons" style="cursor:pointer; color:var(--text-sub); margin-right:15px;" onclick="document.getElementById('img-input').click()">add_photo_alternate</span>
+            <span class="material-icons action-icon" title="Upload Image" onclick="document.getElementById('img-input').click()">add_photo_alternate</span>
+            
             <input type="text" id="user-input" placeholder="Ask ShrawanChatAI..." onkeypress="if(event.key==='Enter') startInference()">
-            <span class="material-icons" style="cursor:pointer; color:var(--text-sub); margin-right:15px;" onclick="startSTT()">mic</span>
-            <span class="material-icons" style="color:var(--accent-color); cursor:pointer; font-size:35px;" onclick="startInference()">send</span>
+            
+            <span class="material-icons action-icon" title="Voice Search" onclick="startSTT()">mic</span>
+            <span class="material-icons action-icon send-btn" title="Send" onclick="startInference()">send</span>
         </div>
     </div>
 </div>
@@ -195,13 +205,11 @@
         setTheme(localStorage.getItem('shrawan_theme') || 'dark');
     };
 
-    // 🔥 FIXED: Custom function for New Chat
     function startNewChat() {
-        synth.cancel(); // Voice ko turant cancel karega
-        location.reload(); // Phir page reload karke fresh dashboard layega
+        synth.cancel(); 
+        location.reload(); 
     }
 
-    // 🔥 FIXED: Agar user browser ka F5 ya Refresh dabaye tab bhi voice ruk jaye
     window.addEventListener('beforeunload', () => {
         synth.cancel(); 
     });
@@ -247,7 +255,7 @@
         const flow = document.getElementById('chat-flow');
         flow.style.display = 'flex';
 
-        flow.innerHTML += `<div class="user-msg">${text}${currentImage ? `<br><img src="${currentImage}" style="width:200px; border-radius:10px; margin-top:10px;">` : ''}</div>`;
+        flow.innerHTML += `<div class="user-msg">${text}${currentImage ? `<br><img src="${currentImage}" style="width:200px; max-width:100%; border-radius:10px; margin-top:10px;">` : ''}</div>`;
         input.value = '';
 
         const bDiv = document.createElement('div');
