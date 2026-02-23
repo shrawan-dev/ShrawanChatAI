@@ -27,9 +27,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', sans-serif; }
         body { background: var(--bg-main); color: var(--text-main); height: 100dvh; display: flex; overflow: hidden; transition: 0.3s; }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR & OVERLAY --- */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(2px); transition: 0.3s; }
+        .sidebar-overlay.active { display: block; }
+        
         .sidebar { position: fixed; left: -300px; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; }
         .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-close { cursor: pointer; color: var(--text-main); font-size: 28px; }
+        
         .btn-new { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-weight: 500; }
         
         .history-list { flex: 1; overflow-y: auto; }
@@ -42,7 +48,7 @@
         .theme-btn.active { border-color: var(--accent-color); color: var(--accent-color); }
 
         /* --- HEADER --- */
-        header { padding: 15px; display: flex; align-items: center; z-index: 500; }
+        header { padding: 15px; display: flex; align-items: center; z-index: 500; width: 100%; }
         .menu-btn { cursor: pointer; font-size: 30px; color: var(--text-main); transition: 0.2s; }
         .menu-btn:hover { color: var(--accent-color); }
 
@@ -54,7 +60,6 @@
         
         .char-icon { font-size: 85px; position: absolute; opacity: 0; display: none; filter: drop-shadow(0 0 25px var(--accent-color)); }
 
-        /* 10 Professional Animations */
         .anim-rocket { animation: rocketFly 3s ease-in-out forwards; }
         @keyframes rocketFly { 0% { opacity:0; transform: translateY(100px) rotate(-45deg); } 40% { opacity:1; } 100% { opacity:0; transform: translateY(-200px) rotate(-45deg); } }
         .anim-comp { animation: coding 3s ease-in-out forwards; }
@@ -107,7 +112,13 @@
     </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
 <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3 style="color: var(--accent-color); margin: 0;">Menu</h3>
+        <span class="material-icons sidebar-close" onclick="toggleSidebar()">close</span>
+    </div>
     <button class="btn-new" onclick="location.reload()"><span class="material-icons">add</span> New Chat</button>
     <div class="history-list" id="chat-history"></div>
     <div class="theme-selector">
@@ -158,9 +169,8 @@
     let lastReply = "";
     let synth = window.speechSynthesis;
     let utterance = null;
-    let isSpeakingState = "stopped"; // stopped, playing, paused
+    let isSpeakingState = "stopped";
 
-    // --- 10 PROFESSIONAL ANIMATIONS ---
     const icons = [
         { e: '🚀', c: 'anim-rocket' }, { e: '💻', c: 'anim-comp' }, { e: '🔥', c: 'anim-fire' },
         { e: '🤖', c: 'anim-robot' }, { e: '🧠', c: 'anim-comp' }, { e: '⚡', c: 'anim-fire' },
@@ -185,7 +195,11 @@
         setTheme(localStorage.getItem('shrawan_theme') || 'dark');
     };
 
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.toggle('active'); 
+        document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+    
     function openSettings() { document.getElementById('setup-modal').style.display = 'flex'; }
     function saveSettings() {
         API_KEY = document.getElementById('api-key-input').value.trim();
@@ -213,7 +227,6 @@
     }
     function clearImage() { currentImage = null; document.getElementById('preview-box').style.display = 'none'; }
 
-    // --- CORE AI LOGIC (FAST RESPONSE) ---
     async function startInference() {
         const input = document.getElementById('user-input');
         const text = input.value.trim();
@@ -247,14 +260,19 @@
             });
             const data = await res.json();
             let aiReply = data.choices[0].message.content;
-            lastReply = aiReply.replace(/<[^>]*>?/gm, '').replace(/[*#]/g, '');
+            
+            // 🔥 FIXED: Removing HTML, Markdown, and Emojis strictly for TTS to read cleanly
+            lastReply = aiReply
+                .replace(/<[^>]*>?/gm, '') 
+                .replace(/[*#]/g, '')
+                .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, ''); 
+                
             bDiv.innerHTML = `<div>${aiReply.replace(/\n/g, '<br>')}</div>`;
         } catch (err) { bDiv.innerHTML = "Error! Key ya Settings check karein."; }
         
         document.querySelector('.viewport').scrollTop = document.querySelector('.viewport').scrollHeight;
     }
 
-    // --- SMART ADAM VOICE (PLAY/PAUSE/RESUME) ---
     function handleVoicePlayback() {
         const btn = document.getElementById('adam-trigger');
         
@@ -277,13 +295,13 @@
         synth.cancel();
         utterance = new SpeechSynthesisUtterance(lastReply);
         
-        // Smart Voice Shakti (Hindi + English)
         let voices = synth.getVoices();
         let selectedVoice = voices.find(v => v.lang.includes('hi-IN')) || voices.find(v => v.name.includes('Male'));
         if(selectedVoice) utterance.voice = selectedVoice;
         
-        utterance.pitch = 0.9;
-        utterance.rate = 1.0;
+        // 🔥 FIXED: Pitch and Rate adjusted for a realistic "Teacher" feel
+        utterance.pitch = 1.0; 
+        utterance.rate = 0.85; 
         
         utterance.onstart = () => {
             isSpeakingState = "playing";
