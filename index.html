@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Content-Security-Policy" content="img-src * data: blob:;">
-<title>RealChat AI</title>
+<title>ShrawanChatAI AI</title>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
@@ -91,7 +91,7 @@ header { padding: 15px 20px; display: flex; justify-content: space-between; alig
 
 <div class="viewport">
 <div id="welcome-ui" class="welcome-screen">
-<h1 class="gradient-text">RealChat AI</h1>
+<h1 class="gradient-text">ShrawanChatAI AI</h1>
 <p style="color: var(--text-sub); font-size: 14px; margin-top: 20px;">Voice Commands • HD Image Generation • High Speed</p>
 </div>
 <div id="chat-flow"></div>
@@ -255,7 +255,7 @@ const lowerText = text.toLowerCase();
 
 // --- 1. SHRAWAN JI OWNER CHECK ---
 if (lowerText.includes("woner kaun hai") || lowerText.includes("owner kaun hai") || lowerText.includes("who is your owner") || lowerText.includes("who is your woner") || lowerText.includes("woner kon hai")) {
-botDiv.innerHTML = `<b>RealChat</b><br>Mere owner <b>Shrawan Ji</b> hain! Unhone hi mujhe banaya hai. Main unka banaya hua AI Assistant hoon. 😎`;
+botDiv.innerHTML = `<b>ShrawanChatAI</b><br>Mere owner <b>Shrawan Ji</b> hain! Unhone hi mujhe banaya hai. Main unka banaya hua AI Assistant hoon. 😎`;
 scrollToBottom();
 return;
 }
@@ -269,14 +269,14 @@ if (!rawPrompt) rawPrompt = "cute boy portrait";
 const checkString = rawPrompt.toLowerCase();
 if ((checkString.includes('woman') || checkString.includes('women') || checkString.includes('mahila') || checkString.includes('ladki') || checkString.includes('girl')) &&
 (checkString.includes('clothes') || checkString.includes('kapde') || checkString.includes('dress') || checkString.includes('wear') || checkString.includes('change'))) {
-botDiv.innerHTML = `<b>RealChat</b><br>Main mahilaon ke kapdon se sambandhit anurodhon ko mana kar dunga, chahe vah meri id se ho ya duniya mein kisi bhi id se, kyunki har mahila ki garima mahatvapurna hai.`;
+botDiv.innerHTML = `<b>ShrawanChatAI</b><br>Main mahilaon ke kapdon se sambandhit anurodhon ko mana kar dunga, chahe vah meri id se ho ya duniya mein kisi bhi id se, kyunki har mahila ki garima mahatvapurna hai.`;
 scrollToBottom();
 removeImage(); return;
 }
 
 const prompts = rawPrompt.split('|').map(p => p.trim()).filter(Boolean);
 
-botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">🖌️ Image generating...</span><br><br>`;
+botDiv.innerHTML = `<b>ShrawanChatAI</b><br><span class="typing">🖌️ Image generating...</span><br><br>`;
 scrollToBottom();
 
 prompts.forEach((prompt, i) => {
@@ -319,13 +319,13 @@ return;
 }
 
 // --- 3. TEXT CHAT LOGIC ---
-botDiv.innerHTML = `<b>RealChat</b><br><span class="typing">Thinking...</span>`;
+botDiv.innerHTML = `<b>ShrawanChatAI</b><br><span class="typing">Thinking...</span>`;
 scrollToBottom();
 
 let apiMessages = [];
 apiMessages.push({
 "role": "system",
-"content": "You are RealChat, created by Shrawan Ji. You give highly energetic, friendly, deep, and beautifully human-like responses in Hindi and English. If the user asks for detailed information or stories, generate an extremely long, comprehensive, and unique response. Respect the dignity of women unconditionally."
+"content": "You are ShrawanChatAI, created by Shrawan Ji. You give highly energetic, friendly, deep, and beautifully human-like responses in Hindi and English. If the user asks for detailed information or stories, generate an extremely long, comprehensive, and unique response. Respect the dignity of women unconditionally."
 });
 
 if(currentBase64Image) {
@@ -357,7 +357,7 @@ const shortText = reply.substring(0, 190);
 const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(shortText)}&tl=hi-IN&client=tw-ob`;
 
 botDiv.innerHTML = `
-<b>RealChat</b><br>${reply.replace(/\n/g, '<br>')}
+<b>ShrawanChatAI</b><br>${reply.replace(/\n/g, '<br>')}
 <br>
 <button onclick="window.open('${audioUrl}', '_blank')" class="dl-btn">
 <span class="material-icons" style="font-size:16px;">audiotrack</span> Save Audio Snippet
@@ -408,7 +408,7 @@ document.getElementById('voice-toggle-btn').innerHTML = '<span class="material-i
 } else {
 const msgs = document.querySelectorAll('.bot-msg');
 if (msgs.length > 0) {
-let cleanText = msgs[msgs.length - 1].innerText.replace('RealChat', '').replace('Save Audio Snippet', '').replace('Download HD', '').trim();
+let cleanText = msgs[msgs.length - 1].innerText.replace('ShrawanChatAI', '').replace('Save Audio Snippet', '').replace('Download HD', '').trim();
 speakText(cleanText);
 }
 }
@@ -416,3 +416,4 @@ speakText(cleanText);
 </script>
 </body>
 </html>
+
