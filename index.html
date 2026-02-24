@@ -3,281 +3,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShrawanChatAI Ultimate Edition</title>
+    <title>ShrawanChatAI Ultimate Suite</title>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
-        /* --- THEMES (DARK, LIGHT, BLUE) --- */
+        /* --- THEMES --- */
         :root[data-theme="dark"] {
             --bg-main: #0b0b0d; --sidebar-bg: #161719; --input-bg: #1e1f21;
             --text-main: #e3e3e3; --text-sub: #9aa0a6; --accent-color: #8ab4f8;
             --msg-user-bg: #2d2e30; --border-color: #3c4043; --menu-hover: #202124;
-            --card-bg: #1e1f21;
+            --card-bg: #1e1f21; --modal-bg: #161719;
         }
         :root[data-theme="light"] {
             --bg-main: #ffffff; --sidebar-bg: #f0f4f9; --input-bg: #f0f4f9;
             --text-main: #1f1f1f; --text-sub: #5f6368; --accent-color: #1a73e8;
             --msg-user-bg: #e3e3e3; --border-color: #dadce0; --menu-hover: #e8eaed;
-            --card-bg: #ffffff;
+            --card-bg: #ffffff; --modal-bg: #ffffff;
         }
         :root[data-theme="blue"] {
             --bg-main: #050a0f; --sidebar-bg: #0d1621; --input-bg: #122030;
             --text-main: #e8eaed; --text-sub: #8696a0; --accent-color: #4db8ff;
             --msg-user-bg: #004d40; --border-color: #1f3a5f; --menu-hover: #15273b;
-            --card-bg: #122030;
+            --card-bg: #122030; --modal-bg: #0d1621;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', sans-serif; }
         body { background: var(--bg-main); color: var(--text-main); height: 100dvh; display: flex; overflow: hidden; transition: 0.3s; }
 
-        /* --- SIDEBAR & OVERLAY --- */
-        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(2px); transition: 0.3s; }
+        /* --- SHARED COMPONENTS --- */
+        .hidden { display: none !important; }
+        input, textarea, select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 12px; outline: none; width: 100%; resize: none; font-size: 14px; }
+        button { cursor: pointer; }
+        .primary-btn { background: var(--accent-color); color: var(--bg-main); border: none; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .primary-btn:hover { opacity: 0.9; }
+        .icon-btn { background: transparent; border: none; color: var(--text-sub); padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .icon-btn:hover { background: var(--menu-hover); color: var(--text-main); }
+
+        /* --- SIDEBAR --- */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(2px); }
         .sidebar-overlay.active { display: block; }
-        
-        .sidebar { position: fixed; left: -300px; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; }
+        .sidebar { position: fixed; left: -300px; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .sidebar-close { cursor: pointer; color: var(--text-main); font-size: 28px; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         
-        .btn-new { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-weight: 500; transition: 0.2s; }
-        .btn-new:hover { background: var(--menu-hover); }
+        .btn-new-chat { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 50px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 25px; font-weight: 500; transition: 0.2s; }
+        .btn-new-chat:hover { background: var(--menu-hover); border-color: var(--accent-color); }
         
-        .history-list { flex: 1; overflow-y: auto; }
-        .history-item { padding: 10px; border-radius: 8px; font-size: 14px; color: var(--text-sub); cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .history-item:hover { background: var(--border-color); color: var(--text-main); }
+        .history-section { flex: 1; overflow-y: auto; margin-bottom: 20px; }
+        .history-label { font-size: 12px; color: var(--text-sub); font-weight: 600; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .history-item { padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text-sub); cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: 0.2s; display: flex; align-items: center; gap: 10px; }
+        .history-item:hover { background: var(--menu-hover); color: var(--text-main); }
+        .history-item .material-icons-outlined { font-size: 18px; }
 
-        .theme-selector { border-top: 1px solid var(--border-color); padding: 15px 0; }
-        .theme-btns { display: flex; gap: 8px; margin-top: 10px; }
-        .theme-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); cursor: pointer; font-size: 11px; }
-        .theme-btn.active { border-color: var(--accent-color); color: var(--accent-color); }
+        .theme-selector { border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .theme-btns { display: flex; gap: 8px; margin-top: 10px; background: var(--input-bg); padding: 4px; border-radius: 12px; }
+        .theme-btn { flex: 1; padding: 8px; border-radius: 8px; border: none; background: transparent; color: var(--text-sub); font-size: 12px; font-weight: 500; transition: 0.2s; }
+        .theme-btn.active { background: var(--bg-main); color: var(--accent-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
-        /* --- HEADER & PROFILE --- */
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 500; width: 100%; background: transparent; }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .menu-btn { cursor: pointer; font-size: 30px; color: var(--text-main); transition: 0.2s; }
-        .menu-btn:hover { color: var(--accent-color); }
-        
-        .header-right { display: flex; align-items: center; gap: 10px; }
-        .model-selector { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 20px; outline: none; font-size: 13px; max-width: 150px; cursor: pointer; }
-        .profile-pic-small { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border-color); cursor: pointer; object-fit: cover; transition: 0.2s; }
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; height: 100%; }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: transparent; z-index: 10; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .model-selector { padding: 6px 12px; border-radius: 20px; font-size: 12px; max-width: 130px; background: var(--input-bg); border-color: var(--border-color); cursor: pointer; }
+        .profile-pic-small { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border-color); cursor: pointer; object-fit: cover; transition: 0.2s; }
         .profile-pic-small:hover { border-color: var(--accent-color); }
 
-        /* --- PROFILE MENU MODAL --- */
-        .profile-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 60px; }
-        .profile-menu-card { background: var(--sidebar-bg); border-radius: 24px; width: 90%; max-width: 380px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .profile-header-info { padding: 20px; text-align: center; position: relative; }
-        .close-profile { position: absolute; right: 20px; top: 20px; cursor: pointer; color: var(--text-sub); }
-        .profile-pic-large { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); margin-bottom: 10px; }
-        .profile-name { font-size: 18px; font-weight: 500; margin-bottom: 5px; }
-        .profile-email { font-size: 13px; color: var(--text-sub); margin-bottom: 15px; }
-        .manage-account-btn { background: transparent; border: 1px solid var(--border-color); color: var(--accent-color); padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; font-weight: 500; transition: 0.2s; }
-        .manage-account-btn:hover { background: var(--menu-hover); }
-        .profile-list { list-style: none; border-top: 1px solid var(--border-color); padding: 10px 0; max-height: 50vh; overflow-y: auto; }
-        .profile-list li { display: flex; align-items: center; gap: 15px; padding: 12px 20px; cursor: pointer; color: var(--text-main); font-size: 15px; transition: 0.2s; }
-        .profile-list li:hover { background: var(--menu-hover); }
-        .profile-list li .material-icons-outlined { color: var(--text-sub); font-size: 22px; }
+        .viewport { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
+        .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; width: 100%; max-width: 900px; }
+        .shrawan-title { font-size: clamp(32px, 5vw, 55px); font-weight: 800; background: linear-gradient(45deg, var(--accent-color), #9b72cb, #d96570); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 5s ease infinite; margin-bottom: 10px; }
+        @keyframes flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* --- DASHBOARD & ANIMATIONS --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
-        .viewport { flex: 1; overflow-y: auto; padding: 0 20px 20px 20px; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
-        .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; text-align: center; padding-bottom: 50px; width: 100%; }
-        .anim-box { height: 120px; width: 200px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
-        
-        .char-icon { font-size: 85px; position: absolute; opacity: 0; display: none; filter: drop-shadow(0 0 25px var(--accent-color)); }
-        .anim-rocket { animation: rocketFly 3s ease-in-out forwards; }
-        @keyframes rocketFly { 0% { opacity:0; transform: translateY(100px) rotate(-45deg); } 40% { opacity:1; } 100% { opacity:0; transform: translateY(-200px) rotate(-45deg); } }
-        .anim-comp { animation: coding 3s ease-in-out forwards; }
-        @keyframes coding { 0% { opacity:0; transform: scale(0.7); } 30% { opacity:1; } 100% { opacity:0; transform: scale(1.4); } }
-        .anim-fire { animation: fireGlow 3s ease-in-out forwards; }
-        @keyframes fireGlow { 0% { opacity:0; transform: scale(0.5); filter: blur(15px); } 50% { opacity:1; transform: scale(1.4); filter: blur(0); } 100% { opacity:0; transform: scale(1.8); } }
-        .anim-robot { animation: robotWalk 3s ease-in-out forwards; }
-        @keyframes robotWalk { 0% { opacity:0; transform: translateX(-50px); } 50% { opacity:1; transform: translateX(0); } 100% { opacity:0; transform: translateX(50px); } }
+        /*Action Cards*/
+        .action-cards-container { display: flex; gap: 20px; margin-top: 40px; width: 100%; justify-content: center; flex-wrap: wrap; }
+        .action-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; gap: 15px; cursor: pointer; transition: all 0.3s ease; flex: 1 1 180px; max-width: 220px; min-width: 160px; position: relative; overflow: hidden; }
+        .action-card:hover { border-color: var(--accent-color); transform: translateY(-8px); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.2); }
+        .action-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, transparent, rgba(var(--accent-color-rgb), 0.1), transparent); opacity: 0; transition: 0.3s; }
+        .action-card:hover::before { opacity: 1; }
+        .action-card-icon { font-size: 32px; color: var(--accent-color); background: var(--menu-hover); padding: 16px; border-radius: 50%; transition: 0.3s; }
+        .action-card:hover .action-card-icon { background: var(--accent-color); color: var(--bg-main); transform: scale(1.1) rotate(5deg); }
+        .action-card-text { font-size: 15px; font-weight: 600; color: var(--text-main); text-align: center; }
+        .action-card-subtext { font-size: 12px; color: var(--text-sub); font-weight: normal; }
 
-        .shrawan-title { font-size: clamp(30px, 6vw, 65px); font-weight: 800; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 4s linear infinite; }
-        @keyframes flow { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+        /*Chat Flow*/
+        #chat-flow { width: 100%; max-width: 850px; display: none; flex-direction: column; gap: 25px; padding-bottom: 160px; }
+        .msg-row { display: flex; gap: 15px; animation: fadeIn 0.3s ease; }
+        .msg-row.user { justify-content: flex-end; }
+        .msg-bubble { padding: 12px 18px; border-radius: 18px; max-width: 80%; word-wrap: break-word; font-size: 15px; line-height: 1.6; position: relative; }
+        .msg-row.user .msg-bubble { background: var(--msg-user-bg); color: var(--text-main); border-bottom-right-radius: 4px; }
+        .msg-row.bot .msg-bubble { background: var(--card-bg); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- NEW ACTION CARDS --- */
-        .action-cards-container { display: flex; gap: 15px; margin-top: 40px; width: 100%; max-width: 800px; justify-content: center; flex-wrap: wrap; }
-        .action-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; flex: 1 1 140px; max-width: 180px; min-width: 130px; }
-        .action-card:hover { border-color: var(--accent-color); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .action-card-icon { font-size: 28px; color: var(--accent-color); background: var(--menu-hover); padding: 12px; border-radius: 50%; }
-        .action-card-text { font-size: 14px; font-weight: 500; color: var(--text-main); text-align: center; }
+        /*Bottom Bar*/
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 20px; background: linear-gradient(to top, var(--bg-main) 70%, transparent); display: flex; flex-direction: column; align-items: center; z-index: 100; }
+        .input-box-container { width: 100%; max-width: 850px; position: relative; }
+        #preview-box { position: absolute; bottom: 100%; left: 20px; margin-bottom: 10px; background: var(--card-bg); padding: 5px; border-radius: 12px; border: 1px solid var(--border-color); display: none; }
+        #preview-img { height: 60px; border-radius: 8px; display: block; }
+        .input-box { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 30px; display: flex; align-items: center; padding: 8px 15px; box-shadow: 0 5px 20px -5px rgba(0,0,0,0.1); transition: 0.3s; }
+        .input-box:focus-within { border-color: var(--accent-color); box-shadow: 0 5px 25px -5px rgba(var(--accent-color-rgb), 0.3); }
+        #user-input { flex: 1; background: transparent; border: none; padding: 10px; font-size: 16px; max-height: 120px; overflow-y: auto; }
+        .input-actions { display: flex; align-items: center; gap: 8px; }
 
-        /* --- CHAT FLOW --- */
-        #chat-flow { width: 100%; max-width: 850px; display: none; flex-direction: column; gap: 20px; padding-bottom: 180px; margin-top: 20px; }
-        .user-msg { align-self: flex-end; background: var(--msg-user-bg); padding: 12px 18px; border-radius: 20px 20px 4px 20px; max-width: 85%; border: 1px solid var(--border-color); word-wrap: break-word; font-size: 15px; }
-        .bot-msg { align-self: flex-start; width: 100%; font-size: 15px; line-height: 1.6; word-wrap: break-word; }
-        .bot-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
-        .illegal-warning { border: 2px solid #ff3b30; color: #ff3b30; padding: 15px; border-radius: 15px; text-align: center; font-weight: bold; animation: shakeDanger 0.3s infinite; background: rgba(255,0,0,0.1); font-size: 18px; margin-top: 10px; }
-        @keyframes shakeDanger { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        /* --- MODALS (GENERAL & SPECIALIZED) --- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card { background: var(--modal-bg); border-radius: 24px; border: 1px solid var(--border-color); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.3); transform: scale(0.95); transition: transform 0.3s; display: flex; flex-direction: column; }
+        .modal-overlay.active .modal-card { transform: scale(1); }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: var(--text-main); }
+        .modal-body { padding: 25px; overflow-y: auto; flex: 1; }
+        .modal-footer { padding: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; background: var(--menu-hover); border-bottom-left-radius: 24px; border-bottom-right-radius: 24px;}
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: var(--text-main); }
+        .form-sublabel { font-size: 12px; color: var(--text-sub); margin-top: 5px; }
 
-        /* --- INPUT & VOICE CONTROLS --- */
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 10px 15px 20px; background: linear-gradient(transparent, var(--bg-main) 40%); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; z-index: 600; }
-        .input-box { width: 100%; max-width: 850px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 40px; display: flex; align-items: center; padding: 8px 15px; box-shadow: 0 10px 35px rgba(0,0,0,0.4); gap: 8px; box-sizing: border-box; }
-        #user-input { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 10px 0; outline: none; font-size: 16px; min-width: 0; }
-        .action-icon { cursor: pointer; color: var(--text-sub); font-size: 24px; transition: 0.2s; flex-shrink: 0; }
-        .action-icon:hover { color: var(--text-main); }
-        .send-btn { color: var(--accent-color); font-size: 28px; }
-        .adam-voice-btn { color: var(--accent-color); cursor: pointer; font-size: 28px !important; transition: 0.3s; flex-shrink: 0; }
-        .adam-voice-btn.active { color: #ff3b30; transform: scale(1.1); }
-        #preview-box { display: none; width: 100%; max-width: 850px; margin-bottom: 10px; position: relative; }
-        #preview-img { height: 60px; border-radius: 10px; border: 2px solid var(--accent-color); }
-        .preview-close { position:absolute; top:-8px; left:55px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+        /* TTS Modal Specifics */
+        .tts-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .slider-group { display: flex; flex-direction: column; gap: 5px; }
+        .slider-group input[type=range] { width: 100%; accent-color: var(--accent-color); padding: 0; height: 6px; }
+        .audio-player { margin-top: 25px; background: var(--input-bg); padding: 15px; border-radius: 16px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 15px; }
+        .play-btn-large { width: 50px; height: 50px; border-radius: 50%; background: var(--accent-color); color: var(--bg-main); display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; flex-shrink: 0; transition: 0.2s; }
+        .play-btn-large:hover { transform: scale(1.05); }
+        .audio-progress { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; overflow: hidden; }
+        .audio-progress-bar { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--accent-color); transition: width 0.1s linear; }
+        .volume-control { display: flex; align-items: center; gap: 5px; color: var(--text-sub); }
+        .volume-control input { width: 70px; accent-color: var(--text-sub); }
 
-        /* --- MODALS (Settings, TTS, Video) --- */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2500; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-card { background: var(--sidebar-bg); padding: 25px; border-radius: 20px; width: 90%; max-width: 450px; border: 1px solid var(--border-color); text-align: left; box-sizing: border-box; max-height: 85vh; overflow-y: auto; position: relative; }
-        .modal-close-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; color: var(--text-sub); }
-        .modal-card h2 { text-align: center; color: var(--accent-color); margin-bottom: 15px; font-size: 20px; }
-        .modal-card input, .modal-card textarea { width: 100%; padding: 12px; margin: 5px 0 15px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); outline: none; box-sizing: border-box; resize: none; font-size: 14px; }
-        .modal-card label { display: block; font-size: 13px; color: var(--text-sub); font-weight: 500; margin-top: 5px; }
-        .section-title { font-size: 14px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 15px; margin-top: 20px; }
-        .modal-action-btn { width:100%; padding:12px; border-radius:12px; background:var(--accent-color); border:none; color:white; font-weight:bold; cursor:pointer; margin-top: 10px; font-size: 15px; transition: 0.2s; }
-        .modal-action-btn:hover { opacity: 0.9; }
+        /* Image Gen Modal Specifics */
+        .aspect-ratios { display: flex; gap: 10px; margin-top: 10px; }
+        .ratio-btn { flex: 1; padding: 10px; background: var(--input-bg); border: 2px solid var(--border-color); border-radius: 12px; color: var(--text-sub); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 5px; transition: 0.2s; }
+        .ratio-btn.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(var(--accent-color-rgb), 0.1); }
+        .ratio-box { border: 2px solid currentColor; }
 
-        /* Responsive Fixes */
-        @media (max-width: 600px) {
-            .header-right .model-selector { max-width: 100px; font-size: 12px; }
-            .action-cards-container { gap: 10px; }
-            .input-box { padding: 6px 12px; }
-            #user-input { font-size: 15px; }
-            .action-card { padding: 12px; min-width: 110px; }
+        /* Video to Text Result Area */
+        #video-result-area { min-height: 150px; background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; max-height: 300px; overflow-y: auto; display: none; }
+
+        /* Pricing Modal */
+        .pricing-modal { max-width: 900px !important; }
+        .pricing-table { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; padding: 10px 0; }
+        .price-card { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; flex: 1 1 200px; max-width: 240px; display: flex; flex-direction: column; position: relative; }
+        .price-card.popular { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.2); }
+        .popular-tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: var(--bg-main); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .plan-name { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+        .plan-price { font-size: 32px; font-weight: 800; margin-bottom: 5px; }
+        .plan-period { font-size: 13px; color: var(--text-sub); font-weight: normal; }
+        .plan-features { list-style: none; margin: 25px 0; flex: 1; }
+        .plan-features li { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: var(--text-sub); }
+        .plan-features li .material-icons-outlined { color: var(--accent-color); font-size: 18px; flex-shrink: 0; }
+        .plan-btn { width: 100%; padding: 12px; border-radius: 50px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
+        .price-card.popular .plan-btn { background: var(--accent-color); border-color: var(--accent-color); color: var(--bg-main); }
+        .plan-btn:hover { transform: scale(1.03); }
+
+        /* Profile Menu */
+        .profile-menu { position: absolute; top: 70px; right: 20px; background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 16px; width: 280px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); overflow: hidden; display: none; animation: slideDown 0.2s ease; z-index: 1100; }
+        @keyframes slideDown { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform: translateY(0); } }
+        .profile-header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); background: var(--menu-hover); }
+        .profile-pic-large { width: 70px; height: 70px; border-radius: 50%; border: 3px solid var(--accent-color); margin-bottom: 10px; }
+        .profile-name { font-weight: 600; font-size: 16px; }
+        .profile-email { color: var(--text-sub); font-size: 13px; margin-bottom: 15px; }
+        .login-btn { width: 100%; padding: 10px; border-radius: 50px; border: 1px solid var(--accent-color); color: var(--accent-color); background: transparent; font-weight: 600; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .login-btn:hover { background: var(--accent-color); color: var(--bg-main); }
+        .profile-links { list-style: none; padding: 10px 0; }
+        .profile-links li { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-main); cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .profile-links li:hover { background: var(--menu-hover); }
+        .profile-links li .material-icons-outlined { color: var(--text-sub); font-size: 20px; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .pricing-table { flex-direction: column; align-items: center; }
+            .price-card { width: 100%; max-width: 300px; }
+            .tts-controls { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<div id="setup-modal" class="modal-overlay">
+<div id="settings-modal" class="modal-overlay">
     <div class="modal-card">
-        <span class="material-icons-outlined modal-close-btn" onclick="closeModal('setup-modal')">close</span>
-        <h2>⚙️ System Settings</h2>
-        
-        <div class="section-title" style="margin-top: 0;">API Keys (Fallback System)</div>
-        <label>Primary API Key (Key 1):</label>
-        <input type="password" id="api-key-1" placeholder="sk-or-v1-xxxxxxxxxxxx">
-        <label>Secondary API Key (Key 2) - Optional:</label>
-        <input type="password" id="api-key-2" placeholder="Fallback API key">
+        <div class="modal-header">
+            <h2 class="modal-title"><span class="material-icons-outlined">settings</span>Settings</h2>
+            <button class="icon-btn" onclick="closeModal('settings-modal')"><span class="material-icons-outlined">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Primary API Key (OpenRouter/Gemini)</label>
+                <input type="password" id="api-key-1" placeholder="sk-or-v1-xxxxxxxxxxxx">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Secondary Key (Fallback)</label>
+                <input type="password" id="api-key-2" placeholder="Optional fallback key">
+            </div>
+            <hr style="border-color: var(--border-color); margin: 25px 0;">
+            <label class="form-label" style="margin-bottom: 15px;">AI Models (Up to 5)</label>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="text" id="model-1" value="google/gemini-2.0-flash-lite-preview-02-05:free">
+                <input type="text" id="model-2" placeholder="Model 2 ID">
+                <input type="text" id="model-3" placeholder="Model 3 ID">
+                <input type="text" id="model-4" placeholder="Model 4 ID">
+                <input type="text" id="model-5" placeholder="Model 5 ID">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-btn" onclick="saveSettings()">Save Configuration</button>
+        </div>
+    </div>
+</div>
 
-        <div class="section-title">AI Models (Upto 5)</div>
-        <label>Model 1 (Default):</label>
-        <input type="text" id="model-1" value="google/gemini-2.0-flash-lite-preview-02-05:free">
-        <label>Model 2:</label>
-        <input type="text" id="model-2" placeholder="e.g. anthropic/claude-3-haiku">
-        <label>Model 3:</label>
-        <input type="text" id="model-3">
-        <label>Model 4:</label>
-        <input type="text" id="model-4">
-        <label>Model 5:</label>
-        <input type="text" id="model-5">
-
-        <button class="modal-action-btn" onclick="saveSettings()">Save & Apply 🔥</button>
+<div id="user-info-modal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2 class="modal-title"><span class="material-icons-outlined">person</span>Personal Information</h2>
+            <button class="icon-btn" onclick="closeModal('user-info-modal')"><span class="material-icons-outlined">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="user-name" placeholder="e.g. Shrawan Kumar"></div>
+            <div class="form-group"><label class="form-label">Email Address</label><input type="email" id="user-email" placeholder="e.g. shrawan@example.com"></div>
+            <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" id="user-phone" placeholder="+91 9876543210"></div>
+            <div class="form-group"><label class="form-label">Address</label><textarea id="user-address" rows="3" placeholder="Your full address..."></textarea></div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-btn" onclick="saveUserInfo()">Save Details</button>
+        </div>
     </div>
 </div>
 
 <div id="tts-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2 class="modal-title"><span class="material-icons-outlined">record_voice_over</span>Text to Speech Pro</h2>
+            <button class="icon-btn" onclick="closeModal('tts-modal')"><span class="material-icons-outlined">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Enter Text</label>
+                <textarea id="tts-text" rows="5" placeholder="Type something to generate realistic speech..."></textarea>
+            </div>
+            
+            <div class="tts-controls">
+                <div class="form-group">
+                    <label class="form-label">Voice Persona</label>
+                    <select id="tts-voice">
+                        <option value="shrawan_male">Shrawan (Male - Hindi/Eng)</option>
+                        <option value="rajan_male">Rajan (Male - Deep)</option>
+                        <option value="brijesh_male">Brijesh (Male - Formal)</option>
+                        <option value="sunisha_female">Sunisha (Female - Soft)</option>
+                        <option value="preety_female">Preety (Female - Bright)</option>
+                    </select>
+                </div>
+                <div class="slider-group">
+                    <div>
+                        <label class="form-label" style="display:flex; justify-content:space-between;">Pitch <span id="pitch-val">1.0</span></label>
+                        <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('pitch-val').innerText=this.value">
+                    </div>
+                    <div style="margin-top:15px;">
+                        <label class="form-label" style="display:flex; justify-content:space-between;">Speed (Rate) <span id="rate-val">1.0</span></label>
+                        <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" oninput="document.getElementById('rate-val').innerText=this.value">
+                    </div>
+                </div>
+            </div>
+
+            <div class="audio-player hidden" id="tts-player">
+                <div class="play-btn-large" id="tts-play-btn" onclick="toggleTTS()">
+                    <span class="material-icons-outlined">play_arrow</span>
+                </div>
+                <div class="audio-progress">
+                    <div class="audio-progress-bar" id="tts-progress"></div>
+                </div>
+                <div class="volume-control">
+                    <span class="material-icons-outlined" style="font-size:20px;">volume_up</span>
+                    <input type="range" id="tts-volume" min="0" max="1" step="0.1" value="1">
+                </div>
+                <button class="icon-btn" title="Download (Requires Backend)" onclick="alert('High-quality download requires server-side processing not available in this demo.')">
+                    <span class="material-icons-outlined">download</span>
+                </button>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="primary-btn" onclick="generateTTS()">
+                <span class="material-icons-outlined">auto_awesome</span> Generate Voice
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="image-modal" class="modal-overlay">
     <div class="modal-card">
-        <span class="material-icons-outlined modal-close-btn" onclick="closeModal('tts-modal')">close</span>
-        <h2>🗣️ Text to Speech</h2>
-        <label>Enter text to speak:</label>
-        <textarea id="tts-input-text" rows="5" placeholder="Type something here..."></textarea>
-        <button class="modal-action-btn" onclick="handleTTSAction()"><span class="material-icons-outlined" style="vertical-align: middle;">volume_up</span> Speak Now</button>
+        <div class="modal-header">
+            <h2 class="modal-title"><span class="material-icons-outlined">image</span>Create Image</h2>
+            <button class="icon-btn" onclick="closeModal('image-modal')"><span class="material-icons-outlined">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Image Prompt</label>
+                <textarea id="img-prompt" rows="4" placeholder="A futuristic city at sunset, cyberpunk style, highly detailed..."></textarea>
+                <p class="form-sublabel">Be descriptive for better results.</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Aspect Ratio</label>
+                <div class="aspect-ratios">
+                    <div class="ratio-btn active" onclick="selectRatio(this, '1:1')">
+                        <div class="ratio-box" style="width:24px; height:24px;"></div><span>Square (1:1)</span>
+                    </div>
+                    <div class="ratio-btn" onclick="selectRatio(this, '4:3')">
+                        <div class="ratio-box" style="width:32px; height:24px;"></div><span>Landscape (4:3)</span>
+                    </div>
+                    <div class="ratio-btn" onclick="selectRatio(this, '2:3')">
+                        <div class="ratio-box" style="width:16px; height:24px;"></div><span>Portrait (2:3)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="primary-btn" onclick="triggerImageGen()">
+                <span class="material-icons-outlined">palette</span> Generate Image
+            </button>
+        </div>
     </div>
 </div>
 
 <div id="video-modal" class="modal-overlay">
     <div class="modal-card">
-        <span class="material-icons-outlined modal-close-btn" onclick="closeModal('video-modal')">close</span>
-        <h2>📹 Video to Text</h2>
-        <p style="color:var(--text-sub); font-size:13px; margin-bottom:15px;">Enter a YouTube URL to get a summary/transcript using AI.</p>
-        <label>YouTube Video URL:</label>
-        <input type="text" id="video-url-input" placeholder="https://youtu.be/...">
-        <button class="modal-action-btn" onclick="handleVideoAction()"><span class="material-icons-outlined" style="vertical-align: middle;">description</span> Get Transcript/Summary</button>
+        <div class="modal-header">
+            <h2 class="modal-title"><span class="material-icons-outlined">video_library</span>Video to Text Transcript</h2>
+            <button class="icon-btn" onclick="closeModal('video-modal')"><span class="material-icons-outlined">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">YouTube Video URL</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="video-url" placeholder="https://youtu.be/...">
+                    <button class="primary-btn" style="padding: 0 20px;" onclick="fetchTranscript()">Get Transcript</button>
+                </div>
+            </div>
+            <div class="form-group hidden" id="video-result-group">
+                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label class="form-label" style="margin:0;">Transcript Result</label>
+                    <button class="icon-btn" onclick="copyTranscript()" title="Copy to Clipboard"><span class="material-icons-outlined">content_copy</span></button>
+                 </div>
+                <div id="video-result-area"></div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="profile-modal" class="profile-modal-overlay" onclick="closeProfileIfOutside(event)">
-    <div class="profile-menu-card">
-        <div class="profile-header-info">
-            <span class="material-icons-outlined close-profile" onclick="toggleProfile()">close</span>
-            <div id="login-section">
-                <div id="logged-out-view">
-                    <img src="https://ui-avatars.com/api/?name=Guest&background=random" class="profile-pic-large">
-                    <h2 class="profile-name">Guest User</h2>
-                    <p class="profile-email">Not logged in</p>
-                    <button class="manage-account-btn" onclick="simulateLogin()">Sign in to Google (Mock)</button>
+<div id="pricing-modal" class="modal-overlay">
+    <div class="modal-card pricing-modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Upgrade Plan</h2>
+            <button class="icon-btn" onclick="closeModal('pricing-modal')"><span class="material-icons-outlined">close</span></button>
+        </div>
+        <div class="modal-body" style="background: var(--bg-main);">
+             <div class="pricing-table">
+                <div class="price-card">
+                    <h3 class="plan-name">Free</h3>
+                    <div class="plan-price">₹0 <span class="plan-period">/month</span></div>
+                    <p class="form-sublabel">Intelligence for everyday tasks</p>
+                    <ul class="plan-features">
+                        <li><span class="material-icons-outlined">check</span> Limited access to GPT-3.5</li>
+                        <li><span class="material-icons-outlined">check</span> Standard response speed</li>
+                        <li style="opacity: 0.6;"><span class="material-icons-outlined" style="color: var(--text-sub);">close</span> No image generation</li>
+                    </ul>
+                    <button class="plan-btn">Current Plan</button>
                 </div>
-                <div id="logged-in-view" style="display: none;">
-                    <img src="https://ui-avatars.com/api/?name=Shrawan+Maurya&background=0D8ABC&color=fff" class="profile-pic-large" id="main-profile-avatar">
-                    <h2 class="profile-name">Hi, S!</h2>
-                    <p class="profile-email">shrawankumarmaurya@gmail.com</p>
-                    <button class="manage-account-btn">Manage your Google Account</button>
+                <div class="price-card">
+                    <h3 class="plan-name">Go</h3>
+                    <div class="plan-price">₹399 <span class="plan-period">/month</span></div>
+                     <p class="form-sublabel">Keep chatting with expanded access</p>
+                    <ul class="plan-features">
+                        <li><span class="material-icons-outlined">check</span> More access to GPT-3.5</li>
+                        <li><span class="material-icons-outlined">check</span> Faster responses</li>
+                        <li><span class="material-icons-outlined">check</span> Basic image generation</li>
+                    </ul>
+                    <button class="plan-btn">Get Go</button>
+                </div>
+                <div class="price-card popular">
+                    <span class="popular-tag">MOST POPULAR</span>
+                    <h3 class="plan-name">Plus</h3>
+                    <div class="plan-price">₹1,999 <span class="plan-period">/month</span></div>
+                     <p class="form-sublabel">Do more with advanced intelligence</p>
+                    <ul class="plan-features">
+                        <li><span class="material-icons-outlined">check</span> Access to GPT-4 & Claude 3</li>
+                        <li><span class="material-icons-outlined">check</span> Priority high speed</li>
+                        <li><span class="material-icons-outlined">check</span> Advanced Image Gen (DALL-E 3)</li>
+                        <li><span class="material-icons-outlined">check</span> Deep Research tools</li>
+                    </ul>
+                    <button class="plan-btn">Get Plus</button>
+                </div>
+                <div class="price-card">
+                    <h3 class="plan-name">Pro</h3>
+                    <div class="plan-price">₹19,900 <span class="plan-period">/month</span></div>
+                     <p class="form-sublabel">Full access to the best of AI</p>
+                    <ul class="plan-features">
+                        <li><span class="material-icons-outlined">check</span> Unlimited GPT-4 Turbo</li>
+                        <li><span class="material-icons-outlined">check</span> Maximum speed & context</li>
+                        <li><span class="material-icons-outlined">check</span> Sora Video Generation Beta</li>
+                        <li><span class="material-icons-outlined">check</span> Team collaboration tools</li>
+                    </ul>
+                    <button class="plan-btn">Get Pro</button>
                 </div>
             </div>
         </div>
-        <ul class="profile-list">
-            <li onclick="alert('Feature coming soon!')"><span class="material-icons-outlined">info</span> Manage subscription (PRO)</li>
-            <li onclick="alert('Ultra upgrade unavailable')"><span class="material-icons-outlined">stars</span> Upgrade to Google AI Ultra</li>
-            <li onclick="alert('Showing App Activity...')"><span class="material-icons-outlined">history</span> Gemini Apps activity</li>
-            <li onclick="openSettings(); toggleProfile();"><span class="material-icons-outlined">settings</span> Settings</li>
-        </ul>
     </div>
 </div>
 
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-<aside id="sidebar" class="sidebar">
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <h3 style="color: var(--accent-color); margin: 0;">Menu</h3>
-        <span class="material-icons-outlined sidebar-close" onclick="toggleSidebar()">close</span>
+        <h2 style="font-size: 22px; font-weight: 700; color: var(--accent-color);">AI Suite</h2>
+        <button class="icon-btn" onclick="toggleSidebar()"><span class="material-icons-outlined">close</span></button>
     </div>
-    <button class="btn-new" onclick="startNewChat()"><span class="material-icons-outlined">add</span> New Chat</button>
-    <div class="history-list" id="chat-history"></div>
-    <div class="theme-selector">
-        <p style="font-size:12px; color:var(--text-sub);">THEME</p>
+    <button class="btn-new-chat" onclick="startNewChat()">
+        <span class="material-icons-outlined" style="color: var(--accent-color);">add</span> New Chat
+    </button>
+    
+    <div class="history-section hidden" id="history-section">
+        <div class="history-label">RECENT HISTORY</div>
+        <div id="history-list">
+            </div>
+    </div>
+    <div style="flex:1;"></div> <div class="theme-selector">
+        <div class="history-label" style="margin-bottom: 8px;">INTERFACE THEME</div>
         <div class="theme-btns">
-            <button class="theme-btn" id="t-dark" onclick="setTheme('dark')">Dark</button>
-            <button class="theme-btn" id="t-light" onclick="setTheme('light')">Light</button>
-            <button class="theme-btn" id="t-blue" onclick="setTheme('blue')">Blue</button>
+            <button class="theme-btn" id="theme-dark" onclick="setTheme('dark')">Dark</button>
+            <button class="theme-btn" id="theme-light" onclick="setTheme('light')">Light</button>
+            <button class="theme-btn" id="theme-blue" onclick="setTheme('blue')">Blue</button>
         </div>
     </div>
-    <button onclick="openSettings()" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:10px; display:flex; align-items:center; gap:10px; margin-top:10px;"><span class="material-icons-outlined">settings</span> Settings</button>
 </aside>
 
-<div class="main-content">
+<main class="main-content">
     <header>
-        <div class="header-left">
-            <span class="material-icons-outlined menu-btn" onclick="toggleSidebar()">menu</span>
-        </div>
+        <button class="icon-btn" onclick="toggleSidebar()" style="font-size: 28px;"><span class="material-icons-outlined">menu</span></button>
         <div class="header-right">
-            <select id="active-model-select" class="model-selector" title="Choose Active Model"></select>
-            <img src="https://ui-avatars.com/api/?name=Guest&background=random" id="header-avatar" class="profile-pic-small" onclick="toggleProfile()">
+            <select id="model-select" class="model-selector" title="Active AI Model"></select>
+            <div style="position: relative;">
+                <img src="https://ui-avatars.com/api/?name=Guest&background=random" id="header-avatar" class="profile-pic-small" onclick="toggleProfileMenu()">
+                <div class="profile-menu" id="profile-menu">
+                    <div class="profile-header">
+                        <img src="" id="menu-avatar" class="profile-pic-large">
+                        <h3 class="profile-name" id="menu-name">Guest User</h3>
+                        <p class="profile-email" id="menu-email">Not logged in</p>
+                        <button class="login-btn" id="auth-btn" onclick="handleAuth()">Sign in to Account</button>
+                    </div>
+                    <ul class="profile-links">
+                         <li onclick="openModal('user-info-modal'); toggleProfileMenu();"><span class="material-icons-outlined">person</span> Personal Information</li>
+                        <li><span class="material-icons-outlined">stars</span> Manage subscription (Pro)</li>
+                        <li onclick="openModal('pricing-modal'); toggleProfileMenu();"><span class="material-icons-outlined">rocket_launch</span> Upgrade to Google AI Ultra</li>
+                        <li onclick="openModal('settings-modal'); toggleProfileMenu();"><span class="material-icons-outlined">settings</span> System Settings</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </header>
-    
+
     <div class="viewport" id="viewport">
-        <div id="dashboard-ui" class="hero-section">
-            <div class="anim-box" id="anim-container"></div>
+        <div id="hero" class="hero-section">
             <h1 class="shrawan-title">I Am ShrawanChatAI</h1>
-            <p style="color:var(--text-sub); margin-top:10px; font-weight:500; margin-bottom: 20px; font-size: 14px;">YouTube Expert • Vision AI • Smart Voice Control</p>
+            <p style="color: var(--text-sub); font-size: 16px; max-width: 600px;">Your advanced AI suite for conversation, voice synthesis, image creation, and video analysis. Fast, capable, and ready.</p>
             
             <div class="action-cards-container">
                 <div class="action-card" onclick="openModal('tts-modal')">
                     <span class="material-icons-outlined action-card-icon">record_voice_over</span>
-                    <span class="action-card-text">Text to Speech<br><small>(Natural Voice)</small></span>
+                    <span class="action-card-text">Text to Speech Pro</span>
+                    <span class="action-card-subtext">Ultra-realistic voices & controls</span>
                 </div>
-                <div class="action-card" onclick="activateImageMode()">
-                    <span class="material-icons-outlined action-card-icon">image</span>
-                    <span class="action-card-text">Create Image</span>
+                <div class="action-card" onclick="openModal('image-modal')">
+                    <span class="material-icons-outlined action-card-icon">palette</span>
+                    <span class="action-card-text">Create Image Studio</span>
+                    <span class="action-card-subtext">Stable Diffusion style generation</span>
                 </div>
-                <div class="action-card" onclick="openModal('video-modal')">
-                    <span class="material-icons-outlined action-card-icon">video_library</span>
-                    <span class="action-card-text">Video to Text<br><small>(Transcript)</small></span>
+                 <div class="action-card" onclick="openModal('video-modal')">
+                    <span class="material-icons-outlined action-card-icon">smart_display</span>
+                    <span class="action-card-text">Video to Transcript</span>
+                    <span class="action-card-subtext">Extract text from YouTube URLs</span>
                 </div>
-                <div class="action-card" onclick="activateDeepGyanMode()">
+                 <div class="action-card" onclick="activateDeepMode()">
                     <span class="material-icons-outlined action-card-icon">psychology</span>
-                    <span class="action-card-text">Deep Gyan<br><small>(विस्तृत ज्ञान)</small></span>
+                    <span class="action-card-text">Deep Gyan Mode</span>
+                    <span class="action-card-subtext">Detailed, scholarly answers</span>
                 </div>
             </div>
         </div>
@@ -285,295 +489,508 @@
     </div>
 
     <div class="bottom-bar">
-        <div id="preview-box">
-            <img id="preview-img" src="">
-            <button class="preview-close" onclick="clearImage()">×</button>
-        </div>
-        <div class="input-box">
-            <span class="material-icons-outlined adam-voice-btn" id="adam-trigger" onclick="handleVoicePlayback()" title="Adam Voice (Play/Pause/Resume)">play_circle_filled</span>
-            
-            <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImage(event)">
-            <span class="material-icons-outlined action-icon" title="Upload Image" onclick="document.getElementById('img-input').click()">add_photo_alternate</span>
-            
-            <input type="text" id="user-input" placeholder="Ask ShrawanChatAI..." onkeypress="if(event.key==='Enter') startInference()">
-            
-            <span class="material-icons-outlined action-icon" title="Voice Search" onclick="startSTT()">mic</span>
-            <span class="material-icons-outlined action-icon send-btn" title="Send" onclick="startInference()">send</span>
+        <div class="input-box-container">
+            <div id="preview-box">
+                <img id="preview-img" src="">
+                <button onclick="clearImage()" style="position:absolute; top:-8px; right:-8px; background:var(--accent-color); color:var(--bg-main); border:none; border-radius:50%; width:22px; height:22px; cursor:pointer; display:flex;align-items:center;justify-content:center;"><span class="material-icons-outlined" style="font-size:16px;">close</span></button>
+            </div>
+            <div class="input-box">
+                <button class="icon-btn adam-voice-btn" id="adam-trigger" onclick="handleVoicePlayback()" title="Replay Last Response">
+                    <span class="material-icons-outlined" style="font-size: 26px;">volume_up</span>
+                </button>
+                
+                <textarea id="user-input" rows="1" placeholder="Ask anything..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"></textarea>
+                
+                <div class="input-actions">
+                    <input type="file" id="img-upload" accept="image/*" hidden onchange="handleImageUpload(event)">
+                    <button class="icon-btn" onclick="document.getElementById('img-upload').click()" title="Upload Image"><span class="material-icons-outlined">add_photo_alternate</span></button>
+                    <button class="icon-btn" id="mic-btn" onclick="toggleSTT()" title="Voice Input"><span class="material-icons-outlined">mic</span></button>
+                    <button class="icon-btn" style="color: var(--accent-color);" onclick="sendMessage()" title="Send"><span class="material-icons-outlined" style="font-size: 24px;">send</span></button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</main>
 
 <script>
-    // --- Global Variables ---
-    let apiKeys = [localStorage.getItem('shrawan_key1') || "", localStorage.getItem('shrawan_key2') || ""];
-    let models = [];
-    for(let i=1; i<=5; i++) models.push(localStorage.getItem('shrawan_model' + i) || (i===1 ? "google/gemini-2.0-flash-lite-preview-02-05:free" : ""));
-    let isLoggedIn = localStorage.getItem('shrawan_logged_in') === 'true';
-    let currentImage = null;
-    let lastReply = "";
-    let synth = window.speechSynthesis;
-    let utterance = null;
-    let isSpeakingState = "stopped";
-    let isDeepGyanMode = false;
+    // --- GLOBAL STATE ---
+    let state = {
+        apiKey: localStorage.getItem('shrawan_key1') || "",
+        apiKey2: localStorage.getItem('shrawan_key2') || "",
+        models: JSON.parse(localStorage.getItem('shrawan_models')) || ["google/gemini-2.0-flash-lite-preview-02-05:free"],
+        theme: localStorage.getItem('shrawan_theme') || 'dark',
+        isLoggedIn: localStorage.getItem('shrawan_logged_in') === 'true',
+        userInfo: JSON.parse(localStorage.getItem('shrawan_user_info')) || { name: 'Guest', email: '', phone: '', address: '' },
+        chatHistory: JSON.parse(localStorage.getItem('shrawan_chat_history')) || [],
+        currentImage: null,
+        isDeepMode: false,
+        lastAiResponse: "",
+        recognition: null,
+        isListening: false,
+        isTTSPlaying: false,
+        ttsUtterance: null,
+        selectedRatio: '1:1'
+    };
+    const synth = window.speechSynthesis;
 
-    // --- Animation Setup ---
-    const icons = [{e:'🚀',c:'anim-rocket'},{e:'💻',c:'anim-comp'},{e:'🔥',c:'anim-fire'},{e:'🤖',c:'anim-robot'},{e:'🧠',c:'anim-comp'},{e:'⚡',c:'anim-fire'}];
-    let step = 0;
-    function runAnims() {
-        const box = document.getElementById('anim-container'); 
-        if(!box) return;
-        box.innerHTML = '';
-        const s = document.createElement('span'); s.className = 'char-icon ' + icons[step].c; s.innerText = icons[step].e; s.style.display = 'block';
-        box.appendChild(s); step = (step + 1) % icons.length; setTimeout(runAnims, 3200);
-    }
-    runAnims();
-
-    // --- Initialization ---
+    // --- INITIALIZATION ---
     window.onload = () => {
-        loadSettingsToUI(); 
-        updateModelDropdown(); 
-        updateProfileUI();
-        if(!apiKeys[0] && !apiKeys[1]) openModal('setup-modal');
-        setTheme(localStorage.getItem('shrawan_theme') || 'dark');
+        applyTheme(state.theme);
+        loadSettingsUI();
+        updateAuthUI();
+        populateModelDropdown();
+        renderChatHistory();
+        setupSTT();
+        if (!state.apiKey && !state.apiKey2) openModal('settings-modal');
         
-        // Pre-load voices robustly
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
-        } else {
-            speechSynthesis.getVoices();
-        }
+        // Auto-resize textarea on Enter
+        document.getElementById('user-input').addEventListener('keydown', (e) => {
+            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+        });
     };
 
-    // --- UI Functions ---
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    // --- UI & NAVIGATION FUNCTIONS ---
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
-    function setTheme(t) { 
-        document.documentElement.setAttribute('data-theme', t); 
-        localStorage.setItem('shrawan_theme', t); 
-        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active')); 
-        if(document.getElementById('t-' + t)) document.getElementById('t-' + t).classList.add('active'); 
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function toggleProfileMenu() {
+        const menu = document.getElementById('profile-menu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     }
-    function toggleProfile() { const m = document.getElementById('profile-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-    function closeProfileIfOutside(e) { if(e.target.id === 'profile-modal') document.getElementById('profile-modal').style.display = 'none'; }
-    function updateProfileUI() {
-        document.getElementById('logged-out-view').style.display = isLoggedIn ? 'none' : 'block';
-        document.getElementById('logged-in-view').style.display = isLoggedIn ? 'block' : 'none';
-        document.getElementById('header-avatar').src = isLoggedIn ? "https://ui-avatars.com/api/?name=Shrawan+Maurya&background=0D8ABC&color=fff" : "https://ui-avatars.com/api/?name=Guest&background=random";
-    }
-    function simulateLogin() { isLoggedIn = true; localStorage.setItem('shrawan_logged_in', 'true'); updateProfileUI(); }
-    function startNewChat() { synth.cancel(); location.reload(); }
-    window.addEventListener('beforeunload', () => { synth.cancel(); });
-    function openSettings() { openModal('setup-modal'); }
+    // Close profile menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.header-right')) document.getElementById('profile-menu').style.display = 'none';
+    });
 
-    // --- Settings & Models Logic ---
-    function loadSettingsToUI() {
-        document.getElementById('api-key-1').value = apiKeys[0]; document.getElementById('api-key-2').value = apiKeys[1];
-        for(let i=1; i<=5; i++) document.getElementById('model-' + i).value = models[i-1];
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('shrawan_theme', theme);
+        state.theme = theme;
+        document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`theme-${theme}`).classList.add('active');
     }
-    function saveSettings() {
-        apiKeys[0] = document.getElementById('api-key-1').value.trim(); apiKeys[1] = document.getElementById('api-key-2').value.trim();
-        localStorage.setItem('shrawan_key1', apiKeys[0]); localStorage.setItem('shrawan_key2', apiKeys[1]);
-        for(let i=1; i<=5; i++) { 
-            models[i-1] = document.getElementById('model-' + i).value.trim(); 
-            localStorage.setItem('shrawan_model' + i, models[i-1]); 
-        }
-        updateModelDropdown(); closeModal('setup-modal');
-    }
-    function updateModelDropdown() {
-        const s = document.getElementById('active-model-select'); s.innerHTML = ''; let has=false;
-        for(let i=0; i<5; i++) { 
-            if(models[i]) { 
-                has=true; let o = document.createElement('option'); o.value = models[i]; o.text = `Model ${i+1}: ${models[i].split('/').pop()}`; s.appendChild(o); 
-            }
-        }
-        if(!has) s.innerHTML = '<option value="">No models configured</option>';
+    function setTheme(t) { applyTheme(t); }
+
+    function startNewChat() {
+        if(synth.speaking) synth.cancel();
+        document.getElementById('chat-flow').innerHTML = '';
+        document.getElementById('hero').style.display = 'flex';
+        state.currentImage = null; clearImage();
+        toggleSidebar();
     }
 
-    // --- Image Handling ---
-    function handleImage(e) { 
-        const file = e.target.files[0];
-        if(!file) return;
-        const r = new FileReader(); 
-        r.onload = (f) => { 
-            currentImage = f.target.result; 
-            document.getElementById('preview-img').src = currentImage; 
-            document.getElementById('preview-box').style.display = 'block'; 
-        }; 
-        r.readAsDataURL(file); 
-    }
-    function clearImage() { currentImage = null; document.getElementById('preview-box').style.display = 'none'; document.getElementById('img-input').value = ''; }
-    
-    // --- Scroll Helper ---
     function scrollToBottom() {
         const viewport = document.getElementById('viewport');
-        viewport.scrollTop = viewport.scrollHeight;
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
     }
 
-    // --- NEW ACTION CARD FUNCTIONS ---
-    function handleTTSAction() {
-        const text = document.getElementById('tts-input-text').value.trim();
-        if(!text) return alert("Please enter some text!");
-        closeModal('tts-modal');
-        speakText(text);
+    // --- AUTH & USER INFO ---
+    function updateAuthUI() {
+        const avatarUrl = state.isLoggedIn 
+            ? `https://ui-avatars.com/api/?name=${encodeURIComponent(state.userInfo.name)}&background=0D8ABC&color=fff`
+            : "https://ui-avatars.com/api/?name=Guest&background=random";
+        
+        document.getElementById('header-avatar').src = avatarUrl;
+        document.getElementById('menu-avatar').src = avatarUrl;
+        document.getElementById('menu-name').innerText = state.isLoggedIn ? state.userInfo.name : "Guest User";
+        document.getElementById('menu-email').innerText = state.isLoggedIn ? state.userInfo.email : "Not logged in";
+        document.getElementById('auth-btn').innerText = state.isLoggedIn ? "Sign Out" : "Sign in to Account";
+        document.getElementById('auth-btn').classList.toggle('primary-btn', !state.isLoggedIn);
+        document.getElementById('history-section').classList.toggle('hidden', !state.isLoggedIn);
+
+        if(state.isLoggedIn) loadUserInfoUI();
     }
 
-    function activateImageMode() {
-        const input = document.getElementById('user-input');
-        input.value = "/imagine "; 
-        input.focus();
-        input.placeholder = "Describe the image you want to create...";
+    function handleAuth() {
+        state.isLoggedIn = !state.isLoggedIn;
+        localStorage.setItem('shrawan_logged_in', state.isLoggedIn);
+        if(!state.isLoggedIn) state.userInfo = { name: 'Guest', email: '', phone: '', address: '' };
+        updateAuthUI(); toggleProfileMenu();
     }
 
-    function handleVideoAction() {
-        const url = document.getElementById('video-url-input').value.trim();
-        if(!url || !url.includes('youtu')) return alert("Please enter a valid YouTube URL!");
-        closeModal('video-modal');
-        const prompt = `Please analyze this YouTube video URL: ${url}. Provide a detailed summary and, if possible, a transcript of the content.`;
-        document.getElementById('user-input').value = prompt;
-        startInference();
+    function loadUserInfoUI() {
+        document.getElementById('user-name').value = state.userInfo.name || '';
+        document.getElementById('user-email').value = state.userInfo.email || '';
+        document.getElementById('user-phone').value = state.userInfo.phone || '';
+        document.getElementById('user-address').value = state.userInfo.address || '';
     }
 
-    function activateDeepGyanMode() {
-        isDeepGyanMode = true;
-        const input = document.getElementById('user-input');
-        input.placeholder = "Deep Gyan Mode: Ask anything for a detailed answer...";
-        input.focus();
+    function saveUserInfo() {
+        state.userInfo = {
+            name: document.getElementById('user-name').value.trim() || 'User',
+            email: document.getElementById('user-email').value.trim(),
+            phone: document.getElementById('user-phone').value.trim(),
+            address: document.getElementById('user-address').value.trim()
+        };
+        localStorage.setItem('shrawan_user_info', JSON.stringify(state.userInfo));
+        updateAuthUI(); closeModal('user-info-modal');
     }
 
-    // --- Core AI Inference ---
-    async function executeApiCall(messages, selectedModel, keyIndex = 0) {
-        let currentKey = apiKeys[keyIndex];
-        if(!currentKey) { 
-            if(keyIndex === 0 && apiKeys[1]) return executeApiCall(messages, selectedModel, 1); 
-            throw new Error("API Key missing! Please update settings."); 
+    // --- SETTINGS & MODELS ---
+    function loadSettingsUI() {
+        document.getElementById('api-key-1').value = state.apiKey;
+        document.getElementById('api-key-2').value = state.apiKey2;
+        for(let i=0; i<5; i++) document.getElementById(`model-${i+1}`).value = state.models[i] || '';
+    }
+    function saveSettings() {
+        state.apiKey = document.getElementById('api-key-1').value.trim();
+        state.apiKey2 = document.getElementById('api-key-2').value.trim();
+        state.models = [];
+        for(let i=1; i<=5; i++) {
+            let val = document.getElementById(`model-${i}`).value.trim();
+            if(val) state.models.push(val);
         }
-        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${currentKey}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ "model": selectedModel, "messages": messages })
+        if(state.models.length === 0) state.models.push("google/gemini-2.0-flash-lite-preview-02-05:free");
+        
+        localStorage.setItem('shrawan_key1', state.apiKey);
+        localStorage.setItem('shrawan_key2', state.apiKey2);
+        localStorage.setItem('shrawan_models', JSON.stringify(state.models));
+        populateModelDropdown(); closeModal('settings-modal');
+    }
+    function populateModelDropdown() {
+        const select = document.getElementById('model-select');
+        select.innerHTML = '';
+        state.models.forEach(model => {
+            let option = document.createElement('option');
+            option.value = model;
+            option.text = model.split('/').pop();
+            select.appendChild(option);
         });
-        if(!res.ok) {
-            if(keyIndex === 0 && apiKeys[1]) { console.log("Switching to Fallback Key 2"); return executeApiCall(messages, selectedModel, 1); }
-            throw new Error(`API Error: ${res.status}`);
-        }
-        return await res.json();
     }
 
-    async function startInference() {
-        const input = document.getElementById('user-input');
-        let text = input.value.trim();
-        if(!text && !currentImage) return;
+    // --- CHAT HISTORY ---
+    function saveToHistory(firstMessage) {
+        if(!state.isLoggedIn) return;
+        const summary = firstMessage.substring(0, 30) + (firstMessage.length > 30 ? '...' : '');
+        state.chatHistory.unshift({ id: Date.now(), summary: summary, date: new Date().toLocaleDateString() });
+        if(state.chatHistory.length > 20) state.chatHistory.pop(); // Limit to 20
+        localStorage.setItem('shrawan_chat_history', JSON.stringify(state.chatHistory));
+        renderChatHistory();
+    }
+    function renderChatHistory() {
+        const list = document.getElementById('history-list');
+        list.innerHTML = '';
+        state.chatHistory.forEach(item => {
+            let div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `<span class="material-icons-outlined">chat_bubble_outline</span> ${item.summary}`;
+            div.onclick = () => alert('Load chat feature coming soon in backend update.');
+            list.appendChild(div);
+        });
+    }
 
-        let activeModel = document.getElementById('active-model-select').value;
-        if(!activeModel) return openModal('setup-modal');
+    // --- SPECIAL FEATURES IMPLEMENTATION ---
 
-        document.getElementById('dashboard-ui').style.display = 'none';
-        const flow = document.getElementById('chat-flow'); flow.style.display = 'flex';
+    // 1. Image Gen (Leonardo Style UI Logic)
+    function selectRatio(btn, ratio) {
+        document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.selectedRatio = ratio;
+    }
+    function triggerImageGen() {
+        const prompt = document.getElementById('img-prompt').value.trim();
+        if(!prompt) return alert("Please enter a prompt.");
+        closeModal('image-modal');
+        // Simulate sending an image generation command to the AI
+        document.getElementById('user-input').value = `/imagine prompt: ${prompt} --ar ${state.selectedRatio}`;
+        sendMessage();
+        document.getElementById('img-prompt').value = ''; // Reset
+    }
+
+    // 2. Video to Text (YouTube Transcript UI Logic)
+    function fetchTranscript() {
+        const url = document.getElementById('video-url').value.trim();
+        if(!url.includes('youtu')) return alert("Please enter a valid YouTube URL.");
         
-        // Show User Message
-        flow.innerHTML += `<div class="user-msg">${text}${currentImage ? `<br><img src="${currentImage}" style="width:150px; border-radius:10px; margin-top:10px;">` : ''}</div>`;
-        input.value = ''; input.placeholder = "Ask ShrawanChatAI..."; 
-        scrollToBottom();
-
-        const bDiv = document.createElement('div'); bDiv.className = 'bot-msg';
-        bDiv.innerHTML = `<span style="color:var(--accent-color); font-weight:bold;">Thinking... 🧠</span>`;
-        flow.appendChild(bDiv); 
-        scrollToBottom();
-
-        // System Prompt Logic
-        let defaultSys = `You are ShrawanChatAI. You speak in a mix of Hindi and English. Use emojis. YouTube Expert: Provide viral titles, description, tags. If asked for illegal info: Output <div class='illegal-warning'>🚫 PITAOGE DIMAK SAHI HO JAYEGA 🚫</div>`;
-        let deepGyanSys = `You are ShrawanChatAI in 'Deep Gyan' mode. Your goal is to provide extremely detailed, comprehensive, and scholarly answers on any topic. Mix Hindi and English slightly. Explain concepts thoroughly. Use formatting.`;
+        const resultArea = document.getElementById('video-result-area');
+        const resultGroup = document.getElementById('video-result-group');
+        resultGroup.classList.remove('hidden');
+        resultArea.innerHTML = '<span style="color: var(--accent-color);">Analyzing video and fetching transcript... (This may take a moment via the AI model)</span>';
         
-        let sysContent = isDeepGyanMode ? deepGyanSys : defaultSys;
+        // We use the main chat AI to simulate this feature as we don't have a real backend
+        simulateVideoAnalysis(url).then(transcript => {
+            resultArea.innerText = transcript;
+        }).catch(err => {
+            resultArea.innerHTML = `<span style="color: #ff3b30;">Error: ${err.message}</span>`;
+        });
+    }
+    async function simulateVideoAnalysis(url) {
+        // Find a text model
+        let model = state.models.find(m => !m.includes('vision')) || state.models[0];
+        if(!model || !state.apiKey) throw new Error("AI configuration missing.");
+        
+        const messages = [
+            {role: "system", content: "You are a specialized YouTube video analyzer. Your task is to provide a detailed summary and, if possible, a reconstructed transcript based on the provided video URL content knowledge you might have. Be extensive."},
+            {role: "user", content: `Analyze this YouTube URL: ${url} and provide a transcript/summary.`}
+        ];
 
-        // Construct Message Payload
-        let userContent = text;
-        if(currentImage) {
-            userContent = [
-                {type: "text", text: text || "Analyze this image"},
-                {type: "image_url", image_url: {url: currentImage}}
-            ];
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${state.apiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ model: model, messages: messages })
+        });
+        if(!response.ok) throw new Error("Failed to fetch from AI provider.");
+        const data = await response.json();
+        return data.choices[0].message.content;
+    }
+    function copyTranscript() {
+        const text = document.getElementById('video-result-area').innerText;
+        navigator.clipboard.writeText(text).then(() => alert("Transcript copied!"));
+    }
+
+    // 3. TTS Pro (ElevenLabs Style UI & Logic)
+    function toggleTTS() {
+        if(state.isTTSPlaying) {
+            synth.pause();
+            state.isTTSPlaying = false;
+            document.getElementById('tts-play-btn').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
+        } else {
+            if(synth.paused) {
+                synth.resume();
+            } else {
+                // Re-trigger generation if nothing is paused
+                 if(state.ttsUtterance) synth.speak(state.ttsUtterance);
+            }
+            state.isTTSPlaying = true;
+            document.getElementById('tts-play-btn').innerHTML = '<span class="material-icons-outlined">pause</span>';
+        }
+    }
+
+    function generateTTS() {
+        const text = document.getElementById('tts-text').value.trim();
+        if(!text) return alert("Please enter text to speak.");
+        
+        synth.cancel(); // Stop previous
+        state.ttsUtterance = new SpeechSynthesisUtterance(text);
+        
+        // Map UI persona to best available system voice
+        const selectedPersona = document.getElementById('tts-voice').value;
+        let voices = synth.getVoices();
+        let targetVoice = null;
+
+        // Simple mapping logic (can be expanded based on available system voices)
+        if(selectedPersona.includes('female')) {
+             targetVoice = voices.find(v => v.name.includes('Google') && v.name.includes('Female')) || voices.find(v => v.lang.includes('en') && v.name.includes('Female'));
+        } else {
+             targetVoice = voices.find(v => v.name.includes('Google') && v.name.includes('Male')) || voices.find(v => v.lang.includes('en') && v.name.includes('Male'));
+        }
+        // Fallback to Hindi if available and persona implies it (Shrawan/Rajan)
+        if((selectedPersona.includes('shrawan') || selectedPersona.includes('rajan')) && !targetVoice) {
+             targetVoice = voices.find(v => v.lang.includes('hi'));
         }
 
-        let messages = [
-            {role: "system", content: sysContent}, 
-            {role: "user", content: userContent}
-        ];
+        if(targetVoice) state.ttsUtterance.voice = targetVoice;
+        state.ttsUtterance.pitch = parseFloat(document.getElementById('tts-pitch').value);
+        state.ttsUtterance.rate = parseFloat(document.getElementById('tts-rate').value);
+        state.ttsUtterance.volume = parseFloat(document.getElementById('tts-volume').value);
+
+        // Event handlers for UI sync
+        state.ttsUtterance.onstart = () => {
+            state.isTTSPlaying = true;
+            document.getElementById('tts-player').classList.remove('hidden');
+            document.getElementById('tts-play-btn').innerHTML = '<span class="material-icons-outlined">pause</span>';
+            simulateProgress();
+        };
+        state.ttsUtterance.onend = () => {
+            state.isTTSPlaying = false;
+            document.getElementById('tts-play-btn').innerHTML = '<span class="material-icons-outlined">play_arrow</span>';
+            clearInterval(progressInterval); document.getElementById('tts-progress').style.width = '100%';
+        };
         
-        clearImage();
+        synth.speak(state.ttsUtterance);
+    }
+
+    let progressInterval;
+    function simulateProgress() {
+        clearInterval(progressInterval);
+        const bar = document.getElementById('tts-progress');
+        let width = 0; bar.style.width = '0%';
+        // Fake progress bar as standard synth doesn't provide real-time events
+        progressInterval = setInterval(() => {
+            if(state.isTTSPlaying && width < 90) { width += 1 + Math.random()*2; bar.style.width = width + '%'; }
+        }, 200);
+    }
+    // Update volume in real-time
+    document.getElementById('tts-volume').addEventListener('input', (e) => {
+        if(synth.speaking && !synth.paused) {
+             synth.cancel(); // Have to restart to apply volume change mid-speech safely in some browsers
+             state.ttsUtterance.volume = parseFloat(e.target.value);
+             synth.speak(state.ttsUtterance);
+        }
+    });
+
+
+    // --- MAIN CHAT FUNCTIONALITY ---
+
+    function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (f) => {
+            state.currentImage = f.target.result;
+            document.getElementById('preview-img').src = state.currentImage;
+            document.getElementById('preview-box').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+    function clearImage() {
+        state.currentImage = null;
+        document.getElementById('preview-box').style.display = 'none';
+        document.getElementById('img-upload').value = '';
+    }
+    function activateDeepMode() {
+        state.isDeepMode = true;
+        document.getElementById('user-input').placeholder = "Deep Gyan Mode Activated. Ask complex questions...";
+        alert("Deep Gyan Mode ON: Responses will be thorough and scholarly.");
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if(!text && !state.currentImage) return;
+
+        if(!state.apiKey) return openModal('settings-modal');
+
+        const model = document.getElementById('model-select').value;
+        
+        // UI Updates
+        document.getElementById('hero').style.display = 'none';
+        const chatFlow = document.getElementById('chat-flow');
+        chatFlow.style.display = 'flex';
+        input.value = ''; input.style.height = 'auto'; input.placeholder = "Ask anything...";
+        
+        // Add User Message
+        let userHtml = text.replace(/\n/g, '<br>');
+        if(state.currentImage) userHtml += `<br><img src="${state.currentImage}" style="max-width:100%; border-radius:12px; margin-top:10px;">`;
+        appendMessage('user', userHtml);
+        
+        // Save history if first message
+        if(chatFlow.children.length === 1) saveToHistory(text || "Image Upload");
+
+        // Add Loading Bubble
+        const loadingId = 'loading-' + Date.now();
+        appendMessage('bot', '<span style="color:var(--accent-color);">Thinking... <span class="material-icons-outlined symbol-rotate">sync</span></span>', loadingId);
+
+        // Prepare Payload
+        let systemPrompt = state.isDeepMode 
+            ? "You are in 'Deep Gyan' mode. Provide extremely detailed, scholarly, comprehensive, and well-structured answers. Use analogies, historical context, and deep analysis. Format nicely with Markdown."
+            : "You are ShrawanChatAI, a helpful and capable assistant. Be concise unless asked to be detailed. Use Markdown for formatting.";
+
+        let userContent = text;
+        if(state.currentImage) {
+            // Check if model supports vision (rough check based on naming conventions)
+            if(model.toLowerCase().includes('vision') || model.includes('gemini') || model.includes('claude-3')) {
+                 userContent = [{type: "text", text: text || "Analyze image"}, {type: "image_url", image_url: {url: state.currentImage}}];
+            } else {
+                 document.getElementById(loadingId).innerHTML = "<span style='color:#ff3b30;'>Error: Selected model doesn't support images. Please choose a vision model.</span>";
+                 clearImage(); return;
+            }
+        }
+
+        const messages = [{role: "system", content: systemPrompt}, {role: "user", content: userContent}];
+        clearImage(); state.isDeepMode = false; // Reset mode
 
         try {
-            const data = await executeApiCall(messages, activeModel);
-            if(data && data.choices && data.choices[0]) {
-                let aiReply = data.choices[0].message.content;
-                // Prepare clean text for TTS
-                lastReply = aiReply.replace(/<[^>]*>?/gm, '').replace(/[*#_`]/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
-                
-                // Markdown formatting
-                let formattedReply = aiReply
-                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-                    .replace(/\*(.*?)\*/g, '<i>$1</i>')
-                    .replace(/\n/g, '<br>');
-                
-                bDiv.innerHTML = `<div>${formattedReply}</div>`;
-            } else {
-                bDiv.innerHTML = `<span style="color:red;">API Error: Invalid Response format.</span>`;
-            }
-        } catch (err) { 
-            bDiv.innerHTML = `<span style="color:red;">Error: ${err.message}. Please check your API Keys in settings.</span>`; 
+            const data = await callAPI(model, messages);
+            const rawReply = data.choices[0].message.content;
+            state.lastAiResponse = rawReply;
+            document.getElementById(loadingId).innerHTML = formatMarkdown(rawReply);
+        } catch (error) {
+            document.getElementById(loadingId).innerHTML = `<span style="color:#ff3b30;">Error: ${error.message}. Try checking settings or switching keys.</span>`;
         }
-        
-        isDeepGyanMode = false; // Reset Mode
         scrollToBottom();
     }
 
-    // --- Voice STT & TTS ---
-    function speakText(txt) {
-        if(!synth) return;
-        synth.cancel();
-        utterance = new SpeechSynthesisUtterance(txt);
-        let voices = synth.getVoices();
+    async function callAPI(model, messages, useSecondary = false) {
+        const key = useSecondary ? state.apiKey2 : state.apiKey;
+        if(!key) throw new Error("API Key not found.");
+
+        try {
+            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json", "HTTP-Referer": window.location.href },
+                body: JSON.stringify({ model: model, messages: messages })
+            });
+            if(!res.ok) {
+                if(!useSecondary && state.apiKey2) { console.log("Switching to secondary key..."); return callAPI(model, messages, true); }
+                throw new Error(`API Status ${res.status}`);
+            }
+            return await res.json();
+        } catch (e) {
+             if(!useSecondary && state.apiKey2) { console.log("Switching to secondary key on error..."); return callAPI(model, messages, true); }
+             throw e;
+        }
+    }
+
+    function appendMessage(sender, html, id = null) {
+        const chatFlow = document.getElementById('chat-flow');
+        const row = document.createElement('div');
+        row.className = `msg-row ${sender}`;
+        row.innerHTML = `<div class="msg-bubble" ${id ? `id="${id}"` : ''}>${html}</div>`;
+        chatFlow.appendChild(row);
+        scrollToBottom();
+    }
+
+    // Simple Markdown Formatter
+    function formatMarkdown(text) {
+        let formatted = text
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold
+            .replace(/\*(.*?)\*/g, '<i>$1</i>') // Italic
+            .replace(/```([\s\S]*?)```/g, '<pre style="background:var(--bg-main);padding:10px;border-radius:8px;overflow-x:auto;"><code>$1</code></pre>') // Code block
+            .replace(/`(.*?)`/g, '<code style="background:var(--bg-main);padding:2px 4px;border-radius:4px;">$1</code>') // Inline code
+            .replace(/\n/g, '<br>'); // Line breaks
+        return formatted;
+    }
+
+    // --- VOICE INPUT & OUTPUT (MAIN CHAT) ---
+    function handleVoicePlayback() {
+        if(!state.lastAiResponse) return;
+        if(synth.speaking) { synth.cancel(); return; }
         
-        // Prioritize Google Hindi/English voices
-        let selectedVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('hi')) || 
-                            voices.find(v => v.lang.includes('hi-IN')) || 
-                            voices.find(v => v.name.includes('Google') && v.lang.includes('en'));
+        const utterance = new SpeechSynthesisUtterance(state.lastAiResponse.replace(/(<([^>]+)>)/gi, "")); // Strip HTML
+        // Try to find a good voice
+        const voices = synth.getVoices();
+        const preferredVoice = voices.find(v => v.lang.includes('hi')) || voices.find(v => v.name.includes('Google UK English Male'));
+        if(preferredVoice) utterance.voice = preferredVoice;
         
-        if(selectedVoice) utterance.voice = selectedVoice;
-        utterance.pitch = 1.0; utterance.rate = 0.95;
-        
-        utterance.onstart = () => { isSpeakingState = "playing"; document.getElementById('adam-trigger').innerText = "pause_circle_filled"; document.getElementById('adam-trigger').classList.add('active'); };
-        utterance.onend = () => { isSpeakingState = "stopped"; document.getElementById('adam-trigger').innerText = "play_circle_filled"; document.getElementById('adam-trigger').classList.remove('active'); };
-        utterance.onerror = () => { isSpeakingState = "stopped"; document.getElementById('adam-trigger').innerText = "play_circle_filled"; document.getElementById('adam-trigger').classList.remove('active'); };
-        
+        utterance.onstart = () => document.getElementById('adam-trigger').style.color = 'var(--accent-color)';
+        utterance.onend = () => document.getElementById('adam-trigger').style.color = 'var(--text-sub)';
         synth.speak(utterance);
     }
 
-    function handleVoicePlayback() {
-        const btn = document.getElementById('adam-trigger');
-        if (isSpeakingState === "playing") { synth.pause(); isSpeakingState = "paused"; btn.innerText = "play_circle_filled"; }
-        else if (isSpeakingState === "paused") { synth.resume(); isSpeakingState = "playing"; btn.innerText = "pause_circle_filled"; }
-        else if (lastReply) { speakText(lastReply); }
+    function setupSTT() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            state.recognition = new SpeechRecognition();
+            state.recognition.continuous = false;
+            state.recognition.interimResults = false;
+            state.recognition.lang = 'en-US'; // Default, can change to 'hi-IN'
+
+            state.recognition.onstart = () => { state.isListening = true; document.getElementById('mic-btn').style.color = '#ff3b30'; };
+            state.recognition.onend = () => { state.isListening = false; document.getElementById('mic-btn').style.color = 'var(--text-sub)'; };
+            state.recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('user-input').value += transcript + ' ';
+                document.getElementById('user-input').focus();
+            };
+             state.recognition.onerror = (e) => { console.error(e.error); alert("Voice input error: " + e.error); };
+        } else {
+            document.getElementById('mic-btn').style.display = 'none';
+        }
+    }
+    function toggleSTT() {
+        if(!state.recognition) return alert("Speech recognition not supported.");
+        if(state.isListening) state.recognition.stop();
+        else state.recognition.start();
     }
 
-    function startSTT() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Aapka browser Voice Search support nahi karta. Please use Chrome/Edge.");
-            return;
-        }
-        const rec = new SpeechRecognition();
-        rec.lang = 'hi-IN';
-        rec.onresult = (e) => { 
-            if(e.results && e.results[0]) {
-                document.getElementById('user-input').value = e.results[0][0].transcript; 
-                startInference(); 
-            }
-        };
-        rec.onerror = (e) => console.log("Mic Error: ", e);
-        rec.start();
-    }
+    // Ensure voices are loaded
+    speechSynthesis.onvoiceschanged = () => { console.log("Voices loaded"); };
+
 </script>
+<style>
+    .symbol-rotate { animation: spin 1s linear infinite; font-size: 18px; vertical-align: middle; margin-left: 5px; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 </body>
 </html>
