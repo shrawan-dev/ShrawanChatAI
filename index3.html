@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShrawanChatAI Ultimate Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        /* --- THEMES (DARK, LIGHT, BLUE) --- */
+        :root[data-theme="dark"] {
+            --bg-main: #0b0b0d; --sidebar-bg: #161719; --input-bg: #1e1f21;
+            --text-main: #e3e3e3; --text-sub: #9aa0a6; --accent-color: #8ab4f8;
+            --msg-user-bg: #2d2e30; --border-color: #3c4043; --menu-hover: #202124;
+            --card-bg: #1e1f21;
+        }
+        :root[data-theme="light"] {
+            --bg-main: #ffffff; --sidebar-bg: #f0f4f9; --input-bg: #f0f4f9;
+            --text-main: #1f1f1f; --text-sub: #5f6368; --accent-color: #1a73e8;
+            --msg-user-bg: #e3e3e3; --border-color: #dadce0; --menu-hover: #e8eaed;
+            --card-bg: #ffffff;
+        }
+        :root[data-theme="blue"] {
+            --bg-main: #050a0f; --sidebar-bg: #0d1621; --input-bg: #122030;
+            --text-main: #e8eaed; --text-sub: #8696a0; --accent-color: #4db8ff;
+            --msg-user-bg: #004d40; --border-color: #1f3a5f; --menu-hover: #15273b;
+            --card-bg: #122030;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', sans-serif; }
+        body { background: var(--bg-main); color: var(--text-main); height: 100dvh; display: flex; overflow: hidden; transition: 0.3s; }
+
+        /* --- SIDEBAR & OVERLAY --- */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(2px); transition: 0.3s; }
+        .sidebar-overlay.active { display: block; }
+        
+        .sidebar { position: fixed; left: -300px; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-close { cursor: pointer; color: var(--text-main); font-size: 28px; }
+        
+        .btn-new { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-weight: 500; }
+        
+        .history-list { flex: 1; overflow-y: auto; }
+        .history-item { padding: 10px; border-radius: 8px; font-size: 14px; color: var(--text-sub); cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: var(--border-color); color: var(--text-main); }
+
+        .theme-selector { border-top: 1px solid var(--border-color); padding: 15px 0; }
+        .theme-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .theme-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); cursor: pointer; font-size: 11px; }
+        .theme-btn.active { border-color: var(--accent-color); color: var(--accent-color); }
+
+        /* --- HEADER & PROFILE --- */
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 500; width: 100%; background: transparent; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { cursor: pointer; font-size: 30px; color: var(--text-main); transition: 0.2s; }
+        .menu-btn:hover { color: var(--accent-color); }
+        
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .model-selector { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 20px; outline: none; font-size: 13px; max-width: 150px; cursor: pointer; }
+        .profile-pic-small { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border-color); cursor: pointer; object-fit: cover; transition: 0.2s; }
+        .profile-pic-small:hover { border-color: var(--accent-color); }
+
+        /* --- PROFILE MENU MODAL --- */
+        .profile-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 60px; }
+        .profile-menu-card { background: var(--sidebar-bg); border-radius: 24px; width: 90%; max-width: 380px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .profile-header-info { padding: 20px; text-align: center; position: relative; }
+        .close-profile { position: absolute; right: 20px; top: 20px; cursor: pointer; color: var(--text-sub); }
+        .profile-pic-large { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); margin-bottom: 10px; }
+        .profile-name { font-size: 18px; font-weight: 500; margin-bottom: 5px; }
+        .profile-email { font-size: 13px; color: var(--text-sub); margin-bottom: 15px; }
+        .manage-account-btn { background: transparent; border: 1px solid var(--border-color); color: var(--accent-color); padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+        .manage-account-btn:hover { background: var(--menu-hover); }
+        .profile-list { list-style: none; border-top: 1px solid var(--border-color); padding: 10px 0; max-height: 50vh; overflow-y: auto; }
+        .profile-list li { display: flex; align-items: center; gap: 15px; padding: 12px 20px; cursor: pointer; color: var(--text-main); font-size: 15px; transition: 0.2s; }
+        .profile-list li:hover { background: var(--menu-hover); }
+        .profile-list li .material-icons-outlined { color: var(--text-sub); font-size: 22px; }
+
+        /* --- DASHBOARD & ANIMATIONS --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+        .viewport { flex: 1; overflow-y: auto; padding: 0 20px 20px 20px; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
+        .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; text-align: center; padding-bottom: 50px; }
+        .anim-box { height: 120px; width: 200px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
+        
+        .char-icon { font-size: 85px; position: absolute; opacity: 0; display: none; filter: drop-shadow(0 0 25px var(--accent-color)); }
+        .anim-rocket { animation: rocketFly 3s ease-in-out forwards; }
+        @keyframes rocketFly { 0% { opacity:0; transform: translateY(100px) rotate(-45deg); } 40% { opacity:1; } 100% { opacity:0; transform: translateY(-200px) rotate(-45deg); } }
+        .anim-comp { animation: coding 3s ease-in-out forwards; }
+        @keyframes coding { 0% { opacity:0; transform: scale(0.7); } 30% { opacity:1; } 100% { opacity:0; transform: scale(1.4); } }
+        .anim-fire { animation: fireGlow 3s ease-in-out forwards; }
+        @keyframes fireGlow { 0% { opacity:0; transform: scale(0.5); filter: blur(15px); } 50% { opacity:1; transform: scale(1.4); filter: blur(0); } 100% { opacity:0; transform: scale(1.8); } }
+        .anim-robot { animation: robotWalk 3s ease-in-out forwards; }
+        @keyframes robotWalk { 0% { opacity:0; transform: translateX(-50px); } 50% { opacity:1; transform: translateX(0); } 100% { opacity:0; transform: translateX(50px); } }
+
+        .shrawan-title { font-size: clamp(35px, 8vw, 65px); font-weight: 800; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 4s linear infinite; }
+        @keyframes flow { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+
+        /* --- NEW ACTION CARDS --- */
+        .action-cards-container { display: flex; gap: 15px; margin-top: 40px; width: 100%; max-width: 800px; justify-content: center; flex-wrap: wrap; }
+        .action-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; cursor: pointer; transition: 0.3s; flex: 1 1 150px; max-width: 180px; min-width: 140px; }
+        .action-card:hover { border-color: var(--accent-color); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .action-card-icon { font-size: 32px; color: var(--accent-color); background: var(--menu-hover); padding: 15px; border-radius: 50%; }
+        .action-card-text { font-size: 15px; font-weight: 500; color: var(--text-main); text-align: center; }
+
+        /* --- CHAT FLOW --- */
+        #chat-flow { width: 100%; max-width: 850px; display: none; flex-direction: column; gap: 30px; padding-bottom: 160px; margin-top: 20px; }
+        .user-msg { align-self: flex-end; background: var(--msg-user-bg); padding: 15px 22px; border-radius: 25px 25px 4px 25px; max-width: 85%; border: 1px solid var(--border-color); word-wrap: break-word; }
+        .bot-msg { align-self: flex-start; width: 100%; font-size: 16px; line-height: 1.8; }
+        .illegal-warning { border: 4px solid #ff3b30; color: #ff3b30; padding: 25px; border-radius: 20px; text-align: center; font-weight: 800; animation: shakeDanger 0.3s infinite; background: rgba(255,0,0,0.1); font-size: 22px; }
+        @keyframes shakeDanger { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* --- INPUT & VOICE CONTROLS --- */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, var(--bg-main) 60%); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; z-index: 600; }
+        .input-box { width: 100%; max-width: 850px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 40px; display: flex; align-items: center; padding: 8px 12px; box-shadow: 0 10px 35px rgba(0,0,0,0.4); gap: 10px; box-sizing: border-box; }
+        #user-input { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 10px 0; outline: none; font-size: 16px; min-width: 0; }
+        .action-icon { cursor: pointer; color: var(--text-sub); font-size: 26px; transition: 0.2s; flex-shrink: 0; }
+        .action-icon:hover { color: var(--text-main); }
+        .send-btn { color: var(--accent-color); font-size: 32px; }
+        .adam-voice-btn { color: var(--accent-color); cursor: pointer; font-size: 32px !important; transition: 0.3s; flex-shrink: 0; }
+        .adam-voice-btn.active { color: #ff3b30; transform: scale(1.2); }
+        #preview-box { display: none; width: 100%; max-width: 850px; margin-bottom: 12px; position: relative; }
+        #preview-img { height: 80px; border-radius: 12px; border: 2px solid var(--accent-color); }
+
+        /* --- MODALS (Settings, TTS, Video) --- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2500; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .modal-card { background: var(--sidebar-bg); padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; border: 1px solid var(--border-color); text-align: left; box-sizing: border-box; max-height: 85vh; overflow-y: auto; position: relative; }
+        .modal-close-btn { position: absolute; top: 20px; right: 20px; cursor: pointer; color: var(--text-sub); }
+        .modal-card h2 { text-align: center; color: var(--accent-color); margin-bottom: 20px; font-size: 22px; }
+        .modal-card input, .modal-card textarea { width: 100%; padding: 12px; margin: 5px 0 15px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); outline: none; box-sizing: border-box; resize: none; }
+        .modal-card label { display: block; font-size: 13px; color: var(--text-sub); font-weight: 500; margin-top: 10px; }
+        .section-title { font-size: 14px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px; }
+        .modal-action-btn { width:100%; padding:15px; border-radius:12px; background:var(--accent-color); border:none; color:white; font-weight:bold; cursor:pointer; margin-top: 15px; font-size: 16px; transition: 0.2s; }
+        .modal-action-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div id="setup-modal" class="modal-overlay">
+    <div class="modal-card">
+        <span class="material-icons-outlined modal-close-btn" onclick="closeModal('setup-modal')">close</span>
+        <h2>⚙️ System Settings</h2>
+        
+        <div class="section-title" style="margin-top: 0;">API Keys (Fallback System)</div>
+        <label>Primary API Key (Key 1):</label>
+        <input type="password" id="api-key-1" placeholder="sk-or-v1-xxxxxxxxxxxx">
+        <label>Secondary API Key (Key 2) - Optional:</label>
+        <input type="password" id="api-key-2" placeholder="Fallback API key">
+
+        <div class="section-title">AI Models (Upto 5)</div>
+        <label>Model 1 (Default):</label>
+        <input type="text" id="model-1" value="google/gemini-2.0-flash-lite-preview-02-05:free">
+        <label>Model 2:</label>
+        <input type="text" id="model-2" placeholder="e.g. anthropic/claude-3-haiku">
+        <label>Model 3:</label>
+        <input type="text" id="model-3">
+        <label>Model 4:</label>
+        <input type="text" id="model-4">
+        <label>Model 5:</label>
+        <input type="text" id="model-5">
+
+        <button class="modal-action-btn" onclick="saveSettings()">Save & Apply 🔥</button>
+    </div>
+</div>
+
+<div id="tts-modal" class="modal-overlay">
+    <div class="modal-card">
+        <span class="material-icons-outlined modal-close-btn" onclick="closeModal('tts-modal')">close</span>
+        <h2>🗣️ Text to Speech</h2>
+        <label>Enter text to speak:</label>
+        <textarea id="tts-input-text" rows="5" placeholder="Type something here..."></textarea>
+        <button class="modal-action-btn" onclick="handleTTSAction()"><span class="material-icons-outlined" style="vertical-align: middle;">volume_up</span> Speak Now</button>
+    </div>
+</div>
+
+<div id="video-modal" class="modal-overlay">
+    <div class="modal-card">
+        <span class="material-icons-outlined modal-close-btn" onclick="closeModal('video-modal')">close</span>
+        <h2>📹 Video to Text</h2>
+        <p style="color:var(--text-sub); font-size:14px; margin-bottom:15px;">Enter a YouTube URL to get a summary/transcript using AI.</p>
+        <label>YouTube Video URL:</label>
+        <input type="text" id="video-url-input" placeholder="https://youtu.be/...">
+        <button class="modal-action-btn" onclick="handleVideoAction()"><span class="material-icons-outlined" style="vertical-align: middle;">description</span> Get Transcript/Summary</button>
+    </div>
+</div>
+
+<div id="profile-modal" class="profile-modal-overlay" onclick="closeProfileIfOutside(event)">
+    <div class="profile-menu-card">
+        <div class="profile-header-info">
+            <span class="material-icons-outlined close-profile" onclick="toggleProfile()">close</span>
+            <div id="login-section">
+                <div id="logged-out-view">
+                    <img src="https://ui-avatars.com/api/?name=Guest&background=random" class="profile-pic-large">
+                    <h2 class="profile-name">Guest User</h2>
+                    <p class="profile-email">Not logged in</p>
+                    <button class="manage-account-btn" onclick="simulateLogin()">Sign in to Google (Mock)</button>
+                </div>
+                <div id="logged-in-view" style="display: none;">
+                    <img src="https://ui-avatars.com/api/?name=Shrawan+Maurya&background=0D8ABC&color=fff" class="profile-pic-large" id="main-profile-avatar">
+                    <h2 class="profile-name">Hi, S!</h2>
+                    <p class="profile-email">shrawankumarmaurya@gmail.com</p>
+                    <button class="manage-account-btn">Manage your Google Account</button>
+                </div>
+            </div>
+        </div>
+        <ul class="profile-list">
+            <li onclick="alert('Feature coming soon!')"><span class="material-icons-outlined">info</span> Manage subscription (PRO)</li>
+            <li onclick="alert('Ultra upgrade unavailable')"><span class="material-icons-outlined">stars</span> Upgrade to Google AI Ultra</li>
+            <li onclick="alert('Showing App Activity...')"><span class="material-icons-outlined">history</span> Gemini Apps activity</li>
+            <li onclick="openSettings(); toggleProfile();"><span class="material-icons-outlined">settings</span> Settings</li>
+        </ul>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3 style="color: var(--accent-color); margin: 0;">Menu</h3>
+        <span class="material-icons-outlined sidebar-close" onclick="toggleSidebar()">close</span>
+    </div>
+    <button class="btn-new" onclick="startNewChat()"><span class="material-icons-outlined">add</span> New Chat</button>
+    <div class="history-list" id="chat-history"></div>
+    <div class="theme-selector">
+        <p style="font-size:12px; color:var(--text-sub);">THEME</p>
+        <div class="theme-btns">
+            <button class="theme-btn" id="t-dark" onclick="setTheme('dark')">Dark</button>
+            <button class="theme-btn" id="t-light" onclick="setTheme('light')">Light</button>
+            <button class="theme-btn" id="t-blue" onclick="setTheme('blue')">Blue</button>
+        </div>
+    </div>
+    <button onclick="openSettings()" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:10px; display:flex; align-items:center; gap:10px; margin-top:10px;"><span class="material-icons-outlined">settings</span> Settings</button>
+</aside>
+
+<div class="main-content">
+    <header>
+        <div class="header-left">
+            <span class="material-icons-outlined menu-btn" onclick="toggleSidebar()">menu</span>
+        </div>
+        <div class="header-right">
+            <select id="active-model-select" class="model-selector" title="Choose Active Model"></select>
+            <img src="https://ui-avatars.com/api/?name=Guest&background=random" id="header-avatar" class="profile-pic-small" onclick="toggleProfile()">
+        </div>
+    </header>
+    
+    <div class="viewport">
+        <div id="dashboard-ui" class="hero-section">
+            <div class="anim-box" id="anim-container"></div>
+            <h1 class="shrawan-title">I Am ShrawanChatAI</h1>
+            <p style="color:var(--text-sub); margin-top:15px; font-weight:500; margin-bottom: 30px;">YouTube Expert • Vision AI • Smart Voice Control</p>
+            
+            <div class="action-cards-container">
+                <div class="action-card" onclick="openModal('tts-modal')">
+                    <span class="material-icons-outlined action-card-icon">record_voice_over</span>
+                    <span class="action-card-text">Text to Speech (Natural Voice)</span>
+                </div>
+                <div class="action-card" onclick="activateImageMode()">
+                    <span class="material-icons-outlined action-card-icon">image</span>
+                    <span class="action-card-text">Create Image</span>
+                </div>
+                <div class="action-card" onclick="openModal('video-modal')">
+                    <span class="material-icons-outlined action-card-icon">video_library</span>
+                    <span class="action-card-text">Video to Text (Transcript)</span>
+                </div>
+                <div class="action-card" onclick="activateDeepGyanMode()">
+                    <span class="material-icons-outlined action-card-icon">psychology</span>
+                    <span class="action-card-text">Deep Gyan (विस्तृत ज्ञान)</span>
+                </div>
+            </div>
+            </div>
+        <div id="chat-flow"></div>
+    </div>
+
+    <div class="bottom-bar">
+        <div id="preview-box">
+            <img id="preview-img" src="">
+            <button onclick="clearImage()" style="position:absolute; top:-5px; left:70px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button>
+        </div>
+        <div class="input-box">
+            <span class="material-icons-outlined adam-voice-btn" id="adam-trigger" onclick="handleVoicePlayback()" title="Adam Voice (Play/Pause/Resume)">play_circle_filled</span>
+            
+            <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImage(event)">
+            <span class="material-icons-outlined action-icon" title="Upload Image" onclick="document.getElementById('img-input').click()">add_photo_alternate</span>
+            
+            <input type="text" id="user-input" placeholder="Ask ShrawanChatAI..." onkeypress="if(event.key==='Enter') startInference()">
+            
+            <span class="material-icons-outlined action-icon" title="Voice Search" onclick="startSTT()">mic</span>
+            <span class="material-icons-outlined action-icon send-btn" title="Send" onclick="startInference()">send</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Global Variables ---
+    let apiKeys = [localStorage.getItem('shrawan_key1') || "", localStorage.getItem('shrawan_key2') || ""];
+    let models = [];
+    for(let i=1; i<=5; i++) models.push(localStorage.getItem('shrawan_model' + i) || (i===1 ? "google/gemini-2.0-flash-lite-preview-02-05:free" : ""));
+    let isLoggedIn = localStorage.getItem('shrawan_logged_in') === 'true';
+    let currentImage = null;
+    let lastReply = "";
+    let synth = window.speechSynthesis;
+    let utterance = null;
+    let isSpeakingState = "stopped";
+    let isDeepGyanMode = false; // Track Deep Gyan mode
+
+    // --- Animation Setup ---
+    const icons = [{e:'🚀',c:'anim-rocket'},{e:'💻',c:'anim-comp'},{e:'🔥',c:'anim-fire'},{e:'🤖',c:'anim-robot'},{e:'🧠',c:'anim-comp'},{e:'⚡',c:'anim-fire'}];
+    let step = 0;
+    function runAnims() {
+        const box = document.getElementById('anim-container'); box.innerHTML = '';
+        const s = document.createElement('span'); s.className = 'char-icon ' + icons[step].c; s.innerText = icons[step].e; s.style.display = 'block';
+        box.appendChild(s); step = (step + 1) % icons.length; setTimeout(runAnims, 3200);
+    }
+    runAnims();
+
+    // --- Initialization ---
+    window.onload = () => {
+        loadSettingsToUI(); updateModelDropdown(); updateProfileUI();
+        if(!apiKeys[0] && !apiKeys[1]) openModal('setup-modal');
+        setTheme(localStorage.getItem('shrawan_theme') || 'dark');
+        // Pre-load voices
+        speechSynthesis.getVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = speechSynthesis.getVoices; }
+    };
+
+    // --- UI Functions (Modals, Sidebar, Theme, Profile) ---
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
+    function setTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('shrawan_theme', t); document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active')); document.getElementById('t-' + t)?.classList.add('active'); }
+    function toggleProfile() { const m = document.getElementById('profile-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
+    function closeProfileIfOutside(e) { if(e.target.id === 'profile-modal') document.getElementById('profile-modal').style.display = 'none'; }
+    function updateProfileUI() {
+        document.getElementById('logged-out-view').style.display = isLoggedIn ? 'none' : 'block';
+        document.getElementById('logged-in-view').style.display = isLoggedIn ? 'block' : 'none';
+        document.getElementById('header-avatar').src = isLoggedIn ? "https://ui-avatars.com/api/?name=Shrawan+Maurya&background=0D8ABC&color=fff" : "https://ui-avatars.com/api/?name=Guest&background=random";
+    }
+    function simulateLogin() { isLoggedIn = true; localStorage.setItem('shrawan_logged_in', 'true'); updateProfileUI(); }
+    function startNewChat() { synth.cancel(); location.reload(); }
+    window.addEventListener('beforeunload', () => { synth.cancel(); });
+    function openSettings() { openModal('setup-modal'); }
+
+    // --- Settings & Models Logic ---
+    function loadSettingsToUI() {
+        document.getElementById('api-key-1').value = apiKeys[0]; document.getElementById('api-key-2').value = apiKeys[1];
+        for(let i=1; i<=5; i++) document.getElementById('model-' + i).value = models[i-1];
+    }
+    function saveSettings() {
+        apiKeys[0] = document.getElementById('api-key-1').value.trim(); apiKeys[1] = document.getElementById('api-key-2').value.trim();
+        localStorage.setItem('shrawan_key1', apiKeys[0]); localStorage.setItem('shrawan_key2', apiKeys[1]);
+        for(let i=1; i<=5; i++) { models[i-1] = document.getElementById('model-' + i).value.trim(); localStorage.setItem('shrawan_model' + i, models[i-1]); }
+        updateModelDropdown(); closeModal('setup-modal');
+    }
+    function updateModelDropdown() {
+        const s = document.getElementById('active-model-select'); s.innerHTML = ''; let has=false;
+        for(let i=0; i<5; i++) { if(models[i]) { has=true; let o = document.createElement('option'); o.value = models[i]; o.text = `Model ${i+1}: ${models[i].split('/').pop()}`; s.appendChild(o); }}
+        if(!has) s.innerHTML = '<option>No models configured</option>';
+    }
+
+    // --- Image Handling ---
+    function handleImage(e) { const r = new FileReader(); r.onload = (f) => { currentImage = f.target.result; document.getElementById('preview-img').src = currentImage; document.getElementById('preview-box').style.display = 'block'; }; r.readAsDataURL(e.target.files[0]); }
+    function clearImage() { currentImage = null; document.getElementById('preview-box').style.display = 'none'; }
+
+    // --- NEW ACTION CARD FUNCTIONS ---
+
+    // 1. Text to Speech Action
+    function handleTTSAction() {
+        const text = document.getElementById('tts-input-text').value.trim();
+        if(!text) return alert("Please enter some text!");
+        closeModal('tts-modal');
+        speakText(text);
+    }
+
+    // 2. Create Image Mode
+    function activateImageMode() {
+        const input = document.getElementById('user-input');
+        input.value = "/imagine "; // Just a visual cue, not functional prompt injection yet
+        input.focus();
+        input.placeholder = "Describe the image you want to create...";
+        // Optional Toast notification could go here
+    }
+
+    // 3. Video to Text Action
+    function handleVideoAction() {
+        const url = document.getElementById('video-url-input').value.trim();
+        if(!url || !url.includes('youtu')) return alert("Please enter a valid YouTube URL!");
+        closeModal('video-modal');
+        
+        // Send a specific prompt to the AI to analyze the URL
+        const prompt = `Please analyze this YouTube video URL: ${url}. Provide a detailed summary and, if possible, a transcript of the content.`;
+        document.getElementById('user-input').value = prompt;
+        startInference(); // Trigger the chat
+    }
+
+    // 4. Deep Gyan Mode
+    function activateDeepGyanMode() {
+        isDeepGyanMode = true;
+        const input = document.getElementById('user-input');
+        input.placeholder = "Deep Gyan Mode: Ask anything for a detailed answer...";
+        input.focus();
+        alert("🧠 Deep Gyan Mode Activated!\nAsk any question for a comprehensive, detailed, and fast response.");
+    }
+
+
+    // --- Core AI Inference ---
+    async function executeApiCall(messages, selectedModel, keyIndex = 0) {
+        let currentKey = apiKeys[keyIndex];
+        if(!currentKey) { if(keyIndex === 0 && apiKeys[1]) return executeApiCall(messages, selectedModel, 1); throw new Error("Dono API keys khali hain!"); }
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${currentKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ "model": selectedModel, "messages": messages })
+        });
+        if(!res.ok && keyIndex === 0 && apiKeys[1]) { console.log("Switching to Key 2"); return executeApiCall(messages, selectedModel, 1); }
+        if(!res.ok) throw new Error(`API Error (${res.status})`);
+        return await res.json();
+    }
+
+    async function startInference() {
+        const input = document.getElementById('user-input');
+        let text = input.value.trim();
+        if(!text && !currentImage) return;
+
+        let activeModel = document.getElementById('active-model-select').value;
+        if(!activeModel || activeModel.includes('No models')) return openModal('setup-modal');
+
+        document.getElementById('dashboard-ui').style.display = 'none';
+        const flow = document.getElementById('chat-flow'); flow.style.display = 'flex';
+        flow.innerHTML += `<div class="user-msg">${text}${currentImage ? `<br><img src="${currentImage}" style="width:200px; border-radius:10px; margin-top:10px;">` : ''}</div>`;
+        input.value = ''; input.placeholder = "Ask ShrawanChatAI..."; // Reset placeholder
+
+        const bDiv = document.createElement('div'); bDiv.className = 'bot-msg';
+        bDiv.innerHTML = `<span style="color:var(--accent-color); font-weight:bold;">Thinking... 🧠</span>`;
+        flow.appendChild(bDiv); document.querySelector('.viewport').scrollTop = document.querySelector('.viewport').scrollHeight;
+
+        // DEFINE SYSTEM PROMPTS
+        let defaultSys = `You are ShrawanChatAI. Use emojis. YouTube Expert: Provide viral titles, description, tags. If illegal: <div class='illegal-warning'>🚫 PITAOGE DIMAK SAHI HO JAYEGA 🚫</div>`;
+        let deepGyanSys = `You are ShrawanChatAI in 'Deep Gyan' mode. Your goal is to provide extremely detailed, comprehensive, and scholarly answers on any topic. Explain concepts thoroughly, provide examples, historical context, and deep analysis. Be fast and accurate. Use markdown for clarity.`;
+        
+        let sysContent = isDeepGyanMode ? deepGyanSys : defaultSys;
+
+        let messages = [{role: "system", content: sysContent}, {role: "user", content: currentImage ? [{type: "text", text: text || "Analyze"}, {type: "image_url", image_url: {url: currentImage}}] : text}];
+        clearImage();
+
+        try {
+            const data = await executeApiCall(messages, activeModel);
+            let aiReply = data.choices[0].message.content;
+            lastReply = aiReply.replace(/<[^>]*>?/gm, '').replace(/[*#_`]/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+            // Simple markdown formatting for final output
+            let formattedReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            bDiv.innerHTML = `<div>${formattedReply}</div>`;
+        } catch (err) { bDiv.innerHTML = `<span style="color:red;">Error: ${err.message}. Check Settings.</span>`; }
+        document.querySelector('.viewport').scrollTop = document.querySelector('.viewport').scrollHeight;
+        isDeepGyanMode = false; // Reset Deep Gyan mode after one query
+    }
+
+    // --- Voice STT & TTS ---
+    function speakText(txt) {
+        synth.cancel();
+        utterance = new SpeechSynthesisUtterance(txt);
+        let voices = synth.getVoices();
+        // Try to find a good Hindi or English voice, prioritizing Google ones
+        let selectedVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('hi')) || voices.find(v => v.lang.includes('hi-IN')) || voices.find(v => v.name.includes('Google') && v.lang.includes('en')) || voices.find(v => v.name.includes('Male'));
+        if(selectedVoice) utterance.voice = selectedVoice;
+        utterance.pitch = 1.0; utterance.rate = 0.9;
+        utterance.onstart = () => { isSpeakingState = "playing"; document.getElementById('adam-trigger').innerText = "pause_circle_filled"; document.getElementById('adam-trigger').classList.add('active'); };
+        utterance.onend = () => { isSpeakingState = "stopped"; document.getElementById('adam-trigger').innerText = "play_circle_filled"; document.getElementById('adam-trigger').classList.remove('active'); };
+        synth.speak(utterance);
+    }
+
+    function handleVoicePlayback() {
+        const btn = document.getElementById('adam-trigger');
+        if (isSpeakingState === "playing") { synth.pause(); isSpeakingState = "paused"; btn.innerText = "play_circle_filled"; }
+        else if (isSpeakingState === "paused") { synth.resume(); isSpeakingState = "playing"; btn.innerText = "pause_circle_filled"; }
+        else if (lastReply) { speakText(lastReply); }
+    }
+
+    function startSTT() {
+        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        rec.lang = 'hi-IN';
+        rec.onresult = (e) => { document.getElementById('user-input').value = e.results[0][0].transcript; startInference(); };
+        rec.start();
+    }
+</script>
+</body>
+</html>
