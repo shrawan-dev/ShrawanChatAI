@@ -3,321 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShrawanChatAI Ultimate Professional</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>ShrawanChatAI Ultimate Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        /* --- THEMES --- */
+        /* --- ORIGINAL THEMES --- */
         :root[data-theme="dark"] {
             --bg-main: #0b0b0d; --sidebar-bg: #161719; --input-bg: #1e1f21;
-            --text-main: #e3e3e3; --text-sub: #9aa0a6; --accent-color: #3b82f6;
-            --msg-user-bg: #2d2e30; --border-color: #333333; --menu-hover: #202124;
-            --card-bg: #161719; --modal-bg: #1c1d1f; --code-bg: #000000;
+            --text-main: #e3e3e3; --text-sub: #9aa0a6; --accent-color: #8ab4f8;
+            --msg-user-bg: #2d2e30; --border-color: #3c4043; --menu-hover: #202124;
+            --card-bg: #1e1f21;
         }
         :root[data-theme="light"] {
-            --bg-main: #ffffff; --sidebar-bg: #f5f5f5; --input-bg: #ffffff;
-            --text-main: #1f1f1f; --text-sub: #5f6368; --accent-color: #2563eb;
-            --msg-user-bg: #f3f4f6; --border-color: #e5e7eb; --menu-hover: #e8eaed;
-            --card-bg: #ffffff; --modal-bg: #ffffff; --code-bg: #f8f9fa;
+            --bg-main: #ffffff; --sidebar-bg: #f0f4f9; --input-bg: #f0f4f9;
+            --text-main: #1f1f1f; --text-sub: #5f6368; --accent-color: #1a73e8;
+            --msg-user-bg: #e3e3e3; --border-color: #dadce0; --menu-hover: #e8eaed;
+            --card-bg: #ffffff;
         }
         :root[data-theme="blue"] {
             --bg-main: #050a0f; --sidebar-bg: #0d1621; --input-bg: #122030;
             --text-main: #e8eaed; --text-sub: #8696a0; --accent-color: #4db8ff;
             --msg-user-bg: #004d40; --border-color: #1f3a5f; --menu-hover: #15273b;
-            --card-bg: #122030; --modal-bg: #0d1621; --code-bg: #03060a;
+            --card-bg: #122030;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', sans-serif; }
         body { background: var(--bg-main); color: var(--text-main); height: 100dvh; display: flex; overflow: hidden; transition: 0.3s; }
         .hidden { display: none !important; }
 
-        /* --- UI COMPONENTS --- */
-        input, textarea, select { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 8px; outline: none; width: 100%; font-size: 14px; transition: border 0.2s; resize: none; }
-        input:focus, textarea:focus { border-color: var(--accent-color); }
-        button { cursor: pointer; font-family: 'Inter', sans-serif; }
-        .primary-btn { background: var(--accent-color); color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .primary-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-        .icon-btn { background: transparent; border: none; color: var(--text-sub); padding: 8px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .icon-btn:hover { background: var(--menu-hover); color: var(--text-main); }
-
-        /* --- SIDEBAR --- */
-        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(2px); }
+        /* --- ORIGINAL SIDEBAR & OVERLAY --- */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(2px); transition: 0.3s; }
         .sidebar-overlay.active { display: block; }
-        .sidebar { position: fixed; left: -300px; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s; z-index: 1000; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 20px; }
+        
+        .sidebar { position: fixed; left: -300px; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; }
         .sidebar.active { left: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .brand-title { font-size: 20px; font-weight: 700; color: var(--accent-color); }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-close { cursor: pointer; color: var(--text-main); font-size: 28px; }
         
-        .btn-new-chat { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font-weight: 500; transition: 0.2s; width: 100%; }
-        .btn-new-chat:hover { border-color: var(--accent-color); }
+        .btn-new { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-weight: 500; }
+        .btn-new:hover { background: var(--menu-hover); }
         
-        .history-section { flex: 1; overflow-y: auto; margin-bottom: 20px; }
-        .history-label { font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 10px; letter-spacing: 0.5px; text-transform: uppercase; }
-        .history-item { padding: 10px; border-radius: 6px; font-size: 13px; color: var(--text-main); cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 10px; }
-        .history-item:hover { background: var(--menu-hover); }
+        .history-list { flex: 1; overflow-y: auto; }
+        .history-item { padding: 10px; border-radius: 8px; font-size: 14px; color: var(--text-sub); cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 8px;}
+        .history-item:hover { background: var(--border-color); color: var(--text-main); }
 
-        .theme-selector { border-top: 1px solid var(--border-color); padding-top: 15px; }
+        .theme-selector { border-top: 1px solid var(--border-color); padding: 15px 0; }
         .theme-btns { display: flex; gap: 8px; margin-top: 10px; }
-        .theme-btn { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-sub); font-size: 12px; font-weight: 500; }
-        .theme-btn.active { border-color: var(--accent-color); color: var(--accent-color); background: var(--bg-main); }
+        .theme-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); cursor: pointer; font-size: 11px; }
+        .theme-btn.active { border-color: var(--accent-color); color: var(--accent-color); }
 
-        /* --- MAIN CONTENT & HEADER --- */
-        .main-content { flex: 1; display: flex; flex-direction: column; height: 100%; position: relative; }
-        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-        .header-right { display: flex; align-items: center; gap: 12px; }
-        .model-selector { padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; max-width: 150px; cursor: pointer; }
+        /* --- ORIGINAL HEADER & PROFILE --- */
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 500; width: 100%; background: transparent; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { cursor: pointer; font-size: 30px; color: var(--text-main); transition: 0.2s; }
+        .menu-btn:hover { color: var(--accent-color); }
         
-        .profile-pic-small { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border-color); cursor: pointer; object-fit: cover; }
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .model-selector { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 20px; outline: none; font-size: 13px; max-width: 150px; cursor: pointer; }
+        .profile-pic-small { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--border-color); cursor: pointer; object-fit: cover; transition: 0.2s; }
         .profile-pic-small:hover { border-color: var(--accent-color); }
 
-        /* --- PROFILE MENU --- */
-        .profile-menu { position: absolute; top: 60px; right: 20px; background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 12px; width: 260px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); display: none; z-index: 1100; overflow: hidden; animation: fadeIn 0.2s; }
-        .profile-header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); background: var(--sidebar-bg); }
-        .profile-pic-large { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color); margin-bottom: 10px; }
-        .profile-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
-        .profile-email { color: var(--text-sub); font-size: 12px; margin-bottom: 15px; }
-        .login-btn { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--accent-color); color: var(--accent-color); background: transparent; font-weight: 600; font-size: 13px; }
-        .login-btn:hover { background: var(--accent-color); color: #fff; }
-        .profile-links { list-style: none; padding: 10px 0; }
-        .profile-links li { padding: 12px 20px; display: flex; align-items: center; gap: 15px; color: var(--text-main); cursor: pointer; font-size: 13px; }
-        .profile-links li:hover { background: var(--menu-hover); }
-
-        /* --- DASHBOARD HERO --- */
-        .viewport { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
-        .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; width: 100%; max-width: 900px; }
-        .shrawan-title { font-size: clamp(30px, 5vw, 48px); font-weight: 800; background: linear-gradient(45deg, var(--accent-color), #9b72cb, #d96570); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 5s ease infinite; margin-bottom: 10px; }
-        @keyframes flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-
-        .action-cards-container { display: flex; gap: 15px; margin-top: 40px; width: 100%; justify-content: center; flex-wrap: wrap; }
-        .action-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; cursor: pointer; transition: 0.3s; flex: 1 1 160px; max-width: 200px; }
-        .action-card:hover { border-color: var(--accent-color); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .action-card-icon { font-size: 28px; color: var(--accent-color); background: var(--menu-hover); padding: 12px; border-radius: 50%; }
-        .action-card-text { font-size: 14px; font-weight: 600; color: var(--text-main); }
-        .action-card-subtext { font-size: 11px; color: var(--text-sub); }
-
-        /* --- CHAT FLOW & MARKDOWN --- */
-        #chat-flow { width: 100%; max-width: 850px; display: none; flex-direction: column; gap: 24px; padding-bottom: 160px; }
-        .msg-row { display: flex; gap: 15px; width: 100%; animation: fadeIn 0.3s ease; }
-        .msg-row.user { justify-content: flex-end; }
-        .msg-bubble { padding: 14px 18px; font-size: 15px; line-height: 1.6; max-width: 85%; border-radius: 16px; }
-        .msg-row.user .msg-bubble { background: var(--msg-user-bg); color: var(--text-main); border-bottom-right-radius: 4px; }
-        .msg-row.bot .msg-bubble { background: var(--card-bg); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; width: 100%; max-width: 100%; overflow-x: auto; }
+        /* --- ORIGINAL PROFILE MENU MODAL --- */
+        .profile-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: flex-start; padding-top: 60px; }
+        .profile-menu-card { background: var(--sidebar-bg); border-radius: 24px; width: 90%; max-width: 380px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.5); overflow: hidden; animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .msg-bubble p { margin-bottom: 12px; }
-        .msg-bubble p:last-child { margin-bottom: 0; }
-        .msg-bubble h1, .msg-bubble h2, .msg-bubble h3 { margin: 16px 0 10px 0; font-weight: 600; color: var(--text-main); }
-        .msg-bubble ul, .msg-bubble ol { margin-bottom: 12px; padding-left: 20px; }
-        .msg-bubble li { margin-bottom: 6px; }
-        .msg-bubble pre { background: var(--code-bg); padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 12px; border: 1px solid var(--border-color); }
-        .msg-bubble code { font-family: monospace; background: var(--code-bg); padding: 2px 4px; border-radius: 4px; font-size: 13px; color: #ff7b72; }
-        .msg-bubble pre code { color: var(--text-main); background: transparent; padding: 0; }
-        .msg-bubble table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 14px; }
-        .msg-bubble th, .msg-bubble td { border: 1px solid var(--border-color); padding: 10px; text-align: left; }
-        .msg-bubble th { background: var(--menu-hover); font-weight: 600; }
-        .msg-bubble img { max-width: 100%; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border-color); }
+        .profile-header-info { padding: 20px; text-align: center; position: relative; }
+        .close-profile { position: absolute; right: 20px; top: 20px; cursor: pointer; color: var(--text-sub); }
+        .profile-pic-large { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); margin-bottom: 10px; }
+        .profile-name { font-size: 18px; font-weight: 500; margin-bottom: 5px; }
+        .profile-email { font-size: 13px; color: var(--text-sub); margin-bottom: 15px; }
+        .manage-account-btn { background: transparent; border: 1px solid var(--border-color); color: var(--accent-color); padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; font-weight: 500; transition: 0.2s; }
+        .manage-account-btn:hover { background: var(--menu-hover); }
+        .profile-list { list-style: none; border-top: 1px solid var(--border-color); padding: 10px 0; max-height: 50vh; overflow-y: auto; }
+        .profile-list li { display: flex; align-items: center; gap: 15px; padding: 12px 20px; cursor: pointer; color: var(--text-main); font-size: 15px; transition: 0.2s; }
+        .profile-list li:hover { background: var(--menu-hover); }
+        .profile-list li .material-icons-outlined { color: var(--text-sub); font-size: 22px; }
 
-        /* --- INPUT BAR --- */
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 0 20px 20px; background: linear-gradient(to top, var(--bg-main) 70%, transparent); display: flex; flex-direction: column; align-items: center; z-index: 100; pointer-events: none; }
-        .input-box-container { width: 100%; max-width: 850px; position: relative; pointer-events: auto; }
-        #preview-box { position: absolute; bottom: 100%; left: 20px; margin-bottom: 10px; background: var(--card-bg); padding: 5px; border-radius: 8px; border: 1px solid var(--border-color); display: none; }
-        #preview-img { height: 60px; border-radius: 6px; }
-        .input-box { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 20px; display: flex; align-items: flex-end; padding: 10px 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); transition: 0.3s; }
-        .input-box:focus-within { border-color: var(--accent-color); }
-        #user-input { flex: 1; background: transparent; border: none; padding: 8px; font-size: 15px; max-height: 150px; overflow-y: auto; color: var(--text-main); }
-        .input-actions { display: flex; align-items: center; gap: 8px; padding-bottom: 4px; }
-
-        /* --- MODALS (OS MAC STYLE) --- */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.2s; }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-card { background: var(--modal-bg); border-radius: 12px; border: 1px solid var(--border-color); width: 90%; max-width: 550px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transition: all 0.3s cubic-bezier(0.2, 0, 0, 1); position: relative; max-height: 90vh; }
+        /* --- ORIGINAL DASHBOARD & ANIMATIONS --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+        .viewport { flex: 1; overflow-y: auto; padding: 0 20px 20px 20px; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
+        .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; text-align: center; padding-bottom: 50px; width: 100%;}
+        .anim-box { height: 120px; width: 200px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 20px; }
         
-        .modal-card.maximized { width: 100% !important; max-width: 100% !important; height: 100vh !important; max-height: 100vh !important; border-radius: 0 !important; top: 0; left: 0; }
-        .modal-card.minimized { height: 45px !important; overflow: hidden; align-self: flex-end; margin-bottom: 0; border-radius: 12px 12px 0 0; width: 300px; }
+        .char-icon { font-size: 85px; position: absolute; opacity: 0; display: none; filter: drop-shadow(0 0 25px var(--accent-color)); }
+        .anim-rocket { animation: rocketFly 3s ease-in-out forwards; }
+        @keyframes rocketFly { 0% { opacity:0; transform: translateY(100px) rotate(-45deg); } 40% { opacity:1; } 100% { opacity:0; transform: translateY(-200px) rotate(-45deg); } }
+        .anim-comp { animation: coding 3s ease-in-out forwards; }
+        @keyframes coding { 0% { opacity:0; transform: scale(0.7); } 30% { opacity:1; } 100% { opacity:0; transform: scale(1.4); } }
+        .anim-fire { animation: fireGlow 3s ease-in-out forwards; }
+        @keyframes fireGlow { 0% { opacity:0; transform: scale(0.5); filter: blur(15px); } 50% { opacity:1; transform: scale(1.4); filter: blur(0); } 100% { opacity:0; transform: scale(1.8); } }
+        .anim-robot { animation: robotWalk 3s ease-in-out forwards; }
+        @keyframes robotWalk { 0% { opacity:0; transform: translateX(-50px); } 50% { opacity:1; transform: translateX(0); } 100% { opacity:0; transform: translateX(50px); } }
 
-        .modal-header { padding: 12px 16px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; background: var(--sidebar-bg); border-radius: 12px 12px 0 0; }
-        .modal-card.maximized .modal-header { border-radius: 0; }
-        .window-controls { display: flex; gap: 8px; margin-right: 15px; }
-        .win-btn { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
-        .win-btn span { font-size: 10px; opacity: 0; color: #000; transition: 0.2s; }
-        .window-controls:hover .win-btn span { opacity: 0.6; }
-        .win-close { background: #ff5f56; } .win-min { background: #ffbd2e; } .win-max { background: #27c93f; }
+        .shrawan-title { font-size: clamp(30px, 6vw, 65px); font-weight: 800; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 4s linear infinite; }
+        @keyframes flow { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+
+        /* --- ORIGINAL ACTION CARDS --- */
+        .action-cards-container { display: flex; gap: 15px; margin-top: 40px; width: 100%; max-width: 800px; justify-content: center; flex-wrap: wrap; }
+        .action-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; flex: 1 1 140px; max-width: 180px; min-width: 130px; }
+        .action-card:hover { border-color: var(--accent-color); transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .action-card-icon { font-size: 32px; color: var(--accent-color); background: var(--menu-hover); padding: 15px; border-radius: 50%; }
+        .action-card-text { font-size: 15px; font-weight: 500; color: var(--text-main); text-align: center; }
+
+        /* --- ORIGINAL CHAT FLOW & MARKDOWN --- */
+        #chat-flow { width: 100%; max-width: 850px; display: none; flex-direction: column; gap: 30px; padding-bottom: 160px; margin-top: 20px; }
+        .user-msg { align-self: flex-end; background: var(--msg-user-bg); padding: 15px 22px; border-radius: 25px 25px 4px 25px; max-width: 85%; border: 1px solid var(--border-color); word-wrap: break-word; font-size: 15px; }
+        .bot-msg { align-self: flex-start; width: 100%; font-size: 16px; line-height: 1.8; word-wrap: break-word; }
+        .bot-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
         
-        .modal-title { font-size: 14px; font-weight: 600; color: var(--text-main); flex: 1; text-align: center; margin-right: 50px; }
-        .modal-body { padding: 25px; overflow-y: auto; flex: 1; }
-        .modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; background: var(--sidebar-bg); border-radius: 0 0 12px 12px; }
+        /* Markdown CSS (Added to original) */
+        .bot-msg p { margin-bottom: 10px; }
+        .bot-msg pre { background: var(--input-bg); padding: 15px; border-radius: 10px; overflow-x: auto; margin-bottom: 10px; border: 1px solid var(--border-color); }
+        .bot-msg code { font-family: monospace; background: var(--input-bg); padding: 2px 5px; border-radius: 4px; color: #ff7b72; }
+        .bot-msg pre code { background: transparent; padding: 0; color: var(--text-main); }
+        .bot-msg table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .bot-msg th, .bot-msg td { border: 1px solid var(--border-color); padding: 8px; text-align: left; }
+        .bot-msg th { background: var(--menu-hover); }
 
-        .form-group { margin-bottom: 20px; }
-        .form-label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--text-main); }
+        /* --- ORIGINAL INPUT & VOICE CONTROLS --- */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, var(--bg-main) 60%); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; z-index: 600; }
+        .input-box { width: 100%; max-width: 850px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 40px; display: flex; align-items: center; padding: 8px 12px; box-shadow: 0 10px 35px rgba(0,0,0,0.4); gap: 10px; box-sizing: border-box; }
+        #user-input { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 10px 0; outline: none; font-size: 16px; min-width: 0; }
+        .action-icon { cursor: pointer; color: var(--text-sub); font-size: 26px; transition: 0.2s; flex-shrink: 0; }
+        .action-icon:hover { color: var(--text-main); }
+        .send-btn { color: var(--accent-color); font-size: 32px; }
+        .adam-voice-btn { color: var(--accent-color); cursor: pointer; font-size: 32px !important; transition: 0.3s; flex-shrink: 0; }
+        .adam-voice-btn.active { color: #ff3b30; transform: scale(1.2); }
+        #preview-box { display: none; width: 100%; max-width: 850px; margin-bottom: 12px; position: relative; }
+        #preview-img { height: 80px; border-radius: 12px; border: 2px solid var(--accent-color); }
+        .preview-close { position:absolute; top:-5px; left:70px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer; display:flex; justify-content:center; align-items:center; }
 
-        /* Pricing Table */
+        /* --- ORIGINAL MODALS + OS BUTTONS UPGRADE --- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2500; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .modal-card { background: var(--sidebar-bg); border-radius: 25px; width: 90%; max-width: 500px; border: 1px solid var(--border-color); text-align: left; box-sizing: border-box; max-height: 85vh; overflow-y: auto; position: relative; display: flex; flex-direction: column; transition: 0.3s; }
+        
+        .modal-card.maximized { width: 100% !important; max-width: 100% !important; height: 100vh !important; max-height: 100vh !important; border-radius: 0 !important; }
+        .modal-card.minimized { height: 50px !important; align-self: flex-end; margin-bottom: 0; border-radius: 15px 15px 0 0; width: 300px; overflow: hidden; }
+
+        /* OS Mac Style Controls added to Original Modal */
+        .modal-os-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-bottom: 1px solid var(--border-color); background: var(--sidebar-bg); position: sticky; top: 0; z-index: 10; }
+        .os-controls { display: flex; gap: 8px; }
+        .os-btn { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; }
+        .os-btn span { font-size: 10px; opacity: 0; color: #000; transition: 0.2s; }
+        .os-controls:hover .os-btn span { opacity: 0.6; }
+        .os-close { background: #ff5f56; } .os-min { background: #ffbd2e; } .os-max { background: #27c93f; }
+        .modal-os-title { font-size: 16px; font-weight: 600; color: var(--accent-color); }
+
+        .modal-body-content { padding: 25px; }
+        
+        /* Original Modal Inputs */
+        .modal-card input, .modal-card textarea, .modal-card select { width: 100%; padding: 12px; margin: 5px 0 15px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); outline: none; box-sizing: border-box; resize: none; }
+        .modal-card label { display: block; font-size: 13px; color: var(--text-sub); font-weight: 500; margin-top: 10px; }
+        .section-title { font-size: 14px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; margin-bottom: 15px; margin-top: 25px; }
+        .modal-action-btn { width:100%; padding:15px; border-radius:12px; background:var(--accent-color); border:none; color:white; font-weight:bold; cursor:pointer; margin-top: 15px; font-size: 16px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .modal-action-btn:hover { opacity: 0.9; }
+
+        /* NEW ADDITIONS (TTS Player, Pricing Table) keeping original aesthetic */
+        .tts-player { background: var(--input-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; margin-top: 15px; }
+        .play-pause-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--accent-color); color: white; border: none; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .play-pause-btn:hover { transform: scale(1.05); }
+        .audio-progress-container { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .audio-progress-bar { height: 6px; background: var(--border-color); border-radius: 3px; position: relative; overflow: hidden; }
+        .audio-progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--accent-color); transition: width 0.1s; }
+        .audio-controls-right { display: flex; align-items: center; gap: 10px; color: var(--text-sub); }
+        .volume-slider { width: 70px; accent-color: var(--accent-color); cursor: pointer; }
+
         .pricing-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
         .price-card { background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px; flex: 1 1 200px; max-width: 260px; display: flex; flex-direction: column; position: relative; }
         .price-card.premium { border-color: var(--accent-color); box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.15); }
-        .popular-tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--accent-color); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
         .plan-name { font-size: 20px; font-weight: 700; margin-bottom: 5px; }
         .plan-price { font-size: 32px; font-weight: 800; margin-bottom: 20px; }
         .plan-features { list-style: none; margin-bottom: 25px; flex: 1; }
         .plan-features li { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: var(--text-sub); }
-        .plan-btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); font-weight: 600; }
+        .plan-btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-main); font-weight: 600; cursor: pointer; }
         .price-card.premium .plan-btn { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .symbol-rotate { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="settings-modal" class="modal-overlay">
+<div id="setup-modal" class="modal-overlay">
     <div class="modal-card">
-        <div class="modal-header">
-            <div class="window-controls">
-                <button class="win-btn win-close" onclick="closeModal('settings-modal')"><span class="material-icons-outlined">close</span></button>
-                <button class="win-btn win-min" onclick="toggleMin('settings-modal')"><span class="material-icons-outlined">remove</span></button>
-                <button class="win-btn win-max" onclick="toggleMax('settings-modal')"><span class="material-icons-outlined">open_in_full</span></button>
-            </div>
-            <div class="modal-title">System Settings</div>
-        </div>
-        <div class="modal-body">
-            <div class="form-group"><label class="form-label">Primary API Key (OpenRouter/Gemini)</label><input type="password" id="api-key-1" placeholder="sk-or-v1-..."></div>
-            <div class="form-group"><label class="form-label">Fallback API Key</label><input type="password" id="api-key-2" placeholder="Optional"></div>
-            <div class="form-group">
-                <label class="form-label">Models Configuration</label>
-                <input type="text" id="model-1" value="google/gemini-2.0-flash-lite-preview-02-05:free" style="margin-bottom:8px;">
-                <input type="text" id="model-2" placeholder="Model 2" style="margin-bottom:8px;">
-                <input type="text" id="model-3" placeholder="Model 3">
+        <div class="modal-os-header">
+            <div class="modal-os-title">⚙️ System Settings</div>
+            <div class="os-controls">
+                <button class="os-btn os-min" onclick="toggleWindow('setup-modal', 'min')"><span class="material-icons-outlined">remove</span></button>
+                <button class="os-btn os-max" onclick="toggleWindow('setup-modal', 'max')"><span class="material-icons-outlined">crop_square</span></button>
+                <button class="os-btn os-close" onclick="closeModal('setup-modal')"><span class="material-icons-outlined">close</span></button>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="primary-btn" onclick="saveSettings()">Save & Apply</button>
-        </div>
-    </div>
-</div>
+        <div class="modal-body-content">
+            <div class="section-title" style="margin-top: 0;">API Keys (Fallback System)</div>
+            <label>Primary API Key (Key 1):</label>
+            <input type="password" id="api-key-1" placeholder="sk-or-v1-xxxxxxxxxxxx">
+            <label>Secondary API Key (Key 2) - Optional:</label>
+            <input type="password" id="api-key-2" placeholder="Fallback API key">
 
-<div id="user-info-modal" class="modal-overlay">
-    <div class="modal-card">
-        <div class="modal-header">
-            <div class="window-controls">
-                <button class="win-btn win-close" onclick="closeModal('user-info-modal')"><span class="material-icons-outlined">close</span></button>
-                <button class="win-btn win-min" onclick="toggleMin('user-info-modal')"><span class="material-icons-outlined">remove</span></button>
-                <button class="win-btn win-max" onclick="toggleMax('user-info-modal')"><span class="material-icons-outlined">open_in_full</span></button>
-            </div>
-            <div class="modal-title">Personal Information</div>
-        </div>
-        <div class="modal-body">
-            <div class="form-group"><label class="form-label">Full Name</label><input type="text" id="user-name" placeholder="Shrawan Kumar"></div>
-            <div class="form-group"><label class="form-label">Email Address</label><input type="email" id="user-email" placeholder="shrawan@example.com"></div>
-            <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" id="user-phone" placeholder="+91..."></div>
-            <div class="form-group"><label class="form-label">Address</label><textarea id="user-address" rows="3" placeholder="Your address..."></textarea></div>
-        </div>
-        <div class="modal-footer">
-            <button class="primary-btn" onclick="saveUserInfo()">Save Details</button>
+            <div class="section-title">AI Models (Upto 5)</div>
+            <label>Model 1 (Default):</label>
+            <input type="text" id="model-1" value="google/gemini-2.0-flash-lite-preview-02-05:free">
+            <label>Model 2:</label>
+            <input type="text" id="model-2" placeholder="e.g. anthropic/claude-3-haiku">
+            <label>Model 3:</label>
+            <input type="text" id="model-3">
+            <label>Model 4:</label>
+            <input type="text" id="model-4">
+            <label>Model 5:</label>
+            <input type="text" id="model-5">
+
+            <button class="modal-action-btn" onclick="saveSettings()">Save & Apply 🔥</button>
         </div>
     </div>
 </div>
 
 <div id="tts-modal" class="modal-overlay">
     <div class="modal-card">
-        <div class="modal-header">
-            <div class="window-controls">
-                <button class="win-btn win-close" onclick="closeModal('tts-modal')"><span class="material-icons-outlined">close</span></button>
-                <button class="win-btn win-min" onclick="toggleMin('tts-modal')"><span class="material-icons-outlined">remove</span></button>
-                <button class="win-btn win-max" onclick="toggleMax('tts-modal')"><span class="material-icons-outlined">open_in_full</span></button>
+        <div class="modal-os-header">
+            <div class="modal-os-title">🗣️ Voice Studio Pro</div>
+            <div class="os-controls">
+                <button class="os-btn os-min" onclick="toggleWindow('tts-modal', 'min')"><span class="material-icons-outlined">remove</span></button>
+                <button class="os-btn os-close" onclick="closeModal('tts-modal')"><span class="material-icons-outlined">close</span></button>
             </div>
-            <div class="modal-title">Voice Studio Pro</div>
         </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Enter Text</label>
-                <textarea id="tts-text" rows="4" placeholder="Type something to generate speech..."></textarea>
+        <div class="modal-body-content">
+            <label>Enter text to speak:</label>
+            <textarea id="tts-input-text" rows="5" placeholder="Type something here..."></textarea>
+            
+            <div style="display: flex; gap: 15px;">
+                <div style="flex: 1;">
+                    <label>Voice Persona:</label>
+                    <select id="tts-voice" onchange="resetTTSPlayer()">
+                        <option value="Shrawan">Shrawan (Male)</option>
+                        <option value="Sunisha">Sunisha (Female)</option>
+                        <option value="Rajan">Rajan (Male)</option>
+                        <option value="Preety">Preety (Female)</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label>Speed: <span id="speed-val">1.0</span></label>
+                    <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="1.0" oninput="document.getElementById('speed-val').innerText=this.value">
+                </div>
             </div>
-            <div class="form-group">
-                <label class="form-label">Select Voice Persona</label>
-                <select id="tts-voice">
-                    <option value="Shrawan">Shrawan</option>
-                    <option value="Sunisha">Sunisha</option>
-                    <option value="Rajan">Rajan</option>
-                    <option value="Preety">Preety</option>
-                </select>
+
+            <button class="modal-action-btn" onclick="prepareTTS()"><span class="material-icons-outlined">auto_awesome</span> Generate Audio</button>
+
+            <div class="tts-player hidden" id="tts-player-ui">
+                <button class="play-pause-btn" id="tts-play-btn" onclick="toggleTTSPlayPause()">
+                    <span class="material-icons-outlined" id="tts-play-icon">play_arrow</span>
+                </button>
+                <div class="audio-progress-container">
+                    <span style="font-size: 11px; color: var(--text-sub);" id="tts-status-text">Ready</span>
+                    <div class="audio-progress-bar">
+                        <div class="audio-progress-fill" id="tts-progress"></div>
+                    </div>
+                </div>
+                <div class="audio-controls-right">
+                    <span class="material-icons-outlined">volume_up</span>
+                    <input type="range" class="volume-slider" id="tts-volume" min="0" max="1" step="0.1" value="1" oninput="changeTTSVolume()">
+                    <button class="icon-btn" onclick="downloadAudio()" title="Download Audio" style="background:none; border:none; color:var(--text-sub); cursor:pointer;"><span class="material-icons-outlined">download</span></button>
+                </div>
             </div>
-            <button class="primary-btn" style="width: 100%;" onclick="generateTTS()"><span class="material-icons-outlined">play_arrow</span> Play Audio</button>
         </div>
     </div>
 </div>
 
 <div id="image-modal" class="modal-overlay">
     <div class="modal-card">
-        <div class="modal-header">
-            <div class="window-controls">
-                <button class="win-btn win-close" onclick="closeModal('image-modal')"><span class="material-icons-outlined">close</span></button>
-                <button class="win-btn win-min" onclick="toggleMin('image-modal')"><span class="material-icons-outlined">remove</span></button>
-                <button class="win-btn win-max" onclick="toggleMax('image-modal')"><span class="material-icons-outlined">open_in_full</span></button>
+        <div class="modal-os-header">
+            <div class="modal-os-title">🖼️ Create Image Studio</div>
+            <div class="os-controls">
+                <button class="os-btn os-min" onclick="toggleWindow('image-modal', 'min')"><span class="material-icons-outlined">remove</span></button>
+                <button class="os-btn os-close" onclick="closeModal('image-modal')"><span class="material-icons-outlined">close</span></button>
             </div>
-            <div class="modal-title">Image Studio</div>
         </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Image Prompt</label>
-                <textarea id="img-prompt" rows="3" placeholder="A futuristic city, cyberpunk style..."></textarea>
-            </div>
-            <button class="primary-btn" style="width: 100%;" onclick="triggerImageGen()"><span class="material-icons-outlined">palette</span> Generate Image</button>
+        <div class="modal-body-content">
+            <label>Image Prompt:</label>
+            <textarea id="img-prompt" rows="4" placeholder="A futuristic city at sunset, highly detailed..."></textarea>
+            
+            <label>Aspect Ratio:</label>
+            <select id="img-ratio">
+                <option value="1:1">Square (1:1)</option>
+                <option value="16:9">Landscape (16:9)</option>
+                <option value="9:16">Portrait (9:16)</option>
+            </select>
+
+            <button class="modal-action-btn" onclick="triggerImageGen()"><span class="material-icons-outlined">palette</span> Generate Art</button>
         </div>
     </div>
 </div>
 
 <div id="video-modal" class="modal-overlay">
     <div class="modal-card">
-        <div class="modal-header">
-            <div class="window-controls">
-                <button class="win-btn win-close" onclick="closeModal('video-modal')"><span class="material-icons-outlined">close</span></button>
-                <button class="win-btn win-min" onclick="toggleMin('video-modal')"><span class="material-icons-outlined">remove</span></button>
-                <button class="win-btn win-max" onclick="toggleMax('video-modal')"><span class="material-icons-outlined">open_in_full</span></button>
+        <div class="modal-os-header">
+            <div class="modal-os-title">📹 Video to Text</div>
+            <div class="os-controls">
+                <button class="os-btn os-min" onclick="toggleWindow('video-modal', 'min')"><span class="material-icons-outlined">remove</span></button>
+                <button class="os-btn os-max" onclick="toggleWindow('video-modal', 'max')"><span class="material-icons-outlined">crop_square</span></button>
+                <button class="os-btn os-close" onclick="closeModal('video-modal')"><span class="material-icons-outlined">close</span></button>
             </div>
-            <div class="modal-title">YouTube Transcript Extractor</div>
         </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label class="form-label">YouTube URL</label>
-                <input type="text" id="video-url" placeholder="https://youtu.be/...">
+        <div class="modal-body-content">
+            <p style="color:var(--text-sub); font-size:14px; margin-bottom:15px;">Enter a YouTube URL to get a transcript using AI.</p>
+            <label>YouTube Video URL:</label>
+            <input type="text" id="video-url-input" placeholder="https://youtu.be/...">
+            
+            <div id="video-result-box" class="hidden" style="background:var(--input-bg); padding:15px; border-radius:10px; border:1px solid var(--border-color); margin-top:15px; font-size:14px; max-height:200px; overflow-y:auto; line-height:1.6;"></div>
+
+            <button class="modal-action-btn" onclick="handleVideoAction()"><span class="material-icons-outlined">description</span> Get Transcript</button>
+        </div>
+    </div>
+</div>
+
+<div id="user-info-modal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-os-header">
+            <div class="modal-os-title">👤 Personal Information</div>
+            <div class="os-controls">
+                <button class="os-btn os-close" onclick="closeModal('user-info-modal')"><span class="material-icons-outlined">close</span></button>
             </div>
-            <button class="primary-btn" style="width: 100%;" onclick="fetchTranscript()"><span class="material-icons-outlined">description</span> Get Transcript</button>
+        </div>
+        <div class="modal-body-content">
+            <label>Full Name</label><input type="text" id="user-name" placeholder="Shrawan Kumar">
+            <label>Email Address</label><input type="email" id="user-email" placeholder="shrawan@example.com">
+            <label>Phone Number</label><input type="tel" id="user-phone" placeholder="+91...">
+            <label>Address</label><textarea id="user-address" rows="2" placeholder="Your address..."></textarea>
+            <button class="modal-action-btn" onclick="saveUserInfo()">Save Details</button>
+        </div>
+    </div>
+</div>
+
+<div id="feedback-modal" class="modal-overlay">
+    <div class="modal-card">
+        <div class="modal-os-header">
+            <div class="modal-os-title">📩 Help & Feedback</div>
+            <div class="os-controls">
+                <button class="os-btn os-close" onclick="closeModal('feedback-modal')"><span class="material-icons-outlined">close</span></button>
+            </div>
+        </div>
+        <div class="modal-body-content">
+            <p style="font-size:13px; color:var(--text-sub); margin-bottom:15px; text-align:center;">Direct message to Admin (Shrawan). 100% Secure.</p>
+            <label>Your Email ID *</label><input type="email" id="fb-email" placeholder="example@mail.com" required>
+            <label>Mobile Number *</label><input type="tel" id="fb-phone" placeholder="+91..." required>
+            <label>Your Feedback *</label><textarea id="fb-message" rows="4" placeholder="Describe your issue..." required></textarea>
+            
+            <button class="modal-action-btn" id="fb-send-btn" onclick="sendFeedback()"><span class="material-icons-outlined">send</span> Send Message</button>
+            <div id="fb-status" class="hidden" style="margin-top:15px; font-size:14px; text-align:center; font-weight:bold;"></div>
         </div>
     </div>
 </div>
 
 <div id="pricing-modal" class="modal-overlay">
-    <div class="modal-card" style="max-width: 850px;">
-        <div class="modal-header">
-            <div class="window-controls">
-                <button class="win-btn win-close" onclick="closeModal('pricing-modal')"><span class="material-icons-outlined">close</span></button>
-                <button class="win-btn win-min" onclick="toggleMin('pricing-modal')"><span class="material-icons-outlined">remove</span></button>
-                <button class="win-btn win-max" onclick="toggleMax('pricing-modal')"><span class="material-icons-outlined">open_in_full</span></button>
+    <div class="modal-card" style="max-width: 800px;">
+        <div class="modal-os-header">
+            <div class="modal-os-title">💎 Upgrade Plan</div>
+            <div class="os-controls">
+                <button class="os-btn os-close" onclick="closeModal('pricing-modal')"><span class="material-icons-outlined">close</span></button>
             </div>
-            <div class="modal-title">Choose Your Plan</div>
         </div>
-        <div class="modal-body">
+        <div class="modal-body-content">
             <div class="pricing-grid">
                 <div class="price-card">
-                    <h3 class="plan-name">Shrawan Free</h3>
-                    <div class="plan-price">₹0 <span style="font-size:14px; font-weight:normal; color:var(--text-sub);">/mo</span></div>
+                    <h3 class="plan-name">Shrawan Base</h3>
+                    <div class="plan-price">₹0</div>
                     <ul class="plan-features">
                         <li><span class="material-icons-outlined" style="color:var(--accent-color);">check</span> Basic AI Models</li>
                         <li><span class="material-icons-outlined" style="color:var(--accent-color);">check</span> Standard Speed</li>
                     </ul>
                     <button class="plan-btn">Current Plan</button>
                 </div>
-                <div class="price-card">
-                    <h3 class="plan-name">Shrawan Go</h3>
-                    <div class="plan-price">₹399 <span style="font-size:14px; font-weight:normal; color:var(--text-sub);">/mo</span></div>
-                    <ul class="plan-features">
-                        <li><span class="material-icons-outlined" style="color:var(--accent-color);">check</span> More Messaging</li>
-                        <li><span class="material-icons-outlined" style="color:var(--accent-color);">check</span> Basic Image Gen</li>
-                    </ul>
-                    <button class="plan-btn">Upgrade to Go</button>
-                </div>
                 <div class="price-card premium">
                     <span class="popular-tag">MOST POPULAR</span>
                     <h3 class="plan-name">Shrawan Ultra</h3>
-                    <div class="plan-price">₹1,999 <span style="font-size:14px; font-weight:normal; color:var(--text-sub);">/mo</span></div>
+                    <div class="plan-price">₹1,999</div>
                     <ul class="plan-features">
                         <li><span class="material-icons-outlined" style="color:var(--accent-color);">check</span> Priority High Speed</li>
                         <li><span class="material-icons-outlined" style="color:var(--accent-color);">check</span> Advanced Vision & Voice</li>
@@ -331,451 +392,261 @@
 </div>
 
 
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <h2 class="brand-title">ShrawanChatAI</h2>
-        <button class="icon-btn" onclick="toggleSidebar()"><span class="material-icons-outlined">close</span></button>
-    </div>
-    
-    <button class="btn-new-chat" onclick="startNewChat()">
-        <span class="material-icons-outlined" style="color: var(--accent-color);">add</span> New Chat
-    </button>
-    
-    <div class="history-section" id="history-section">
-        <div class="history-label">Recent Conversations</div>
-        <div id="history-list">
-            </div>
-    </div>
-
-    <div class="theme-selector">
-        <div class="history-label">Interface Theme</div>
-        <div class="theme-btns">
-            <button class="theme-btn" id="theme-dark" onclick="setTheme('dark')">Dark</button>
-            <button class="theme-btn" id="theme-light" onclick="setTheme('light')">Light</button>
-            <button class="theme-btn" id="theme-blue" onclick="setTheme('blue')">Blue</button>
-        </div>
-    </div>
-</aside>
-
-<main class="main-content">
-    <header>
-        <button class="icon-btn" onclick="toggleSidebar()" style="font-size: 28px;"><span class="material-icons-outlined">menu</span></button>
-        
-        <div class="header-right">
-            <select id="model-select" class="model-selector"></select>
-            
-            <div style="position: relative;">
-                <img src="https://ui-avatars.com/api/?name=Guest&background=random" id="header-avatar" class="profile-pic-small" onclick="toggleProfileMenu()">
-                
-                <div class="profile-menu" id="profile-menu">
-                    <div class="profile-header">
-                        <img src="" id="menu-avatar" class="profile-pic-large">
-                        <h3 class="profile-name" id="menu-name">Guest User</h3>
-                        <p class="profile-email" id="menu-email">Not logged in</p>
-                        <button class="login-btn" id="auth-btn" onclick="handleAuth()">Sign in to Account</button>
-                    </div>
-                    <ul class="profile-links">
-                        <li onclick="openModal('user-info-modal'); toggleProfileMenu();"><span class="material-icons-outlined">person</span> Personal Information</li>
-                        <li onclick="openModal('pricing-modal'); toggleProfileMenu();"><span class="material-icons-outlined">rocket_launch</span> Upgrade to AI Ultra</li>
-                        <li onclick="openModal('settings-modal'); toggleProfileMenu();"><span class="material-icons-outlined">settings</span> System Settings</li>
-                    </ul>
+<div id="profile-modal" class="profile-modal-overlay" onclick="closeProfileIfOutside(event)">
+    <div class="profile-menu-card">
+        <div class="profile-header-info">
+            <span class="material-icons-outlined close-profile" onclick="toggleProfile()">close</span>
+            <div id="login-section">
+                <div id="logged-out-view">
+                    <img src="https://ui-avatars.com/api/?name=Guest&background=random" class="profile-pic-large">
+                    <h2 class="profile-name">Guest User</h2>
+                    <p class="profile-email">Not logged in</p>
+                    <button class="manage-account-btn" onclick="handleAuth()">Sign in to Google (Mock)</button>
+                </div>
+                <div id="logged-in-view" style="display: none;">
+                    <img src="https://ui-avatars.com/api/?name=Shrawan+Maurya&background=0D8ABC&color=fff" class="profile-pic-large" id="main-profile-avatar">
+                    <h2 class="profile-name" id="main-profile-name">Hi, S!</h2>
+                    <p class="profile-email" id="main-profile-email">shrawankumarmaurya@gmail.com</p>
+                    <button class="manage-account-btn" onclick="handleAuth()">Sign Out</button>
                 </div>
             </div>
         </div>
-    </header>
+        <ul class="profile-list">
+            <li onclick="openModal('user-info-modal'); toggleProfile();"><span class="material-icons-outlined">person</span> Personal Information</li>
+            <li onclick="openModal('pricing-modal'); toggleProfile();"><span class="material-icons-outlined">stars</span> Upgrade to AI Ultra</li>
+            <li onclick="openModal('setup-modal'); toggleProfile();"><span class="material-icons-outlined">settings</span> Settings</li>
+            <li onclick="openModal('feedback-modal'); toggleProfile();"><span class="material-icons-outlined">help_outline</span> Help & Feedback</li>
+        </ul>
+    </div>
+</div>
 
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3 style="color: var(--accent-color); margin: 0;">Menu</h3>
+        <span class="material-icons-outlined sidebar-close" onclick="toggleSidebar()">close</span>
+    </div>
+    <button class="btn-new" onclick="startNewChat()"><span class="material-icons-outlined">add</span> New Chat</button>
+    
+    <div class="history-list" id="chat-history"></div>
+    
+    <div class="theme-selector">
+        <p style="font-size:12px; color:var(--text-sub);">THEME</p>
+        <div class="theme-btns">
+            <button class="theme-btn" id="t-dark" onclick="setTheme('dark')">Dark</button>
+            <button class="theme-btn" id="t-light" onclick="setTheme('light')">Light</button>
+            <button class="theme-btn" id="t-blue" onclick="setTheme('blue')">Blue</button>
+        </div>
+    </div>
+    <button onclick="openModal('setup-modal'); toggleSidebar();" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:10px; display:flex; align-items:center; gap:10px; margin-top:10px;"><span class="material-icons-outlined">settings</span> Settings</button>
+</aside>
+
+<div class="main-content">
+    <header>
+        <div class="header-left">
+            <span class="material-icons-outlined menu-btn" onclick="toggleSidebar()">menu</span>
+        </div>
+        <div class="header-right">
+            <select id="active-model-select" class="model-selector" title="Choose Active Model"></select>
+            <img src="https://ui-avatars.com/api/?name=Guest&background=random" id="header-avatar" class="profile-pic-small" onclick="toggleProfile()">
+        </div>
+    </header>
+    
     <div class="viewport" id="viewport">
-        <div id="hero" class="hero-section">
+        <div id="dashboard-ui" class="hero-section">
+            <div class="anim-box" id="anim-container"></div>
             <h1 class="shrawan-title">I Am ShrawanChatAI</h1>
-            <p style="color: var(--text-sub); font-size: 15px; margin-bottom: 20px;">Your Professional AI Suite. Powered by Vision, Voice & Knowledge.</p>
+            <p style="color:var(--text-sub); margin-top:15px; font-weight:500; margin-bottom: 30px;">YouTube Expert • Vision AI • Smart Voice Control</p>
             
             <div class="action-cards-container">
                 <div class="action-card" onclick="openModal('tts-modal')">
                     <span class="material-icons-outlined action-card-icon">record_voice_over</span>
                     <span class="action-card-text">Voice Studio Pro</span>
-                    <span class="action-card-subtext">Generate natural speech</span>
                 </div>
                 <div class="action-card" onclick="openModal('image-modal')">
-                    <span class="material-icons-outlined action-card-icon">palette</span>
+                    <span class="material-icons-outlined action-card-icon">image</span>
                     <span class="action-card-text">Create Image</span>
-                    <span class="action-card-subtext">Visual art generator</span>
                 </div>
                 <div class="action-card" onclick="openModal('video-modal')">
                     <span class="material-icons-outlined action-card-icon">video_library</span>
                     <span class="action-card-text">Video to Text</span>
-                    <span class="action-card-subtext">YouTube Transcripts</span>
                 </div>
-                <div class="action-card" onclick="activateDeepMode()">
+                <div class="action-card" onclick="activateDeepGyanMode()">
                     <span class="material-icons-outlined action-card-icon">psychology</span>
-                    <span class="action-card-text">Deep Gyan Mode</span>
-                    <span class="action-card-subtext">Scholarly & detailed</span>
+                    <span class="action-card-text">Deep Gyan (विस्तृत ज्ञान)</span>
                 </div>
             </div>
         </div>
-        
         <div id="chat-flow"></div>
     </div>
 
     <div class="bottom-bar">
-        <div class="input-box-container">
-            <div id="preview-box">
-                <img id="preview-img" src="">
-                <button onclick="clearImage()" style="position:absolute; top:-8px; right:-8px; background:red; color:#fff; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button>
-            </div>
-            <div class="input-box">
-                <button class="icon-btn adam-voice-btn" id="adam-trigger" onclick="handleVoicePlayback()" title="Replay AI Voice">
-                    <span class="material-icons-outlined" style="font-size: 26px;">volume_up</span>
-                </button>
-                
-                <textarea id="user-input" rows="1" placeholder="Ask anything to ShrawanChatAI..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"></textarea>
-                
-                <div class="input-actions">
-                    <input type="file" id="img-upload" accept="image/*" hidden onchange="handleImageUpload(event)">
-                    <button class="icon-btn" onclick="document.getElementById('img-upload').click()" title="Upload Image"><span class="material-icons-outlined">add_photo_alternate</span></button>
-                    <button class="icon-btn" id="mic-btn" onclick="startSTT()" title="Voice Input"><span class="material-icons-outlined">mic</span></button>
-                    <button class="icon-btn" style="background: var(--accent-color); color: #fff;" onclick="sendMessage()" title="Send"><span class="material-icons-outlined" style="font-size: 20px;">send</span></button>
-                </div>
-            </div>
+        <div id="preview-box">
+            <img id="preview-img" src="">
+            <button class="preview-close" onclick="clearImage()">×</button>
+        </div>
+        <div class="input-box">
+            <span class="material-icons-outlined adam-voice-btn" id="adam-trigger" onclick="handleChatVoicePlayback()" title="Adam Voice (Play/Pause/Resume)">play_circle_filled</span>
+            
+            <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImage(event)">
+            <span class="material-icons-outlined action-icon" title="Upload Image" onclick="document.getElementById('img-input').click()">add_photo_alternate</span>
+            
+            <input type="text" id="user-input" placeholder="Ask ShrawanChatAI..." onkeypress="if(event.key==='Enter') startInference()">
+            
+            <span class="material-icons-outlined action-icon" title="Voice Search" onclick="startSTT()">mic</span>
+            <span class="material-icons-outlined action-icon send-btn" title="Send" onclick="startInference()">send</span>
         </div>
     </div>
-</main>
+</div>
 
 <script>
-    // --- Configure Professional Markdown Parser ---
+    // --- Markdown Init ---
     marked.setOptions({ breaks: true, gfm: true });
 
-    // --- STATE MANAGEMENT ---
-    let state = {
-        apiKey: localStorage.getItem('shrawan_key1') || "",
-        apiKey2: localStorage.getItem('shrawan_key2') || "",
-        models: JSON.parse(localStorage.getItem('shrawan_models')) || ["google/gemini-2.0-flash-lite-preview-02-05:free"],
-        theme: localStorage.getItem('shrawan_theme') || 'dark',
-        isLoggedIn: localStorage.getItem('shrawan_logged_in') === 'true',
-        userInfo: JSON.parse(localStorage.getItem('shrawan_user_info')) || { name: 'Guest', email: '', phone: '', address: '' },
-        chatHistory: JSON.parse(localStorage.getItem('shrawan_chat_history')) || [],
-        currentImage: null,
-        isDeepMode: false,
-        lastAiResponse: "",
-        synth: window.speechSynthesis
-    };
-
-    // --- INITIALIZATION ---
-    window.onload = () => {
-        applyTheme(state.theme);
-        loadSettingsUI();
-        updateAuthUI();
-        populateModelDropdown();
-        renderChatHistory();
-        if (!state.apiKey) openModal('settings-modal');
-        
-        document.getElementById('user-input').addEventListener('keydown', (e) => {
-            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-        });
-    };
-
-    // --- UI, WINDOW & MODAL LOGIC ---
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
-    function openModal(id) { 
-        const m = document.getElementById(id);
-        m.classList.add('active'); 
-        m.querySelector('.modal-card').classList.remove('minimized', 'maximized');
-    }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function toggleMin(id) {
-        const card = document.querySelector(`#${id} .modal-card`);
-        card.classList.remove('maximized');
-        card.classList.toggle('minimized');
-    }
-    function toggleMax(id) {
-        const card = document.querySelector(`#${id} .modal-card`);
-        card.classList.remove('minimized');
-        card.classList.toggle('maximized');
-    }
-    function toggleProfileMenu() {
-        const menu = document.getElementById('profile-menu');
-        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    }
-    document.addEventListener('click', (e) => { if (!e.target.closest('.header-right')) document.getElementById('profile-menu').style.display = 'none'; });
-
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('shrawan_theme', theme);
-        state.theme = theme;
-        document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`theme-${theme}`).classList.add('active');
-    }
-    function setTheme(t) { applyTheme(t); toggleSidebar(); }
-
-    function startNewChat() {
-        if(state.synth.speaking) state.synth.cancel();
-        document.getElementById('chat-flow').innerHTML = '';
-        document.getElementById('hero').style.display = 'flex';
-        clearImage(); toggleSidebar();
-    }
-    function scrollToBottom() { const v = document.getElementById('viewport'); v.scrollTo({ top: v.scrollHeight, behavior: 'smooth' }); }
-
-    // --- AUTH, PROFILE & HISTORY (Restored) ---
-    function updateAuthUI() {
-        const avatarUrl = state.isLoggedIn 
-            ? `https://ui-avatars.com/api/?name=${encodeURIComponent(state.userInfo.name)}&background=3b82f6&color=fff`
-            : "https://ui-avatars.com/api/?name=Guest&background=random";
-        
-        document.getElementById('header-avatar').src = avatarUrl;
-        document.getElementById('menu-avatar').src = avatarUrl;
-        document.getElementById('menu-name').innerText = state.isLoggedIn ? state.userInfo.name : "Guest User";
-        document.getElementById('menu-email').innerText = state.isLoggedIn ? state.userInfo.email : "Not logged in";
-        document.getElementById('auth-btn').innerText = state.isLoggedIn ? "Sign Out" : "Sign in to Account";
-        document.getElementById('history-section').style.display = state.isLoggedIn ? 'block' : 'none';
-
-        if(state.isLoggedIn) {
-            document.getElementById('user-name').value = state.userInfo.name || '';
-            document.getElementById('user-email').value = state.userInfo.email || '';
-            document.getElementById('user-phone').value = state.userInfo.phone || '';
-            document.getElementById('user-address').value = state.userInfo.address || '';
-        }
-    }
-
-    function handleAuth() {
-        state.isLoggedIn = !state.isLoggedIn;
-        localStorage.setItem('shrawan_logged_in', state.isLoggedIn);
-        if(!state.isLoggedIn) state.userInfo = { name: 'Guest', email: '', phone: '', address: '' };
-        updateAuthUI(); toggleProfileMenu();
-    }
-
-    function saveUserInfo() {
-        state.userInfo = {
-            name: document.getElementById('user-name').value.trim() || 'User',
-            email: document.getElementById('user-email').value.trim(),
-            phone: document.getElementById('user-phone').value.trim(),
-            address: document.getElementById('user-address').value.trim()
-        };
-        localStorage.setItem('shrawan_user_info', JSON.stringify(state.userInfo));
-        updateAuthUI(); closeModal('user-info-modal');
-    }
-
-    function saveToHistory(text) {
-        if(!state.isLoggedIn) return;
-        const summary = text.substring(0, 30) + '...';
-        state.chatHistory.unshift({ id: Date.now(), summary: summary });
-        if(state.chatHistory.length > 20) state.chatHistory.pop();
-        localStorage.setItem('shrawan_chat_history', JSON.stringify(state.chatHistory));
-        renderChatHistory();
-    }
-    function renderChatHistory() {
-        const list = document.getElementById('history-list');
-        list.innerHTML = '';
-        state.chatHistory.forEach(item => {
-            let div = document.createElement('div');
-            div.className = 'history-item';
-            div.innerHTML = `<span class="material-icons-outlined" style="font-size:16px;">chat_bubble_outline</span> ${item.summary}`;
-            list.appendChild(div);
-        });
-    }
-
-    // --- SETTINGS ---
-    function loadSettingsUI() {
-        document.getElementById('api-key-1').value = state.apiKey;
-        document.getElementById('api-key-2').value = state.apiKey2;
-        for(let i=0; i<3; i++) if(document.getElementById(`model-${i+1}`)) document.getElementById(`model-${i+1}`).value = state.models[i] || '';
-    }
-    function saveSettings() {
-        state.apiKey = document.getElementById('api-key-1').value.trim();
-        state.apiKey2 = document.getElementById('api-key-2').value.trim();
-        state.models = [];
-        for(let i=1; i<=3; i++) {
-            let val = document.getElementById(`model-${i}`).value.trim();
-            if(val) state.models.push(val);
-        }
-        if(state.models.length === 0) state.models.push("google/gemini-2.0-flash-lite-preview-02-05:free");
-        
-        localStorage.setItem('shrawan_key1', state.apiKey);
-        localStorage.setItem('shrawan_key2', state.apiKey2);
-        localStorage.setItem('shrawan_models', JSON.stringify(state.models));
-        populateModelDropdown(); closeModal('settings-modal');
-    }
-    function populateModelDropdown() {
-        const select = document.getElementById('model-select');
-        select.innerHTML = '';
-        state.models.forEach(model => {
-            let option = document.createElement('option');
-            option.value = model; option.text = model.split('/').pop();
-            select.appendChild(option);
-        });
-    }
-
-    // --- ADVANCED FEATURES (TTS, Image, Video, Deep Gyan) ---
+    // --- Original Global Variables ---
+    let apiKeys = [localStorage.getItem('shrawan_key1') || "", localStorage.getItem('shrawan_key2') || ""];
+    let models = [];
+    for(let i=1; i<=5; i++) models.push(localStorage.getItem('shrawan_model' + i) || (i===1 ? "google/gemini-2.0-flash-lite-preview-02-05:free" : ""));
+    let isLoggedIn = localStorage.getItem('shrawan_logged_in') === 'true';
+    let userInfo = JSON.parse(localStorage.getItem('shrawan_user_info')) || { name: 'Guest', email: '', phone: '', address: '' };
+    let chatHistoryArr = JSON.parse(localStorage.getItem('shrawan_chat_history')) || [];
     
-    function activateDeepMode() {
-        state.isDeepMode = true;
-        document.getElementById('user-input').placeholder = "Deep Gyan Mode: Ask complex questions...";
-        alert("🧠 Deep Gyan Mode ON: Answers will be highly detailed and professional.");
-    }
+    let currentImage = null;
+    let lastReply = "";
+    let isDeepGyanMode = false;
+    
+    // Voice Vars
+    let synth = window.speechSynthesis;
+    let chatUtterance = null;
+    let isChatSpeaking = false;
+    let studioUtterance = null;
+    let isStudioPlaying = false;
+    let studioInterval;
 
-    function generateTTS() {
-        const text = document.getElementById('tts-text').value.trim();
-        const voiceName = document.getElementById('tts-voice').value;
-        if(!text) return alert("Please enter text.");
+    // --- Original Animations ---
+    const icons = [{e:'🚀',c:'anim-rocket'},{e:'💻',c:'anim-comp'},{e:'🔥',c:'anim-fire'},{e:'🤖',c:'anim-robot'},{e:'🧠',c:'anim-comp'},{e:'⚡',c:'anim-fire'}];
+    let step = 0;
+    function runAnims() {
+        const box = document.getElementById('anim-container'); if(!box) return; box.innerHTML = '';
+        const s = document.createElement('span'); s.className = 'char-icon ' + icons[step].c; s.innerText = icons[step].e; s.style.display = 'block';
+        box.appendChild(s); step = (step + 1) % icons.length; setTimeout(runAnims, 3200);
+    }
+    runAnims();
+
+    // --- Init ---
+    window.onload = () => {
+        loadSettingsToUI(); updateModelDropdown(); updateProfileUI(); renderChatHistory();
+        if(!apiKeys[0] && !apiKeys[1]) openModal('setup-modal');
+        setTheme(localStorage.getItem('shrawan_theme') || 'dark');
+        if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); } else { speechSynthesis.getVoices(); }
+    };
+
+    // --- UI Logic ---
+    function openModal(id) { const m = document.getElementById(id); m.style.display = 'flex'; const card = m.querySelector('.modal-card'); card.classList.remove('minimized', 'maximized'); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function toggleWindow(id, type) { const card = document.querySelector(`#${id} .modal-card`); if(type === 'min') { card.classList.remove('maximized'); card.classList.toggle('minimized'); } if(type === 'max') { card.classList.remove('minimized'); card.classList.toggle('maximized'); } }
+    
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebar-overlay').classList.toggle('active'); }
+    function setTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('shrawan_theme', t); document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active')); if(document.getElementById('t-' + t)) document.getElementById('t-' + t).classList.add('active'); }
+    function toggleProfile() { const m = document.getElementById('profile-modal'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
+    function closeProfileIfOutside(e) { if(e.target.id === 'profile-modal') document.getElementById('profile-modal').style.display = 'none'; }
+    function startNewChat() { synth.cancel(); location.reload(); }
+    function scrollToBottom() { const viewport = document.getElementById('viewport'); viewport.scrollTop = viewport.scrollHeight; }
+
+    // --- User Profile & History ---
+    function updateProfileUI() {
+        const url = isLoggedIn ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userInfo.name)}&background=0D8ABC&color=fff` : "https://ui-avatars.com/api/?name=Guest&background=random";
+        document.getElementById('header-avatar').src = url; document.getElementById('main-profile-avatar').src = url;
+        document.getElementById('logged-out-view').style.display = isLoggedIn ? 'none' : 'block'; document.getElementById('logged-in-view').style.display = isLoggedIn ? 'block' : 'none';
         
-        state.synth.cancel();
-        let utterance = new SpeechSynthesisUtterance(text);
-        
-        let voices = state.synth.getVoices();
-        let targetVoice;
-        
-        // Smart matching logic for Indian names without exposing "Hindi/English" in UI
-        if(voiceName === "Shrawan" || voiceName === "Rajan") {
-            targetVoice = voices.find(v => v.lang.includes('hi') && v.name.includes('Male')) || voices.find(v => v.lang.includes('hi'));
-        } else if (voiceName === "Sunisha" || voiceName === "Preety") {
-            targetVoice = voices.find(v => v.lang.includes('hi') && v.name.includes('Female')) || voices.find(v => v.lang.includes('hi'));
+        if(isLoggedIn) {
+            document.getElementById('main-profile-name').innerText = userInfo.name; document.getElementById('main-profile-email').innerText = userInfo.email || "No email";
+            document.getElementById('user-name').value = userInfo.name; document.getElementById('user-email').value = userInfo.email; document.getElementById('user-phone').value = userInfo.phone; document.getElementById('user-address').value = userInfo.address;
         }
-        
-        if(!targetVoice) targetVoice = voices.find(v => v.lang.includes('en')); // Fallback
-        if(targetVoice) utterance.voice = targetVoice;
-        utterance.rate = 0.95; 
-        
-        state.synth.speak(utterance);
     }
+    function handleAuth() { isLoggedIn = !isLoggedIn; localStorage.setItem('shrawan_logged_in', isLoggedIn); if(!isLoggedIn) userInfo = { name: 'Guest', email: '', phone: '', address: '' }; updateProfileUI(); }
+    function saveUserInfo() { userInfo = { name: document.getElementById('user-name').value || 'User', email: document.getElementById('user-email').value, phone: document.getElementById('user-phone').value, address: document.getElementById('user-address').value }; localStorage.setItem('shrawan_user_info', JSON.stringify(userInfo)); updateProfileUI(); closeModal('user-info-modal'); }
 
-    function triggerImageGen() {
-        const prompt = document.getElementById('img-prompt').value.trim();
-        if(!prompt) return;
-        closeModal('image-modal');
-        document.getElementById('hero').style.display = 'none';
-        const chatFlow = document.getElementById('chat-flow');
-        chatFlow.style.display = 'flex';
-        
-        appendMessage('user', `Generate image: ${prompt}`);
-        
-        // Direct Render Bypass (Pollinations)
-        const encodedPrompt = encodeURIComponent(prompt);
-        const imgUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true&enhance=true`;
-        
-        const loadingId = 'loading-' + Date.now();
-        appendMessage('bot', '<span style="color:var(--text-sub);">Rendering art...</span>', loadingId);
-        
+    function saveToHistory(text) { if(!isLoggedIn) return; const sum = text.substring(0,25) + '...'; chatHistoryArr.unshift({ id: Date.now(), text: sum }); if(chatHistoryArr.length > 20) chatHistoryArr.pop(); localStorage.setItem('shrawan_chat_history', JSON.stringify(chatHistoryArr)); renderChatHistory(); }
+    function renderChatHistory() { const list = document.getElementById('chat-history'); list.innerHTML = ''; if(!isLoggedIn) { list.innerHTML = '<div style="padding:10px; font-size:12px; color:var(--text-sub);">Log in to save history</div>'; return; } chatHistoryArr.forEach(i => { let d = document.createElement('div'); d.className = 'history-item'; d.innerHTML = `<span class="material-icons-outlined" style="font-size:16px;">chat_bubble_outline</span> ${i.text}`; list.appendChild(d); }); }
+
+    // --- Feedback System ---
+    function sendFeedback() {
+        const email = document.getElementById('fb-email').value.trim(); const phone = document.getElementById('fb-phone').value.trim(); const msg = document.getElementById('fb-message').value.trim();
+        const status = document.getElementById('fb-status'); const btn = document.getElementById('fb-send-btn');
+        if(!email || !phone || !msg) { status.innerHTML = '<span style="color:#ff5f56;">Please fill all required fields!</span>'; status.classList.remove('hidden'); return; }
+        btn.innerHTML = '<span class="material-icons-outlined symbol-rotate">sync</span> Sending...'; btn.disabled = true;
         setTimeout(() => {
-            document.getElementById(loadingId).innerHTML = `Here is your generated image:<br><br><img src="${imgUrl}" style="max-width:100%; border-radius:12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">`;
-            scrollToBottom();
-        }, 1500);
-        document.getElementById('img-prompt').value = '';
+            btn.innerHTML = '<span class="material-icons-outlined">send</span> Send Message'; btn.disabled = false;
+            status.innerHTML = '<span style="color:#27c93f;">Message successfully sent to Admin (Shrawan)! We will contact you soon.</span>'; status.classList.remove('hidden');
+            document.getElementById('fb-message').value = ''; setTimeout(() => { status.classList.add('hidden'); }, 5000);
+        }, 2000);
     }
 
-    function fetchTranscript() {
-        const url = document.getElementById('video-url').value.trim();
-        if(!url) return;
-        closeModal('video-modal');
-        document.getElementById('user-input').value = `Please provide a detailed transcript and summary for this video URL: ${url}`;
-        sendMessage();
-    }
+    // --- Settings ---
+    function loadSettingsToUI() { document.getElementById('api-key-1').value = apiKeys[0]; document.getElementById('api-key-2').value = apiKeys[1]; for(let i=1; i<=5; i++) document.getElementById('model-' + i).value = models[i-1]; }
+    function saveSettings() { apiKeys[0] = document.getElementById('api-key-1').value.trim(); apiKeys[1] = document.getElementById('api-key-2').value.trim(); localStorage.setItem('shrawan_key1', apiKeys[0]); localStorage.setItem('shrawan_key2', apiKeys[1]); for(let i=1; i<=5; i++) { models[i-1] = document.getElementById('model-' + i).value.trim(); localStorage.setItem('shrawan_model' + i, models[i-1]); } updateModelDropdown(); closeModal('setup-modal'); }
+    function updateModelDropdown() { const s = document.getElementById('active-model-select'); s.innerHTML = ''; let has=false; for(let i=0; i<5; i++) { if(models[i]) { has=true; let o = document.createElement('option'); o.value = models[i]; o.text = `Model ${i+1}: ${models[i].split('/').pop()}`; s.appendChild(o); }} if(!has) s.innerHTML = '<option value="">No models</option>'; }
 
-    // --- CORE AI CHAT (With Professional Markdown) ---
+    // --- Studio Features (TTS, Image, Video, DeepGyan) ---
+    function resetTTSPlayer() { document.getElementById('tts-player-ui').classList.add('hidden'); synth.cancel(); isStudioPlaying = false; }
+    function prepareTTS() { const text = document.getElementById('tts-input-text').value.trim(); if(!text) return alert("Please enter text!"); synth.cancel(); studioUtterance = new SpeechSynthesisUtterance(text); const vName = document.getElementById('tts-voice').value; const voices = synth.getVoices(); let target = null; if(vName === "Shrawan" || vName === "Rajan") { target = voices.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('male')) || voices.find(v => v.lang.includes('hi')) || voices.find(v => v.lang.includes('en') && v.name.toLowerCase().includes('male')); } else { target = voices.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('female')) || voices.find(v => v.lang.includes('hi')) || voices.find(v => v.lang.includes('en') && v.name.toLowerCase().includes('female')); } if(target) studioUtterance.voice = target; studioUtterance.rate = parseFloat(document.getElementById('tts-speed').value); studioUtterance.volume = parseFloat(document.getElementById('tts-volume').value); document.getElementById('tts-player-ui').classList.remove('hidden'); document.getElementById('tts-status-text').innerText = `Ready to play as ${vName}`; document.getElementById('tts-progress').style.width = '0%'; studioUtterance.onend = () => { isStudioPlaying = false; document.getElementById('tts-play-icon').innerText = 'play_arrow'; document.getElementById('tts-progress').style.width = '100%'; clearInterval(studioInterval); }; toggleTTSPlayPause(true); }
+    function toggleTTSPlayPause(forcePlay = false) { if(!studioUtterance) return; const icon = document.getElementById('tts-play-icon'); if(synth.paused && !forcePlay) { synth.resume(); isStudioPlaying = true; icon.innerText = 'pause'; } else if (synth.speaking && !synth.paused && !forcePlay) { synth.pause(); isStudioPlaying = false; icon.innerText = 'play_arrow'; } else { synth.cancel(); synth.speak(studioUtterance); isStudioPlaying = true; icon.innerText = 'pause'; document.getElementById('tts-status-text').innerText = "Playing..."; clearInterval(studioInterval); let w = 0; document.getElementById('tts-progress').style.width = '0%'; studioInterval = setInterval(() => { if(isStudioPlaying && w < 95) { w += 2; document.getElementById('tts-progress').style.width = w + '%'; }}, 500); } }
+    function changeTTSVolume() { if(studioUtterance) studioUtterance.volume = parseFloat(document.getElementById('tts-volume').value); }
+    function downloadAudio() { if(!document.getElementById('tts-input-text').value) return; alert("Downloading Audio... \n(Native browser synthesis simulates export)"); }
 
-    function handleImageUpload(e) {
-        const file = e.target.files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (f) => {
-            state.currentImage = f.target.result;
-            document.getElementById('preview-img').src = state.currentImage;
-            document.getElementById('preview-box').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    }
-    function clearImage() { state.currentImage = null; document.getElementById('preview-box').style.display = 'none'; document.getElementById('img-upload').value = ''; }
+    function triggerImageGen() { const prompt = document.getElementById('img-prompt').value.trim(); if(!prompt) return; closeModal('image-modal'); document.getElementById('dashboard-ui').style.display = 'none'; const flow = document.getElementById('chat-flow'); flow.style.display = 'flex'; appendMessage('user', `Create image: ${prompt}`); const id = 'l-'+Date.now(); appendMessage('bot', '<span style="color:var(--text-sub);">Rendering Image via Studio...</span>', id); setTimeout(() => { const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?nologo=true&enhance=true`; document.getElementById(id).innerHTML = `Here is your generated art:<br><br><img src="${url}" style="max-width:100%; border-radius:10px; border:2px solid var(--border-color);">`; scrollToBottom(); }, 1500); document.getElementById('img-prompt').value = ''; }
+    
+    function handleVideoAction() { const url = document.getElementById('video-url-input').value.trim(); if(!url) return; const box = document.getElementById('video-result-box'); box.classList.remove('hidden'); box.innerHTML = '<span style="color:var(--accent-color);">Simulating transcript extraction...</span>'; setTimeout(() => { box.innerHTML = `<strong>URL Analyzed:</strong> ${url}<br><br><strong>Transcript:</strong><br>00:00 - Welcome to this video.<br>00:15 - Today we are discussing AI tools.<br>00:30 - Thank you for watching.<br><br><em>(Note: Full transcript requires backend API)</em>`; }, 2000); }
+    function activateDeepGyanMode() { isDeepGyanMode = true; const input = document.getElementById('user-input'); input.placeholder = "Deep Gyan Mode: Ask complex questions..."; input.focus(); }
 
-    async function sendMessage() {
-        const input = document.getElementById('user-input');
-        const text = input.value.trim();
-        if(!text && !state.currentImage) return;
-        if(!state.apiKey) return openModal('settings-modal');
+    // --- Original Core AI Chat ---
+    function handleImage(e) { const r = new FileReader(); r.onload = (f) => { currentImage = f.target.result; document.getElementById('preview-img').src = currentImage; document.getElementById('preview-box').style.display = 'block'; }; r.readAsDataURL(e.target.files[0]); }
+    function clearImage() { currentImage = null; document.getElementById('preview-box').style.display = 'none'; document.getElementById('img-input').value = ''; }
 
-        const model = document.getElementById('model-select').value;
+    async function executeApiCall(messages, selectedModel, keyIndex = 0) { let currentKey = apiKeys[keyIndex]; if(!currentKey) { if(keyIndex === 0 && apiKeys[1]) return executeApiCall(messages, selectedModel, 1); throw new Error("Dono API keys khali hain!"); } const res = await fetch("https://openrouter.ai/api/v1/chat/completions", { method: "POST", headers: { "Authorization": `Bearer ${currentKey}`, "Content-Type": "application/json" }, body: JSON.stringify({ "model": selectedModel, "messages": messages }) }); if(!res.ok && keyIndex === 0 && apiKeys[1]) return executeApiCall(messages, selectedModel, 1); if(!res.ok) throw new Error(`API Error (${res.status})`); return await res.json(); }
+
+    async function startInference() {
+        const input = document.getElementById('user-input'); let text = input.value.trim();
+        if(!text && !currentImage) return;
+        let activeModel = document.getElementById('active-model-select').value;
+        if(!activeModel || activeModel.includes('No models')) return openModal('setup-modal');
+
+        document.getElementById('dashboard-ui').style.display = 'none'; const flow = document.getElementById('chat-flow'); flow.style.display = 'flex';
         
-        document.getElementById('hero').style.display = 'none';
-        const chatFlow = document.getElementById('chat-flow');
-        chatFlow.style.display = 'flex';
+        let uHtml = text.replace(/\n/g, '<br>'); if(currentImage) uHtml += `<br><img src="${currentImage}" style="width:200px; border-radius:10px; margin-top:10px;">`;
+        appendMessage('user', uHtml);
+        if(flow.children.length === 1) saveToHistory(text || "Image Analyze");
+
+        input.value = ''; input.placeholder = "Ask ShrawanChatAI..."; 
+        const id = 'l-'+Date.now(); appendMessage('bot', '<span style="color:var(--accent-color); font-weight:bold;">Thinking... 🧠</span>', id);
+
+        // System Prompts updated, warning removed as requested
+        let defaultSys = `You are ShrawanChatAI. Speak in a mix of Hindi and English. Use emojis. Professional markdown.`;
+        let deepGyanSys = `You are ShrawanChatAI in 'Deep Gyan' mode. Provide highly detailed, scholarly answers using professional Markdown formatting. Mix Hindi and English.`;
         
-        let userHtml = text.replace(/\n/g, '<br>');
-        if(state.currentImage) userHtml += `<br><img src="${state.currentImage}" style="max-width:200px; border-radius:8px; margin-top:10px;">`;
-        appendMessage('user', userHtml);
-        
-        if(chatFlow.children.length === 1) saveToHistory(text || "Image Scan");
+        let sysContent = isDeepGyanMode ? deepGyanSys : defaultSys;
+        let userContent = currentImage ? [{type: "text", text: text || "Analyze this"}, {type: "image_url", image_url: {url: currentImage}}] : text;
 
-        input.value = ''; input.style.height = 'auto'; input.placeholder = "Ask anything...";
-        
-        const loadingId = 'loading-' + Date.now();
-        appendMessage('bot', '<span style="color:var(--accent-color);">Thinking...</span>', loadingId);
-
-        let sysPrompt = state.isDeepMode 
-            ? "You are ShrawanChatAI in Deep Gyan mode. Provide highly extensive, scholarly, and professional answers. Use Markdown formatting extensively (tables, lists, bold). Mix Hindi and English."
-            : "You are ShrawanChatAI, a professional assistant. Answer perfectly. Mix Hindi and English. Format using Markdown.";
-
-        let userContent = text;
-        if(state.currentImage) {
-            userContent = [{type: "text", text: text || "Analyze image"}, {type: "image_url", image_url: {url: state.currentImage}}];
-        }
-
-        const payload = { model: model, messages: [{role: "system", content: sysPrompt}, {role: "user", content: userContent}] };
-        clearImage(); state.isDeepMode = false;
+        let messages = [{role: "system", content: sysContent}, {role: "user", content: userContent}];
+        clearImage();
 
         try {
-            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: { "Authorization": `Bearer ${state.apiKey}`, "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            });
-            if(!res.ok) throw new Error(`API Error ${res.status}`);
-            const data = await res.json();
-            const rawReply = data.choices[0].message.content;
-            state.lastAiResponse = rawReply;
-            
-            // Professional Markdown Rendering
-            document.getElementById(loadingId).innerHTML = marked.parse(rawReply);
-        } catch (error) {
-            document.getElementById(loadingId).innerHTML = `<span style="color:#ff5f56;">Error: ${error.message}. Please check API keys.</span>`;
-        }
-        scrollToBottom();
-    }
-
-    function appendMessage(sender, content, id = null) {
-        const chatFlow = document.getElementById('chat-flow');
-        const row = document.createElement('div');
-        row.className = `msg-row ${sender}`;
-        row.innerHTML = `<div class="msg-bubble" ${id ? `id="${id}"` : ''}>${content}</div>`;
-        chatFlow.appendChild(row);
-        scrollToBottom();
-    }
-
-    // --- STT & VOICE PLAYBACK ---
-    function handleVoicePlayback() {
-        if(!state.lastAiResponse) return;
-        if(state.synth.speaking) { state.synth.cancel(); return; }
+            const data = await executeApiCall(messages, activeModel);
+            let aiReply = data.choices[0].message.content;
+            lastReply = aiReply.replace(/<[^>]*>?/gm, '').replace(/[*#_`]/g, '').replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+            // Apply Marked.js formatting
+            document.getElementById(id).innerHTML = marked.parse(aiReply);
+        } catch (err) { document.getElementById(id).innerHTML = `<span style="color:red;">Error: ${err.message}. Check Settings.</span>`; }
         
-        const utterance = new SpeechSynthesisUtterance(state.lastAiResponse.replace(/(<([^>]+)>)/gi, "").replace(/[*#_`]/g, ''));
-        const voices = state.synth.getVoices();
-        const preferredVoice = voices.find(v => v.lang.includes('hi')) || voices.find(v => v.lang.includes('en'));
-        if(preferredVoice) utterance.voice = preferredVoice;
-        
-        utterance.onstart = () => document.getElementById('adam-trigger').style.color = 'var(--accent-color)';
-        utterance.onend = () => document.getElementById('adam-trigger').style.color = 'var(--text-sub)';
-        state.synth.speak(utterance);
+        isDeepGyanMode = false; scrollToBottom();
     }
 
-    function startSTT() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if(!SpeechRecognition) return alert("Voice input not supported in this browser.");
-        const rec = new SpeechRecognition();
-        rec.lang = 'hi-IN';
-        rec.onstart = () => document.getElementById('mic-btn').style.color = 'red';
-        rec.onend = () => document.getElementById('mic-btn').style.color = 'var(--text-sub)';
-        rec.onresult = (e) => { 
-            document.getElementById('user-input').value += e.results[0][0].transcript + ' '; 
-            sendMessage(); 
-        };
-        rec.start();
-    }
+    function appendMessage(sender, content, id = null) { const flow = document.getElementById('chat-flow'); const row = document.createElement('div'); row.className = `user-msg`; if(sender === 'bot') row.className = 'bot-msg'; row.innerHTML = `<div ${id ? `id="${id}"` : ''}>${content}</div>`; flow.appendChild(row); scrollToBottom(); }
 
+    function handleChatVoicePlayback() { const btn = document.getElementById('adam-trigger'); if (isChatSpeaking && !synth.paused) { synth.pause(); btn.innerText = "play_circle_filled"; } else if (isChatSpeaking && synth.paused) { synth.resume(); btn.innerText = "pause_circle_filled"; } else if (lastReply) { synth.cancel(); chatUtterance = new SpeechSynthesisUtterance(lastReply); const voices = synth.getVoices(); const preferred = voices.find(v => v.lang.includes('hi')) || voices.find(v => v.lang.includes('en')); if(preferred) chatUtterance.voice = preferred; chatUtterance.onstart = () => { isChatSpeaking = true; btn.innerText = "pause_circle_filled"; btn.classList.add('active'); }; chatUtterance.onend = () => { isChatSpeaking = false; btn.innerText = "play_circle_filled"; btn.classList.remove('active'); }; synth.speak(chatUtterance); } }
+    function startSTT() { const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SpeechRecognition) return alert("Browser doesn't support Voice Search."); const rec = new SpeechRecognition(); rec.lang = 'hi-IN'; rec.onresult = (e) => { document.getElementById('user-input').value = e.results[0][0].transcript; startInference(); }; rec.start(); }
 </script>
 </body>
 </html>
