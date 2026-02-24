@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="hi" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShrawanChatAI Ultimate Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* --- THEMES (DARK, LIGHT, BLUE) --- */
+        :root[data-theme="dark"] {
+            --bg-main: #0b0b0d; --sidebar-bg: #161719; --input-bg: #1e1f21;
+            --text-main: #e3e3e3; --text-sub: #9aa0a6; --accent-color: #8ab4f8;
+            --msg-user-bg: #2d2e30; --border-color: #3c4043;
+        }
+        :root[data-theme="light"] {
+            --bg-main: #ffffff; --sidebar-bg: #f0f4f9; --input-bg: #f0f4f9;
+            --text-main: #1f1f1f; --text-sub: #5f6368; --accent-color: #1a73e8;
+            --msg-user-bg: #e3e3e3; --border-color: #dadce0;
+        }
+        :root[data-theme="blue"] {
+            --bg-main: #050a0f; --sidebar-bg: #0d1621; --input-bg: #122030;
+            --text-main: #e8eaed; --text-sub: #8696a0; --accent-color: #4db8ff;
+            --msg-user-bg: #004d40; --border-color: #1f3a5f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', sans-serif; }
+        body { background: var(--bg-main); color: var(--text-main); height: 100dvh; display: flex; overflow: hidden; transition: 0.3s; }
+
+        /* --- SIDEBAR & OVERLAY --- */
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; backdrop-filter: blur(2px); transition: 0.3s; }
+        .sidebar-overlay.active { display: block; }
+        
+        .sidebar { position: fixed; left: -300px; width: 280px; height: 100%; background: var(--sidebar-bg); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 15px; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .sidebar-close { cursor: pointer; color: var(--text-main); font-size: 28px; }
+        
+        .btn-new { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-weight: 500; }
+        
+        .history-list { flex: 1; overflow-y: auto; }
+        .history-item { padding: 10px; border-radius: 8px; font-size: 14px; color: var(--text-sub); cursor: pointer; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: var(--border-color); color: var(--text-main); }
+
+        .theme-selector { border-top: 1px solid var(--border-color); padding: 15px 0; }
+        .theme-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .theme-btn { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); cursor: pointer; font-size: 11px; }
+        .theme-btn.active { border-color: var(--accent-color); color: var(--accent-color); }
+
+        /* --- HEADER --- */
+        header { padding: 15px; display: flex; align-items: center; z-index: 500; width: 100%; }
+        .menu-btn { cursor: pointer; font-size: 30px; color: var(--text-main); transition: 0.2s; }
+        .menu-btn:hover { color: var(--accent-color); }
+
+        /* --- DASHBOARD & ANIMATIONS --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+        .viewport { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; scroll-behavior: smooth; }
+        .hero-section { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 65vh; text-align: center; }
+        .anim-box { height: 160px; width: 200px; display: flex; align-items: center; justify-content: center; position: relative; }
+        
+        .char-icon { font-size: 85px; position: absolute; opacity: 0; display: none; filter: drop-shadow(0 0 25px var(--accent-color)); }
+
+        .anim-rocket { animation: rocketFly 3s ease-in-out forwards; }
+        @keyframes rocketFly { 0% { opacity:0; transform: translateY(100px) rotate(-45deg); } 40% { opacity:1; } 100% { opacity:0; transform: translateY(-200px) rotate(-45deg); } }
+        .anim-comp { animation: coding 3s ease-in-out forwards; }
+        @keyframes coding { 0% { opacity:0; transform: scale(0.7); } 30% { opacity:1; } 100% { opacity:0; transform: scale(1.4); } }
+        .anim-fire { animation: fireGlow 3s ease-in-out forwards; }
+        @keyframes fireGlow { 0% { opacity:0; transform: scale(0.5); filter: blur(15px); } 50% { opacity:1; transform: scale(1.4); filter: blur(0); } 100% { opacity:0; transform: scale(1.8); } }
+        .anim-robot { animation: robotWalk 3s ease-in-out forwards; }
+        @keyframes robotWalk { 0% { opacity:0; transform: translateX(-50px); } 50% { opacity:1; transform: translateX(0); } 100% { opacity:0; transform: translateX(50px); } }
+
+        .shrawan-title { font-size: clamp(35px, 8vw, 65px); font-weight: 800; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 4s linear infinite; }
+        @keyframes flow { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+
+        /* --- CHAT FLOW --- */
+        #chat-flow { width: 100%; max-width: 850px; display: none; flex-direction: column; gap: 30px; padding-bottom: 160px; }
+        .user-msg { align-self: flex-end; background: var(--msg-user-bg); padding: 15px 22px; border-radius: 25px 25px 4px 25px; max-width: 85%; border: 1px solid var(--border-color); word-wrap: break-word; }
+        .bot-msg { align-self: flex-start; width: 100%; font-size: 16px; line-height: 1.8; }
+        .illegal-warning { border: 4px solid #ff3b30; color: #ff3b30; padding: 25px; border-radius: 20px; text-align: center; font-weight: 800; animation: shakeDanger 0.3s infinite; background: rgba(255,0,0,0.1); font-size: 22px; }
+        @keyframes shakeDanger { 0% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+
+        /* --- INPUT & VOICE CONTROLS (MOBILE FIXED) --- */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, var(--bg-main) 60%); display: flex; flex-direction: column; align-items: center; box-sizing: border-box; }
+        .input-box { width: 100%; max-width: 850px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 40px; display: flex; align-items: center; padding: 8px 12px; box-shadow: 0 10px 35px rgba(0,0,0,0.4); gap: 10px; box-sizing: border-box; }
+        
+        /* Magic fix for text input on mobile: min-width: 0 */
+        #user-input { flex: 1; background: transparent; border: none; color: var(--text-main); padding: 10px 0; outline: none; font-size: 16px; min-width: 0; }
+        
+        /* Flex shrink rokti hai taaki icon input se dabe na aur box ke bahar na jae */
+        .action-icon { cursor: pointer; color: var(--text-sub); font-size: 26px; transition: 0.2s; flex-shrink: 0; }
+        .action-icon:hover { color: var(--text-main); }
+        .send-btn { color: var(--accent-color); font-size: 32px; }
+        
+        .adam-voice-btn { color: var(--accent-color); cursor: pointer; font-size: 32px !important; transition: 0.3s; flex-shrink: 0; }
+        .adam-voice-btn.active { color: #ff3b30; transform: scale(1.2); }
+
+        #preview-box { display: none; width: 100%; max-width: 850px; margin-bottom: 12px; position: relative; }
+        #preview-img { height: 80px; border-radius: 12px; border: 2px solid var(--accent-color); }
+
+        /* --- SETTINGS MODAL --- */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        .modal-card { background: var(--sidebar-bg); padding: 40px; border-radius: 25px; width: 90%; max-width: 450px; border: 1px solid var(--border-color); text-align: center; box-sizing: border-box; }
+        .modal-card input { width: 100%; padding: 14px; margin: 10px 0 20px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-main); color: white; outline: none; box-sizing: border-box; }
+        .modal-card label { display: block; text-align: left; font-size: 12px; color: var(--text-sub); margin-left: 5px; }
+    </style>
+</head>
+<body>
+
+<div id="setup-modal" class="modal-overlay">
+    <div class="modal-card">
+        <h2 style="color: var(--accent-color);">🚀 ShrawanChatAI Settings</h2>
+        <div style="margin-top: 20px;">
+            <label>OpenRouter API Key:</label>
+            <input type="password" id="api-key-input" placeholder="sk-or-v1-xxxxxxxxxxxx">
+            <label>AI Model Path:</label>
+            <input type="text" id="model-input" value="google/gemini-2.0-flash-lite-preview-02-05:free">
+            <button onclick="saveSettings()" style="width:100%; padding:15px; border-radius:12px; background:var(--accent-color); border:none; color:white; font-weight:bold; cursor:pointer;">Apply & Close 🔥</button>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3 style="color: var(--accent-color); margin: 0;">Menu</h3>
+        <span class="material-icons sidebar-close" onclick="toggleSidebar()">close</span>
+    </div>
+    <button class="btn-new" onclick="startNewChat()"><span class="material-icons">add</span> New Chat</button>
+    <div class="history-list" id="chat-history"></div>
+    <div class="theme-selector">
+        <p style="font-size:12px; color:var(--text-sub);">THEME</p>
+        <div class="theme-btns">
+            <button class="theme-btn" id="t-dark" onclick="setTheme('dark')">Dark</button>
+            <button class="theme-btn" id="t-light" onclick="setTheme('light')">Light</button>
+            <button class="theme-btn" id="t-blue" onclick="setTheme('blue')">Blue</button>
+        </div>
+    </div>
+    <button onclick="openSettings()" style="background:none; border:none; color:var(--text-sub); cursor:pointer; padding:10px; display:flex; align-items:center; gap:10px;"><span class="material-icons">settings</span> Settings</button>
+</aside>
+
+<div class="main-content">
+    <header>
+        <span class="material-icons menu-btn" onclick="toggleSidebar()">menu</span>
+    </header>
+    
+    <div class="viewport">
+        <div id="dashboard-ui" class="hero-section">
+            <div class="anim-box" id="anim-container"></div>
+            <h1 class="shrawan-title">I Am ShrawanChatAI</h1>
+            <p style="color:var(--text-sub); margin-top:15px; font-weight:500;">YouTube Expert • Vision AI • Smart Voice Control</p>
+        </div>
+        <div id="chat-flow"></div>
+    </div>
+
+    <div class="bottom-bar">
+        <div id="preview-box">
+            <img id="preview-img" src="">
+            <button onclick="clearImage()" style="position:absolute; top:-5px; left:70px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; cursor:pointer;">×</button>
+        </div>
+        <div class="input-box">
+            <span class="material-icons adam-voice-btn" id="adam-trigger" onclick="handleVoicePlayback()" title="Adam Voice (Play/Pause/Resume)">play_circle_filled</span>
+            
+            <input type="file" id="img-input" accept="image/*" style="display:none;" onchange="handleImage(event)">
+            <span class="material-icons action-icon" title="Upload Image" onclick="document.getElementById('img-input').click()">add_photo_alternate</span>
+            
+            <input type="text" id="user-input" placeholder="Ask ShrawanChatAI..." onkeypress="if(event.key==='Enter') startInference()">
+            
+            <span class="material-icons action-icon" title="Voice Search" onclick="startSTT()">mic</span>
+            <span class="material-icons action-icon send-btn" title="Send" onclick="startInference()">send</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    let API_KEY = localStorage.getItem('shrawan_key') || "";
+    let MODEL_PATH = localStorage.getItem('shrawan_model') || "google/gemini-2.0-flash-lite-preview-02-05:free";
+    let currentImage = null;
+    let lastReply = "";
+    let synth = window.speechSynthesis;
+    let utterance = null;
+    let isSpeakingState = "stopped";
+
+    const icons = [
+        { e: '🚀', c: 'anim-rocket' }, { e: '💻', c: 'anim-comp' }, { e: '🔥', c: 'anim-fire' },
+        { e: '🤖', c: 'anim-robot' }, { e: '🧠', c: 'anim-comp' }, { e: '⚡', c: 'anim-fire' },
+        { e: '📈', c: 'anim-robot' }, { e: '✨', c: 'anim-fire' }, { e: '💡', c: 'anim-comp' }, { e: '🎯', c: 'anim-comp' }
+    ];
+    let step = 0;
+    function runAnims() {
+        const box = document.getElementById('anim-container');
+        box.innerHTML = '';
+        const s = document.createElement('span');
+        s.className = 'char-icon ' + icons[step].c;
+        s.innerText = icons[step].e;
+        s.style.display = 'block';
+        box.appendChild(s);
+        step = (step + 1) % icons.length;
+        setTimeout(runAnims, 3200);
+    }
+    runAnims();
+
+    window.onload = () => {
+        if(!API_KEY) document.getElementById('setup-modal').style.display = 'flex';
+        setTheme(localStorage.getItem('shrawan_theme') || 'dark');
+    };
+
+    function startNewChat() {
+        synth.cancel(); 
+        location.reload(); 
+    }
+
+    window.addEventListener('beforeunload', () => {
+        synth.cancel(); 
+    });
+
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.toggle('active'); 
+        document.getElementById('sidebar-overlay').classList.toggle('active');
+    }
+    
+    function openSettings() { document.getElementById('setup-modal').style.display = 'flex'; }
+    function saveSettings() {
+        API_KEY = document.getElementById('api-key-input').value.trim();
+        MODEL_PATH = document.getElementById('model-input').value.trim();
+        localStorage.setItem('shrawan_key', API_KEY);
+        localStorage.setItem('shrawan_model', MODEL_PATH);
+        document.getElementById('setup-modal').style.display = 'none';
+    }
+
+    function setTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('shrawan_theme', t);
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('t-' + t)?.classList.add('active');
+    }
+
+    function handleImage(e) {
+        const reader = new FileReader();
+        reader.onload = (f) => {
+            currentImage = f.target.result;
+            document.getElementById('preview-img').src = currentImage;
+            document.getElementById('preview-box').style.display = 'block';
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
+    function clearImage() { currentImage = null; document.getElementById('preview-box').style.display = 'none'; }
+
+    async function startInference() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if(!text && !currentImage) return;
+
+        document.getElementById('dashboard-ui').style.display = 'none';
+        const flow = document.getElementById('chat-flow');
+        flow.style.display = 'flex';
+
+        flow.innerHTML += `<div class="user-msg">${text}${currentImage ? `<br><img src="${currentImage}" style="width:200px; max-width:100%; border-radius:10px; margin-top:10px;">` : ''}</div>`;
+        input.value = '';
+
+        const bDiv = document.createElement('div');
+        bDiv.className = 'bot-msg';
+        bDiv.innerHTML = `<span style="color:var(--accent-color); font-weight:bold;">Thinking... 🧠</span>`;
+        flow.appendChild(bDiv);
+
+        const sys = `You are ShrawanChatAI by Shrawan Ji.
+1. Use emojis in every line.
+2. YouTube Expert: Provide viral titles, description, and comma-separated tags.
+3. If illegal, reply: <div class='illegal-warning'>🚫 PITAOGE DIMAK SAHI HO JAYEGA <br> YOU WILL BE BEATEN, YOUR MIND WILL BE FIXED 🚫</div>`;
+
+        let messages = [{role: "system", content: sys}, {role: "user", content: currentImage ? [{type: "text", text: text || "Analyze"}, {type: "image_url", image_url: {url: currentImage}}] : text}];
+        clearImage();
+
+        try {
+            const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ "model": MODEL_PATH, "messages": messages })
+            });
+            const data = await res.json();
+            let aiReply = data.choices[0].message.content;
+            
+            lastReply = aiReply
+                .replace(/<[^>]*>?/gm, '') 
+                .replace(/[*#]/g, '')
+                .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, ''); 
+                
+            bDiv.innerHTML = `<div>${aiReply.replace(/\n/g, '<br>')}</div>`;
+        } catch (err) { bDiv.innerHTML = "Error! Key ya Settings check karein."; }
+        
+        document.querySelector('.viewport').scrollTop = document.querySelector('.viewport').scrollHeight;
+    }
+
+    function handleVoicePlayback() {
+        const btn = document.getElementById('adam-trigger');
+        
+        if (isSpeakingState === "playing") {
+            synth.pause();
+            isSpeakingState = "paused";
+            btn.innerText = "play_circle_filled";
+            return;
+        }
+
+        if (isSpeakingState === "paused") {
+            synth.resume();
+            isSpeakingState = "playing";
+            btn.innerText = "pause_circle_filled";
+            return;
+        }
+
+        if (!lastReply) return;
+
+        synth.cancel();
+        utterance = new SpeechSynthesisUtterance(lastReply);
+        
+        let voices = synth.getVoices();
+        let selectedVoice = voices.find(v => v.lang.includes('hi-IN')) || voices.find(v => v.name.includes('Male'));
+        if(selectedVoice) utterance.voice = selectedVoice;
+        
+        utterance.pitch = 1.0; 
+        utterance.rate = 0.85; 
+        
+        utterance.onstart = () => {
+            isSpeakingState = "playing";
+            btn.innerText = "pause_circle_filled";
+            btn.classList.add('active');
+        };
+        
+        utterance.onend = () => {
+            isSpeakingState = "stopped";
+            btn.innerText = "play_circle_filled";
+            btn.classList.remove('active');
+        };
+
+        synth.speak(utterance);
+    }
+
+    function startSTT() {
+        const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        rec.lang = 'hi-IN';
+        rec.onresult = (e) => { document.getElementById('user-input').value = e.results[0][0].transcript; startInference(); };
+        rec.start();
+    }
+</script>
+</body>
+</html>
