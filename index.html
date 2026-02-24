@@ -103,12 +103,6 @@
         .shrawan-title { font-size: clamp(30px, 6vw, 65px); font-weight: 800; background: linear-gradient(90deg, #4285f4, #9b72cb, #d96570, #4285f4); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flow 4s linear infinite; }
         @keyframes flow { 0% { background-position: 0%; } 100% { background-position: 200%; } }
 
-        /* --- VERTICAL SCROLL BUTTONS (LEFT SIDE) --- */
-        .vertical-scroll-btns { position: fixed; left: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 15px; z-index: 400; }
-        .vertical-scroll-btns button { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--accent-color); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.3s; font-size: 24px; }
-        .vertical-scroll-btns button:hover { background: var(--accent-color); color: white; transform: scale(1.1); }
-        @media (max-width: 768px) { .vertical-scroll-btns { left: 10px; } .vertical-scroll-btns button { width: 35px; height: 35px; } }
-
         /* --- ORIGINAL ACTION CARDS --- */
         .action-cards-container { display: flex; gap: 15px; margin-top: 40px; width: 100%; max-width: 800px; justify-content: center; flex-wrap: wrap; }
         .action-card { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s; flex: 1 1 140px; max-width: 180px; min-width: 130px; }
@@ -122,6 +116,7 @@
         .bot-msg { align-self: flex-start; width: 100%; font-size: 16px; line-height: 1.8; word-wrap: break-word; }
         .bot-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; }
         
+        /* Markdown CSS (Added to original) */
         .bot-msg p { margin-bottom: 10px; }
         .bot-msg pre { background: var(--input-bg); padding: 15px; border-radius: 10px; overflow-x: auto; margin-bottom: 10px; border: 1px solid var(--border-color); }
         .bot-msg code { font-family: monospace; background: var(--input-bg); padding: 2px 5px; border-radius: 4px; color: #ff7b72; }
@@ -193,11 +188,6 @@
     </style>
 </head>
 <body>
-
-<div class="vertical-scroll-btns">
-    <button onclick="scrollViewport(-400)" title="Scroll Up"><span class="material-icons-outlined">arrow_upward</span></button>
-    <button onclick="scrollViewport(400)" title="Scroll Down"><span class="material-icons-outlined">arrow_downward</span></button>
-</div>
 
 <div id="setup-modal" class="modal-overlay">
     <div class="modal-card">
@@ -460,6 +450,7 @@
     </div>
     <button class="btn-new" onclick="startNewChat()"><span class="material-icons-outlined">add</span> New Chat</button>
     
+    <div style="margin-bottom: 10px; font-size: 12px; font-weight: bold; color: var(--text-sub); text-transform: uppercase;">Recent History</div>
     <div class="history-list" id="chat-history"></div>
     
     <div class="theme-selector">
@@ -573,12 +564,6 @@
         if (speechSynthesis.onvoiceschanged !== undefined) { speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices(); } else { speechSynthesis.getVoices(); }
     };
 
-    // --- Scroll Viewport Function (Vertical Buttons) ---
-    function scrollViewport(amount) {
-        const vp = document.getElementById('viewport');
-        vp.scrollBy({ top: amount, behavior: 'smooth' });
-    }
-
     // --- UI Logic ---
     function openModal(id) { const m = document.getElementById(id); m.style.display = 'flex'; const card = m.querySelector('.modal-card'); card.classList.remove('minimized', 'maximized'); }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -602,7 +587,7 @@
             document.getElementById('user-name').value = userInfo.name; document.getElementById('user-email').value = userInfo.email; document.getElementById('user-phone').value = userInfo.phone; document.getElementById('user-address').value = userInfo.address;
         }
     }
-    function handleAuth() { isLoggedIn = !isLoggedIn; localStorage.setItem('shrawan_logged_in', isLoggedIn); if(!isLoggedIn) userInfo = { name: 'Guest', email: '', phone: '', address: '' }; updateProfileUI(); }
+    function handleAuth() { isLoggedIn = !isLoggedIn; localStorage.setItem('shrawan_logged_in', isLoggedIn); if(!isLoggedIn) userInfo = { name: 'Guest', email: '', phone: '', address: '' }; updateProfileUI(); renderChatHistory(); }
     function saveUserInfo() { userInfo = { name: document.getElementById('user-name').value || 'User', email: document.getElementById('user-email').value, phone: document.getElementById('user-phone').value, address: document.getElementById('user-address').value }; localStorage.setItem('shrawan_user_info', JSON.stringify(userInfo)); updateProfileUI(); closeModal('user-info-modal'); }
 
     function saveToHistory(text) { if(!isLoggedIn) return; const sum = text.substring(0,25) + '...'; chatHistoryArr.unshift({ id: Date.now(), text: sum }); if(chatHistoryArr.length > 20) chatHistoryArr.pop(); localStorage.setItem('shrawan_chat_history', JSON.stringify(chatHistoryArr)); renderChatHistory(); }
