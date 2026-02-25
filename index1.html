@@ -1,0 +1,21 @@
+<div style="margin-bottom: 10px; font-size: 12px; font-weight: bold; color: var(--text-sub); text-transform: uppercase;">Recent History</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <div style="font-size: 12px; font-weight: bold; color: var(--text-sub); text-transform: uppercase;">Recent History</div>
+    <button onclick="clearHistory()" style="background: none; border: none; color: #ff5f56; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 4px; transition: 0.2s;" title="Clear History" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+        <span class="material-icons-outlined" style="font-size: 16px;">delete</span> Clear
+    </button>
+</div>
+// --- Clear History Function ---
+function clearHistory() {
+    if(!isLoggedIn) {
+        alert("Please login first to manage history!");
+        return;
+    }
+    
+    // User se confirmation lena best practice hai
+    if(confirm("Are you sure you want to delete all chat history?")) {
+        chatHistoryArr = []; // Array ko empty kar diya
+        localStorage.removeItem('shrawan_chat_history'); // Local storage clear kar diya
+        renderChatHistory(); // UI ko refresh kar diya
+    }
+}
